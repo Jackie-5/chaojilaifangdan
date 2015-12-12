@@ -1,0 +1,24 @@
+//-Created by JackieWu on 12/11/15.
+doctype html
+html
+    head
+        include ./common/head
+        link(rel='stylesheet', type='text/css', href='./css/login.css')
+        title 超级来访单登录
+    body
+        .login-box
+            .photo
+                img(src="./images/login-photo.jpg")
+            .input-area
+                .phone
+                    i
+                    input(type='tel',placeholder="输入手机")
+                .password
+                    i
+                    input(type='text', placeholder='输入密码')
+                .login-button.J_login-button 登陆
+            .footer
+                .forget 忘记密码?
+                .log 注册
+
+        script(src="./js/login.js")
