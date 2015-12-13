@@ -1,18 +1,109 @@
 //-Created by JackieWu on 12/11/15.
 @import "./common/reset.styl"
 
-body
-    background #f8f8f8
-.index-box
-    width 90%
+.index-bg
+    position fixed
+    top 0
+    left 0
+    background url(../images/bg.jpg) no-repeat
+    background-size 100%
+    z-index 1
+    width 100%
     height 100%
+.index-box
+    width 95%
     margin 0 auto
     margin-top 22px
+    margin-bottom 22px
+    position relative
+    z-index 99
+
+    .index-top
+        width 100%
+        height 250px
+        .date-picker
+            width 52%
+            float left
+            .date-title
+                overflow hidden
+                color #fff
+                .time
+                    font-size 1rem
+                    float left
+                    margin-left 10%
+                .day
+                    font-size .625rem
+                    float left
+                    margin-top 4px
+                    margin-left 5px
+                .time-icon
+                    width 15px
+                    height 15px
+                    float left
+                    background url(./i/time-icon-1.png) no-repeat
+                    background-size 100%
+                    margin-top 2px
+            .calendar
+                border 1px solid #8598a7
+                height 192px
+                margin-top 10px
+        .my-photo
+            width 47%
+            height 219px
+            float left
+            .photo-box
+                width 90%
+                height 90%
+                float right
+                background rgba(255,255,255,.3)
+                border 1px solid #fff
+                position relative
+                border-radius 5px
+                .is-photo
+                    width 80px
+                    height 80px
+                    border-radius 100%
+                    border 1px solid #fff
+                    position absolute
+                    top 30px
+                    left 50%
+                    margin-left -40px
+                    .camera
+                        position absolute
+                        bottom -10px
+                        right -4px
+                        width 33px
+                        height 33px
+                        border-radius 100%
+                        border 1px solid #fff
+                        background url(./i/index-icon-camera.png) 2px 1px no-repeat rgba(255,255,255,.5)
+                    img
+                        width 100%
+                        height 100%
+                        border-radius 100%
+                .center
+                    width 80%
+                    display block
+                    line-height 25px
+                    height 25px
+                    color #fff
+                    text-align center
+                    border-radius 3px
+                    border 1px solid #fff
+                    font-size .625rem
+                    position absolute
+                    bottom 10px
+                    left 50%
+                    margin-left -40%
+                    &:active
+                        background rgba(255,255,255,.5)
+
     .title
         width 100%
         height 50px
         border-radius 10px
         position relative
+        display block
         .top
             content ''
             width 30%
@@ -35,8 +126,9 @@ body
             color #fff
             line-height 50px
             height 50px
-            font-size .625rem
+            font-size .8rem
             float right
+            margin-right 7%
         .left-icon-01
             background url(./i/index-icon-01.png)
             background-size 100%
@@ -51,10 +143,167 @@ body
             background-size 100%
     .bg-01
         background #4f60b2
+        &:active
+            background #435192
+            .top
+                background #435192
     .bg-02
         background #ff8f1d
+        &:active
+            background #e87907
+            .top
+                background #e87907
     .bg-03
         background #ba5fd0
+        &:active
+            background #8c34a1
+            .top
+                background #8c34a1
     .bg-04
         background #7bc920
+        &:active
+            background #65a817
+            .top
+                background #65a817
 
+    .new-content
+        background #c9dce9
+        border 1px solid #4f60b2
+        border-radius 5px
+        height 110px
+        margin-top -10px
+        .box
+            padding-top 8px
+            display box
+            display -webkit-box
+            width 100%
+            a
+                width 0
+                color #fff
+                font-size .8rem
+                box-flex 1
+                -webkit-box-flex 1
+                margin-left 5px
+                margin-right 5px
+                display block
+                border-radius 3px
+                border 1px solid #fff
+                text-align center
+        .box-01
+            height 40px
+            a
+                height 40px
+                line-height 40px
+        .box-02
+            height 30px
+            a
+                height 30px
+                line-height 30px
+
+    .wait
+        border 1px solid #7bc920
+        background #d2eab7
+        margin-top -10px
+        padding 10px 5px 10px 5px
+        border-radius 5px
+        .box
+            margin-top 10px
+            .wait-title
+                color #fff
+                border-bottom 1px solid #7bc920
+                height 24px
+                overflow hidden
+                width 100%
+                .title-bg
+                    font-size .8rem
+                    background #7bc920
+                    position relative
+                    padding 0 10px
+                    line-height 25px
+                    float left
+                    &:before
+                        content ''
+                        position absolute
+                        right -12px
+                        top 0
+                        width 0
+                        height 0
+                        border-bottom 24px solid #7bc920
+                        border-right 12px solid transparent
+            .wait-list
+                border-radius 5px
+                background #c9dce9
+                overflow hidden
+                margin-top 10px
+                .list-box
+                    height 38px
+                    line-height 38px
+                    color #fff
+                    font-size .625rem
+                    .list-left
+                        background #e5cfa9
+                        width 30%
+                        float left
+                        i
+                            width 20px
+                            height 20px
+                            display block
+                            float left
+                            margin-top 9px
+                            margin-left 7px
+                        span
+                            margin-left 2px
+                            float left
+                        .list-icon-01
+                            background url(./i/index-list-icon-1.png)
+                            background-size 100%
+                        .list-icon-02
+                            background url(./i/index-list-icon-2.png)
+                            background-size 100%
+                        .list-icon-03
+                            background url(./i/index-list-icon-3.png)
+                            background-size 100%
+                        .list-icon-04
+                            background url(./i/index-list-icon-4.png)
+                            background-size 100%
+                        .list-icon-05
+                            background url(./i/index-list-icon-5.png)
+                            background-size 100%
+                        .list-icon-06
+                            background url(./i/index-list-icon-6.png)
+                            background-size 100%
+                    .list-right
+                        margin-left 3%
+                        float left
+                        width 65%
+                        overflow hidden
+                        text-overflow ellipsis
+                        white-space normal
+                        span
+                            display block
+                            float left
+                            height 100%
+                        a
+                            display block
+                            float left
+                            width 45px
+                            height 23px
+                            border-radius 3px
+                            border 1px solid #fff
+                            margin-left 5%
+                            margin-top 5px
+                            padding-top 2px
+                            i
+                                display block
+                                width 22px
+                                height 20px
+                                margin 0 auto
+                            .right-icon-3
+                                background url(./i/index-right-icon-3.png)
+                                background-size 100%
+                            .right-icon-1
+                                background url(./i/index-right-icon-1.png)
+                                background-size 100%
+                            .right-icon-2
+                                background url(./i/index-right-icon-2.png)
+                                background-size 100%
