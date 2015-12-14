@@ -12,13 +12,13 @@ html
             .input-area
                 .phone
                     i
-                    input(type='tel',placeholder="输入手机")
+                    input(type='tel',placeholder="输入手机",maxlength="11")
                 .password
                     i
-                    input(type='text', placeholder='输入密码')
-                .login-button.J_login-button 登陆
+                    input(type='password', placeholder='输入密码')
+                a(href="javascript:;").login-button.J_login-button 登陆
             .footer
-                .forget 忘记密码?
-                .log 注册
+                a(href="javascript:;").forget 忘记密码?
+                a(href="javascript:;").log 注册
 
         script(src="./js/login.js")
