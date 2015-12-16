@@ -3,7 +3,6 @@ doctype html
 html
     head
         include ./common/head
-        link(rel='stylesheet', type='text/css', href='./css/login.css')
         title 超级来访单登录
     body
         .login-box
@@ -12,10 +11,10 @@ html
             .input-area
                 .phone
                     i
-                    input(type='tel',placeholder="输入手机")
+                    input.J_login-tel(type='tel',placeholder="输入手机")
                 .password
                     i
-                    input(type='text', placeholder='输入密码')
+                    input.J_login-pwd(type='text', placeholder='输入密码')
                 .login-button.J_login-button 登陆
             .footer
                 .forget 忘记密码?
