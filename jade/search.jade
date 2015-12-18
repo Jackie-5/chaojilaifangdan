@@ -16,98 +16,70 @@ html
                         .search-date-btn 手机名字都忘了-试试来访日期搜索吧
                 //查询后放到里面的内容
                 .search-content-box
-                    .search-result-list
+                    .search-result-list.hide
                         .s-list-icon
-                        .list
+                        .search-list
                             i.s-icon-1
                             .s-title 客户姓名
                             .s-cont 司树磊
-                        .list
+                        .search-list
                             i.s-icon-2
                             .s-title 当前级别
                             .s-cont
                                 .border
                                     i
                                     | A级客户
-                        .list
+                        .search-list
                             i.s-icon-3
                             .s-title 最新接触
                             .s-cont 司树磊
-                        .list
+                        .search-list
                             i.s-icon-4
                             .s-title 快速联系
                             .s-cont
                                 a(href="sms:13013013030").s-icon-5
                                 a(href="tel:13838383838").s-icon-6
-                    .search-result-list
-                        .s-list-icon
-                        .list
-                            i.s-icon-1
-                            .s-title 客户姓名
-                            .s-cont 司树磊
-                        .list
-                            i.s-icon-2
-                            .s-title 当前级别
-                            .s-cont
+
+
+                    .search-intention
+                        .intention-list
+                            .inten-name
+                                i.s-i-icon-1
+                                span 项目名称
+                            .inten-input
+                                input.J_inten-project(type='text',value="司树磊",disabled)
+                        .intention-list
+                            .inten-name
+                                i.s-i-icon-2
+                                span 建筑面积
+                            .inten-input
+                                input.J_inten-area(type='text', placeholder='请输入')
+                        .intention-list
+                            .inten-name
+                                i.s-i-icon-3
+                                span 客户姓名
+                            .inten-input
+                                input.J_inten-name(type='text', placeholder='请输入')
+                        .intention-list
+                            .inten-name
+                                i.s-i-icon-4
+                                span 联系电话
+                            .inten-input
+                                input.J_inten-phone(type='tel', placeholder='请输入')
+                        .intention-list
+                            .inten-name
+                                i.s-i-icon-5
+                                span 下一步进度
+                            .inten-cont
                                 .border
                                     i
-                                    | A级客户
-                        .list
-                            i.s-icon-3
-                            .s-title 最新接触
-                            .s-cont 司树磊
-                        .list
-                            i.s-icon-4
-                            .s-title 快速联系
-                            .s-cont
-                                a(href="sms:13013013030").s-icon-5
-                                a(href="tel:13838383838").s-icon-6
-                    .search-result-list
-                        .s-list-icon
-                        .list
-                            i.s-icon-1
-                            .s-title 客户姓名
-                            .s-cont 司树磊
-                        .list
-                            i.s-icon-2
-                            .s-title 当前级别
-                            .s-cont
-                                .border
-                                    i
-                                    | A级客户
-                        .list
-                            i.s-icon-3
-                            .s-title 最新接触
-                            .s-cont 司树磊
-                        .list
-                            i.s-icon-4
-                            .s-title 快速联系
-                            .s-cont
-                                a(href="sms:13013013030").s-icon-5
-                                a(href="tel:13838383838").s-icon-6
-                    .search-result-list
-                        .s-list-icon
-                        .list
-                            i.s-icon-1
-                            .s-title 客户姓名
-                            .s-cont 司树磊
-                        .list
-                            i.s-icon-2
-                            .s-title 当前级别
-                            .s-cont
-                                .border
-                                    i
-                                    | A级客户
-                        .list
-                            i.s-icon-3
-                            .s-title 最新接触
-                            .s-cont 司树磊
-                        .list
-                            i.s-icon-4
-                            .s-title 快速联系
-                            .s-cont
-                                a(href="sms:13013013030").s-icon-5
-                                a(href="tel:13838383838").s-icon-6
+                                    | 付意向金
+
+                        .intention-list
+                            .inten-name
+                                i.s-i-icon-6
+                                span 下一步进度
+
 
                 .search-date.hide
                     .s-date-btn 查询
