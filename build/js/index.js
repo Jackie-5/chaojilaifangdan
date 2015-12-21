@@ -1,3 +1,80 @@
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+Date.prototype.DateToParse = function () {
+    var d = this;
+    return Date.parse(d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate());
+};
+function CreateCalendar(para,$) {//c:容器,y:年,m:月,a:出发时间json,f:是否显示双日历,clickfu:点击事件回调函数,showFu:在日历里显示附加内容的回调函数
+    var c = para.c;
+    var y = para.y;
+    var m = para.m;
+    var a = para.a;
+    var f = para.f;
+
+    var today = new Date();
+    today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    if (y == 0 || m == 0) {
+        y = today.getFullYear();
+        m = today.getMonth() + 1;
+    }
+    var dmin = a.d1.replace(/-/g, "/"), dmax = a.d2.replace(/-/g, "/");
+
+    var i1 = 0, i2 = 0, i3 = 0, d2;
+    var d1 = new Date(dmin),
+        today = today.DateToParse();
+    if (Date.parse(d1.getFullYear() + '/' + (d1.getMonth() + 1) + '/1') > Date.parse(new Date(y, m - 1, 1))) {
+        y = d1.getFullYear();
+        m = d1.getMonth() + 1;
+    }
+    $('.' + c).html('');
+    //农历
+    var tmp = '';
+    for (var i = 0; i <= f; i++) {
+        d1 = new Date(y, m - 1 + i);
+        y = d1.getFullYear();
+        m = d1.getMonth() + 1;
+        tmp += '<tbody class="c-date-title"></th></tr>';
+        tmp += '  <tr class="week">';
+        tmp += '    <th class="weekEnd">S</th>';
+        tmp += '    <th>M</th>';
+        tmp += '    <th>T</th>';
+        tmp += '    <th>W</th>';
+        tmp += '    <th>T</th>';
+        tmp += '    <th>F</th>';
+        tmp += '    <th class="weekEnd">S</th>';
+        tmp += '  </tr></tbody>';
+        var maxdays = (new Date(Date.parse(new Date(y, m, 1)) - 86400000)).getDate();  //当前月的天数
+        d1 = new Date(y, m - 1); //要显示的日期
+        i1 = d1.getDay(); //这个月的第一天是星期几
+        for (var j = 1; j <= 6; j++) {
+            tmp += '<tr>';
+            for (var k = 1; k <= 7; k++) {
+                i2 = (j - 1) * 7 + k - i1;
+                if (i2 < 1 || i2 > maxdays) {
+                    tmp += '<td />';
+                } else {
+                    i3 = Date.parse(new Date(y, m - 1, i2));
+                    d1 = new Date(i3);
+                    tmp += '<td';
+                    if (today == i3) {
+                        tmp += ' class="cur"'
+                    }
+                    if (i3 < dmin || i3 > dmax) {
+                        tmp += '><p><em>' + i2 + '</em></td>';
+                    } else {
+                        tmp += ' week="' + (k - 1) + '" id="' + y + '-' + m + '-' + i2 + '"><em>' + i2 + '</em></td>';
+
+                    }
+                }
+            }
+            tmp += '</tr>';
+        }
+        tmp += '</table>';
+
+    }
+    $('.' + c).append(tmp);
+}
+module.exports = CreateCalendar;
+},{}],2:[function(require,module,exports){
 /* Zepto v1.1.6 - zepto event ajax form ie - zeptojs.com/license */
 
 var Zepto = (function() {
@@ -1586,3 +1663,224 @@ module.exports = Zepto;
         }
     }
 })(Zepto);
+},{}],3:[function(require,module,exports){
+/**
+ * Created by JackieWu on 12/20/15.
+ */
+var $ = require('./common/zepto');
+var Calendar = require('./common/Calendar');
+var mbox = require('./lib/Mbox');
+var date = new Date();
+var YEAR = date.getFullYear();
+var MONTH = date.getMonth() + 1;
+var DAY = date.getDate();
+
+var quyer = {
+    $day: $('.J_index-day')
+};
+
+var ak = '8e9b109eedc27959233242342342';
+
+new Calendar({
+    c: 'J_calendar',
+    y: YEAR,
+    m: MONTH,
+    a: {
+        'd1': '1971-01-01',//最早时间
+        'd2': '2900-01-01'//最晚时间
+    },
+    f: 0//显示双日历用1，单日历用0
+}, $);
+
+quyer.$day.html(YEAR + '年' + MONTH + '月' + DAY + '日');
+
+$.ajax({
+    url: '/h5_app/interface_supervisit/get_user_info',
+    type: 'POST',
+    data:{
+        ak: ak,
+        user_id: ''//哪用户登录的url
+    },
+    success: function(msg){
+        if(msg.result !== 1){
+            mbox($,{
+                tips: '用户信息获取失败'
+            });
+        }
+    }
+});
+},{"./common/Calendar":1,"./common/zepto":2,"./lib/Mbox":4}],4:[function(require,module,exports){
+/**
+ * Created by JackieWu on 12/20/15.
+ */
+var tpl = require('./tpl');
+var mboxHtml = require('../tpl/mbox.html.js');
+var mbox = function ($, options) {
+    $('body').append(tpl.render(mboxHtml, {
+        tips: options.tips
+    }));
+    var mboxBg = $('.J_mbox-bg');
+    var mbox = $('.J_mbox');
+    mboxBg.removeClass('hide');
+    mbox.css('top', ($(window).height() - mbox.height()) / 2);
+    $('.J_m-box-btn').on('touchend', function () {
+        options.callback && options.callback();
+        mboxBg.addClass('hide').remove()
+    });
+};
+module.exports = mbox;
+},{"../tpl/mbox.html.js":6,"./tpl":5}],5:[function(require,module,exports){
+function compile(template){
+    var
+
+    // @type {string} set initial value of o as "", so o won't be `undefined`
+    // 'o' -> 'output'
+        compiled = 'var o="";',
+
+    // @type {Object} reader object of the compiler
+        reader,
+
+        matched_code,
+        matched_tpl,
+        pos = 0,
+        last = 'begin',
+
+        compilers = COMPILERS;
+
+    /**
+     * @type {Object} reader {
+             '0': '<?js mycode ?>',
+             '1': ' mycode ',
+             index: {number},
+             input: {string}
+       }
+     */
+    while((reader = REGEX_JSTL_SCOPE.exec(template)) !== null){
+        matched_tpl = reader[0];
+        matched_code = reader[1] || reader[2];
+
+        // normal string
+        if(reader.index > pos && reader.index > 0){
+            compiled += compilers[last].addString
+
+                    // normal codes
+                + template.substring(pos, reader.index).replace(/"/g, '\\"').replace(/[\r\n]+/g, '');
+
+            last = 'string';
+        }
+
+        // matched code slice
+        if(matched_tpl.indexOf(CODE_PRE) === 0){
+            compiled += compilers[last].addCode + matched_code;
+            if(/\)$/.test(matched_tpl)){
+                compiled += ';';
+            }
+            last = 'code';
+
+            // matched code parameter
+        }else if(matched_tpl.indexOf(PARAM_PRE) === 0){
+            compiled += compilers[last].addParam + matched_code;
+            last = 'param';
+        }
+
+        pos = reader.index + matched_tpl.length;
+    }
+
+    if(pos < template.length){
+        compiled += compilers[last].addString + template.substring(pos).replace(/"/g, '\\"').replace(/[\r\n]+/g, '');
+        last = 'string';
+    }
+
+    compiled += compilers[last].end + 'return o;';
+
+
+    /**
+     * `it` is the entrance parameter of the template function
+     * all JavaScript template should contains the `it` parameter,
+     * if you expect your template function to be able to accept values
+     */
+    return new Function('it', compiled);
+}
+
+
+var
+
+    EMPTY = '',
+
+// REGEX_REMOVE_SINGLE_LINE_COMMENTS = /(?:^|\n|\r)\s*\/\/.*(?:\r|\n|$)/g,
+
+    /**
+     * Carriage Return
+     */
+// REGEX_CRLF = /[\t]/g,
+
+    COMPILERS = {
+        begin: {
+            // the end of the matched code slice
+            addString   : 'o+="',
+            addCode     : EMPTY,
+            addParam    : 'o+=',
+            end         : EMPTY
+        },
+
+        // string between code snippets and variables
+        string: {
+            addString   : EMPTY,
+            addCode     : '";',
+            addParam    : '"+',
+            end         : '";'
+        },
+
+        // JavaScript code between `<?js` and its corresponding `?>`
+        code: {
+            addString   : 'o+="',
+            addCode     : EMPTY,
+            addParam    : 'o+=',
+            end         : EMPTY
+        },
+
+        // JavaScript variable between `@{` and `}`
+        param: {
+            addString   : '+"',
+            addCode     : ';',
+            addParam    : '+',
+            end         : ';'
+        }
+    };
+
+
+// explode syntax settings
+
+/*
+ * JavaScript Template scope
+ * match criteria like `<?js //code... ?>`
+ * or,
+ * `@{variable}`
+ */
+var REGEX_JSTL_SCOPE = /<\?js((?:.|\r|\n)+?)\?>|@\{(.+?)\}/g; // lazy match
+var CODE_PRE = '<?js';
+var PARAM_PRE = '@{';
+
+/**
+ * for most cases you should cache the template function by using tpl.parse
+ * @param {string} template JavaScript template
+ * @param {Object} data module
+
+ * @return {string} rendered string
+ */
+exports.render = function(template, data){
+    return compile(template)(data);
+};
+
+
+/**
+ * method to compile a template into a function
+ * @return {function()} the compiled template function
+ */
+exports.compile = function(template){
+    return compile(template);
+};
+
+},{}],6:[function(require,module,exports){
+module.exports='<div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn">确定</div></div></div>';
+},{}]},{},[3])

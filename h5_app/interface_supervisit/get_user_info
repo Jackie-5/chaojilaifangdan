@@ -1,0 +1,16 @@
+{
+    "result": 1,
+    "msg": "\u83b7\u53d6\u6210\u529f",
+    "data": {
+        "user_id": "58",
+        "user_name": "\u67f3\u6d6a",
+        "user_mobile": "18807184106",
+        "user_pass": "123456",
+        "mobile_mark": "<326caf6a 7384c460 79cbaf19 5b3f1b8f 81fc4987 3205072a 72ed7cbb 65bc31e4>",
+        "house_id": "5",
+        "is_ios": "1",
+        "head_pic": "",
+        "rtime": "1449729660",
+        "house_name": ""
+    }
+}

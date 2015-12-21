@@ -1,3 +1,4 @@
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /* Zepto v1.1.6 - zepto event ajax form ie - zeptojs.com/license */
 
 var Zepto = (function() {
@@ -1586,3 +1587,217 @@ module.exports = Zepto;
         }
     }
 })(Zepto);
+},{}],2:[function(require,module,exports){
+/**
+ * Created by JackieWu on 12/11/15.
+ */
+var $ = require('./common/zepto');
+var mbox = require('./lib/Mbox');
+var query = {
+    $tel: $('.J_login-tel'),
+    $login: $('.J_login-button'),
+    $pwd: $('.J_login-pwd')
+};
+var ak = '8e9b109eedc27959233242342342';
+query.$login.on('click',function(){
+    if(query.$tel.val().length === '' || !/0?(13|14|15|17|18)[0-9]{9}/.test(query.$tel.val()) || query.$tel.val().length !== 11){
+        mbox($,{
+            tips: '请输入正确的手机号'
+        });
+        return
+    }
+    $.ajax({
+        url:'/h5_app/interface_supervisit/login',
+        type: 'POST',
+        data:{
+            ak: ak,
+            user_mobile: query.$tel.val(),
+            user_pass: query.$pwd.val()
+        },
+        success: function (msg) {
+            if(msg.result === 1){
+                location.href = 'index.html?is_ios=' +  msg.data.is_ios + '&house_id=' + msg.data.house_id + '&user_id=' + msg.data.user_id
+            }else{
+                mbox($,{
+                    tips: '登录失败'
+                });
+            }
+        }
+    });
+
+});
+},{"./common/zepto":1,"./lib/Mbox":3}],3:[function(require,module,exports){
+/**
+ * Created by JackieWu on 12/20/15.
+ */
+var tpl = require('./tpl');
+var mboxHtml = require('../tpl/mbox.html.js');
+var mbox = function ($, options) {
+    $('body').append(tpl.render(mboxHtml, {
+        tips: options.tips
+    }));
+    var mboxBg = $('.J_mbox-bg');
+    var mbox = $('.J_mbox');
+    mboxBg.removeClass('hide');
+    mbox.css('top', ($(window).height() - mbox.height()) / 2);
+    $('.J_m-box-btn').on('touchend', function () {
+        options.callback && options.callback();
+        mboxBg.addClass('hide').remove()
+    });
+};
+module.exports = mbox;
+},{"../tpl/mbox.html.js":5,"./tpl":4}],4:[function(require,module,exports){
+function compile(template){
+    var
+
+    // @type {string} set initial value of o as "", so o won't be `undefined`
+    // 'o' -> 'output'
+        compiled = 'var o="";',
+
+    // @type {Object} reader object of the compiler
+        reader,
+
+        matched_code,
+        matched_tpl,
+        pos = 0,
+        last = 'begin',
+
+        compilers = COMPILERS;
+
+    /**
+     * @type {Object} reader {
+             '0': '<?js mycode ?>',
+             '1': ' mycode ',
+             index: {number},
+             input: {string}
+       }
+     */
+    while((reader = REGEX_JSTL_SCOPE.exec(template)) !== null){
+        matched_tpl = reader[0];
+        matched_code = reader[1] || reader[2];
+
+        // normal string
+        if(reader.index > pos && reader.index > 0){
+            compiled += compilers[last].addString
+
+                    // normal codes
+                + template.substring(pos, reader.index).replace(/"/g, '\\"').replace(/[\r\n]+/g, '');
+
+            last = 'string';
+        }
+
+        // matched code slice
+        if(matched_tpl.indexOf(CODE_PRE) === 0){
+            compiled += compilers[last].addCode + matched_code;
+            if(/\)$/.test(matched_tpl)){
+                compiled += ';';
+            }
+            last = 'code';
+
+            // matched code parameter
+        }else if(matched_tpl.indexOf(PARAM_PRE) === 0){
+            compiled += compilers[last].addParam + matched_code;
+            last = 'param';
+        }
+
+        pos = reader.index + matched_tpl.length;
+    }
+
+    if(pos < template.length){
+        compiled += compilers[last].addString + template.substring(pos).replace(/"/g, '\\"').replace(/[\r\n]+/g, '');
+        last = 'string';
+    }
+
+    compiled += compilers[last].end + 'return o;';
+
+
+    /**
+     * `it` is the entrance parameter of the template function
+     * all JavaScript template should contains the `it` parameter,
+     * if you expect your template function to be able to accept values
+     */
+    return new Function('it', compiled);
+}
+
+
+var
+
+    EMPTY = '',
+
+// REGEX_REMOVE_SINGLE_LINE_COMMENTS = /(?:^|\n|\r)\s*\/\/.*(?:\r|\n|$)/g,
+
+    /**
+     * Carriage Return
+     */
+// REGEX_CRLF = /[\t]/g,
+
+    COMPILERS = {
+        begin: {
+            // the end of the matched code slice
+            addString   : 'o+="',
+            addCode     : EMPTY,
+            addParam    : 'o+=',
+            end         : EMPTY
+        },
+
+        // string between code snippets and variables
+        string: {
+            addString   : EMPTY,
+            addCode     : '";',
+            addParam    : '"+',
+            end         : '";'
+        },
+
+        // JavaScript code between `<?js` and its corresponding `?>`
+        code: {
+            addString   : 'o+="',
+            addCode     : EMPTY,
+            addParam    : 'o+=',
+            end         : EMPTY
+        },
+
+        // JavaScript variable between `@{` and `}`
+        param: {
+            addString   : '+"',
+            addCode     : ';',
+            addParam    : '+',
+            end         : ';'
+        }
+    };
+
+
+// explode syntax settings
+
+/*
+ * JavaScript Template scope
+ * match criteria like `<?js //code... ?>`
+ * or,
+ * `@{variable}`
+ */
+var REGEX_JSTL_SCOPE = /<\?js((?:.|\r|\n)+?)\?>|@\{(.+?)\}/g; // lazy match
+var CODE_PRE = '<?js';
+var PARAM_PRE = '@{';
+
+/**
+ * for most cases you should cache the template function by using tpl.parse
+ * @param {string} template JavaScript template
+ * @param {Object} data module
+
+ * @return {string} rendered string
+ */
+exports.render = function(template, data){
+    return compile(template)(data);
+};
+
+
+/**
+ * method to compile a template into a function
+ * @return {function()} the compiled template function
+ */
+exports.compile = function(template){
+    return compile(template);
+};
+
+},{}],5:[function(require,module,exports){
+module.exports='<div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn">确定</div></div></div>';
+},{}]},{},[2])
