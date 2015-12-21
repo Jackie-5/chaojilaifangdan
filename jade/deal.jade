@@ -1,0 +1,126 @@
+//-Created by JackieWu on 12/19/15.
+doctype html
+html
+    head
+        include ./common/head
+        title 成交助手
+        body
+            .deal-title-bar-box
+                .title.active
+                    span A+级
+                .title
+                    span A级
+                .title
+                    span B+级
+                .title
+                    span B级
+                .title
+                    span C+级
+                .title
+                    span 待交房
+            .deal-content
+                .deal-box
+                    .search-result-list
+                        .search-list
+                            i.s-icon-1
+                            .s-title 客户姓名
+                            .s-cont 司树磊
+                        .search-list
+                            i.s-icon-2
+                            .s-title 当前级别
+                            .s-cont
+                                .border
+                                    i
+                                    | A级客户
+                        .search-list
+                            i.s-icon-3
+                            .s-title 最新接触
+                            .s-cont 司树磊
+                        .search-list
+                            i.s-icon-4
+                            .s-title 快速联系
+                            .s-cont
+                                a(href="sms:13013013030").s-icon-5
+                                a(href="tel:13838383838").s-icon-6
+                    .deal-state
+                        .search-list
+                            i.s-i-icon-5
+                            .s-title 下一步行动
+                            .s-cont.font-color 付款
+                        .deal-list
+                            .pay.border-bottom
+                                .p-title 付款方式
+                                .p-cont
+                                    .border
+                                        i
+                                        | 分期付款
+                                .p-cont-btn
+                        .deal-list
+                            .pay
+                                .p-title 付款金额
+                                .p-cont
+                                    .p-money
+                                        i ￥
+                                        input(type='tel',value="20,000")
+                        .deal-list
+                            .pay.border-bottom
+                                .p-title 付款时间
+                                .p-cont
+                                    .p-time
+                                        label(for="p-time-0") 2015-01-01
+                                            input.hide(type='date',id="p-time-0")
+                                        i
+                        .deal-list
+                            .pay
+                                .p-title 付款金额
+                                .p-cont
+                                    .p-money
+                                        i ￥
+                                        input(type='tel',value="20,000")
+                        .deal-list
+                            .pay.border-bottom
+                                .p-title 付款时间
+                                .p-cont
+                                    .p-time
+                                        label(for="p-time-1") 2015-01-01
+                                            input.hide(type='date',id="p-time-1")
+                                        i
+
+
+
+                .deal-box
+                    .search-result-list
+                        .search-list
+                            i.s-icon-1
+                            .s-title 客户姓名
+                            .s-cont 司树磊
+                        .search-list
+                            i.s-icon-2
+                            .s-title 当前级别
+                            .s-cont
+                                .border
+                                    i
+                                    | A级客户
+                        .search-list
+                            i.s-icon-3
+                            .s-title 最新接触
+                            .s-cont 司树磊
+                        .search-list
+                            i.s-icon-4
+                            .s-title 快速联系
+                            .s-cont
+                                a(href="sms:13013013030").s-icon-5
+                                a(href="tel:13838383838").s-icon-6
+                    .deal-state
+                        .search-list
+                            i.s-i-icon-5
+                            .s-title 下一步行动
+                            .s-cont.font-color 付意向金
+                        .search-list
+                            i.s-i-icon-6
+                            .s-title 计划时间
+                            .s-cont
+                                span 3
+                                | 天
+                            .time-icon
+                                input.hide(type="date")

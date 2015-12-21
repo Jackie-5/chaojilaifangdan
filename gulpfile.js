@@ -11,18 +11,24 @@ const base64 = require('gulp-base64');
 const jsUglify = require('gulp-uglify');
 const minifyCss = require('gulp-minify-css');
 const server = require('gulp-server-livereload');
+const tpl2mod = require('gulp-tpl2mod');
+const extReplace = require('gulp-ext-replace');
+
 const paths = {
     src: {
         stylus: 'stylus/**.styl',
         bigImage: 'images/**',
         jade: 'jade/*.jade',
-        js: 'js/*.js'
+        js: 'js/*.js',
+        tpl :'jade/tpl/*.jade'
     },
     build: {
         css: 'build/css/',
         bigImage: 'build/images/',
         html: 'build/',
-        js: 'build/js/'
+        js: 'build/js/',
+        tpl: 'build/js/tpl/',
+        tplJs: 'js/tpl/'
     },
     merge: {
         js: 'build/js/**',
@@ -101,14 +107,26 @@ gulp.task('rHtml', ['cleanRelease'], function () {
 });
 
 //server
-gulp.task('server', function() {
+gulp.task('server', function () {
     gulp.src(paths.build.html)
         .pipe(server({
             defaultFile: 'login.html'
         }));
 });
 
+gulp.task('tpl', ['cleanBuild'], function () {
+    return gulp.src(paths.src.tpl)
+        .pipe(jade())
+        .pipe(tpl2mod({
+            prefix: 'module.exports=',
+            suffix: ';'
+        }))
+        .pipe(extReplace('.js'))
+        .pipe(gulp.dest(paths.build.tpl))
+        .pipe(gulp.dest(paths.build.tplJs));
+});
+
 
 gulp.task('default', ['build']);
-gulp.task('build', ['jade', 'stylus', 'js', 'img']);
+gulp.task('build', ['jade', 'stylus', 'js', 'img', 'tpl']);
 gulp.task('release', ['uglify', 'image', 'minify', 'rHtml']);

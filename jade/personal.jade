@@ -1,0 +1,26 @@
+//-Created by JackieWu on 12/16/15.
+include ./common/script-src
+doctype html
+html
+    head
+        include ./common/head
+        title 个人中心
+        body
+            .logon-box
+                .input-box
+                    .input
+                        i.logon-icon-1
+                        input.J_logon-name(type="text",placeholder="请输入姓名")
+                    .input
+                        i.logon-icon-2
+                        input.J_logon-tel(type="tel",placeholder="请输入手机号码")
+                    .input
+                        i.logon-icon-3
+                        input.J_logon-houses(type="text",placeholder="请输入楼盘")
+                    .input
+                        i.logon-icon-4
+                        input.J_logon-pwd(type="password",placeholder="请输入密码")
+
+
+                    .logon-btn.J_logon-btn 注册
+            +scriptSrc(1)

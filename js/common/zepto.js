@@ -882,8 +882,8 @@ var Zepto = (function() {
 })();
 
 module.exports = Zepto;
-window.Zepto = Zepto;
-window.$ === undefined && (window.$ = Zepto)
+//window.Zepto = Zepto;
+//window.$ === undefined && (window.$ = Zepto)
 
 ;(function($){
     var _zid = 1, undefined,

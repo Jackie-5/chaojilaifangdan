@@ -1,0 +1,206 @@
+//-Created by JackieWu on 12/16/15.
+doctype html
+html
+    head
+        include ./common/head
+        title 超级来访单 注册
+        body
+            .search-body
+                .search-box
+                    .search-top
+                        .search-input-box
+                            .search-input
+                                i
+                                input(type="text",placeholder="请输入客户的姓名或者电话号码")
+                            .search-btn 搜索
+                        .search-input-box
+                            .search-date-btn 手机名字都忘了-试试来访日期搜索吧
+                    //查询后放到里面的内容
+                    .search-content-box
+                        .search-result-list.hide
+                            .s-list-icon
+                            .search-list
+                                i.s-icon-1
+                                .s-title 客户姓名
+                                .s-cont 司树磊
+                            .search-list
+                                i.s-icon-2
+                                .s-title 当前级别
+                                .s-cont
+                                    .border
+                                        i
+                                        | A级客户
+                            .search-list
+                                i.s-icon-3
+                                .s-title 最新接触
+                                .s-cont 司树磊
+                            .search-list
+                                i.s-icon-4
+                                .s-title 快速联系
+                                .s-cont
+                                    a(href="sms:13013013030").s-icon-5
+                                    a(href="tel:13838383838").s-icon-6
+
+                        //意向金
+                        .search-intention.hide
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-1
+                                    span 项目名称
+                                .inten-input
+                                    input.J_inten-project(type='text',value="司树磊",disabled)
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-2
+                                    span 建筑面积
+                                .inten-input
+                                    input.J_inten-area(type='text', placeholder='请输入')
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-3
+                                    span 客户姓名
+                                .inten-input
+                                    input.J_inten-name(type='text', placeholder='请输入')
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-4
+                                    span 联系电话
+                                .inten-input
+                                    input.J_inten-phone(type='tel', placeholder='请输入')
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-5
+                                    span 下一步进度
+                                .inten-cont
+                                    .border
+                                        i
+                                        | 付意向金
+
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-6
+                                    span 计划时间
+                                .time-box
+                                    .time
+                                        span 3
+                                        | 天
+                                    .btn-icon
+
+                        //定金
+                        .search-intention.hide
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-1
+                                    span 项目名称
+                                .inten-input
+                                    input.J_inten-project(type='text',value="司树磊",disabled)
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-7
+                                    span 购房房号
+                                .inten-input
+                                    input.J_inten-area(type='text', placeholder='请输入')
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-2
+                                    span 建筑面积
+                                .inten-input
+                                    input.J_inten-area(type='text', placeholder='请输入')
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-3
+                                    span 客户姓名
+                                .inten-input
+                                    input.J_inten-name(type='text', placeholder='请输入')
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-4
+                                    span 联系电话
+                                .inten-input
+                                    input.J_inten-phone(type='tel', placeholder='请输入')
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-5
+                                    span 下一步进度
+                                .inten-cont
+                                    .border
+                                        i
+                                        | 付意向金
+
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-6
+                                    span 计划时间
+                                .time-box
+                                    .time
+                                        span 3
+                                        | 天
+                                    .btn-icon
+
+                        //签约
+                        .search-intention
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-1
+                                    span 项目名称
+                                .inten-input
+                                    input.J_inten-project(type='text',value="华东金港湾家园二期",disabled)
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-7
+                                    span 购房房号
+                                .inten-input
+                                    input.J_inten-area(type='text',value="2504", placeholder='请输入')
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-2
+                                    span 建筑面积
+                                .inten-input
+                                    input.J_inten-area(type='text',value="120㎡", placeholder='请输入')
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-3
+                                    span 客户姓名
+                                .inten-input
+                                    input.J_inten-name(type='text',value="司树磊", placeholder='请输入')
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-4
+                                    span 联系电话
+                                .inten-input
+                                    input.J_inten-phone(type='tel', value="18804547530", placeholder='请输入')
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-9
+                                    span 购房总价
+                                .inten-input
+                                    .icon-money ￥
+                                    input.J_inten-phone(type='tel', value="3,100,000", placeholder='请输入')
+                            .intention-list
+                                .inten-name
+                                    i.s-i-icon-10
+                                    span 购房单价
+                                .inten-input
+                                    .icon-money ￥
+                                    .unit 25,833
+
+
+                        //意向金和定金的btn
+                        .search-inten-btn.hide
+                            span 退订
+                            span 提交
+                        .search-tips.hide 注：退订后将被降为D级客户
+                        //签约Btn
+                        .unit-tips 注：输入总价后自动换算单价
+                        .search-unit-btn 提交
+
+
+                    .search-date.hide
+                        .s-date-btn 查询
+                        .s-date-box
+                            label(for="start-time")
+                                | 选择起始日期
+                                input.hide(id="start-time",type="date")
+                            label(for="end-time")
+                                | 选择截止日期
+                                input.hide(id="end-time",type="date")

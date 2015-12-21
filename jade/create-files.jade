@@ -1,0 +1,25 @@
+//-Created by JackieWu on 12/16/15.
+doctype html
+html
+    head
+        include ./common/head
+        title 超级来访单首页
+        body
+            .create-files-box
+                .files-title
+                    | 当前客户为
+                    span B
+                    | 级客户，现在就来为他创建档案吧！
+                .input-box
+                    .input
+                        i.create-files-icon-1
+                        input.J_create-date(type="date",placeholder="请选择建档日期（不选则默认今天）")
+                    .input
+                        i.create-files-icon-2
+                        input.J_create-name(type="text",placeholder="请输入客户姓名或昵称")
+                    .input
+                        i.create-files-icon-3
+                        input.J_create-tel(type="tel",placeholder="请输入客户电话号码")
+
+
+                    .logon-btn.J_create-files-btn 创建档案

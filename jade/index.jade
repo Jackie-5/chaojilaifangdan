@@ -11,9 +11,15 @@ html
                     a(href="#").date-picker
                         .date-title
                             .time 今天
-                            .day 2015年12月13日
+                            .day.J_index-day
                             .time-icon
-                        .calendar
+                        .time-calendar
+                            .calendar-box.J_calendar
+
+                            .calendar-tips.J_calendar-tips
+                                .tips 今日待办
+                                .num 4
+
 
                     .my-photo
                         .photo-box
@@ -21,7 +27,7 @@ html
                                 input.hide(type="file" id="photo")
                                 .camera
                                 img(src='./images/login-photo.jpg')
-                            a(href="#").center 个人中心
+                            .center.J_center 个人中心
                 .title.bg-01.J_index-title-01
                     .top.bg-01
                     i.left-icon-01
@@ -91,122 +97,5 @@ html
                                     a(href="#")
                                         i.right-icon-3
 
-                        .wait-list
-                            .list-box
-                                .list-left
-                                    i.list-icon-01
-                                    span 客户姓名
-                                .list-right
-                                    span 司树磊
-                            .list-box
-                                .list-left
-                                    i.list-icon-02
-                                    span 当前级别
-                                .list-right
-                                    span A级客户
-                                    a(href="#")
-                                        i.right-icon-3
-                            .list-box
-                                .list-left
-                                    i.list-icon-03
-                                    span 最新接触
-                                .list-right
-                                    span 2014年12月23日  星期天
-                            .list-box
-                                .list-left
-                                    i.list-icon-04
-                                    span 邀约来访
-                                .list-right
-                                    a(href="tel:1303030303")
-                                        i.right-icon-1
-                                    a(href="sms:13910101010")
-                                        i.right-icon-2
-                            .list-box
-                                .list-left
-                                    i.list-icon-05
-                                    span 计划时间
-                                .list-right
-                                    span 3天
-                                    a(href="#")
-                                        i.right-icon-3
-                    .box
-                        .wait-title
-                            .title-bg
-                                span 邀约来访
-                        .wait-list
-                            .list-box
-                                .list-left
-                                    i.list-icon-01
-                                    span 客户姓名
-                                .list-right
-                                    span 司树磊
-                            .list-box
-                                .list-left
-                                    i.list-icon-02
-                                    span 当前级别
-                                .list-right
-                                    span A级客户
-                                    a(href="#")
-                                        i.right-icon-3
-                            .list-box
-                                .list-left
-                                    i.list-icon-03
-                                    span 最新接触
-                                .list-right
-                                    span 2014年12月23日  星期天
-                            .list-box
-                                .list-left
-                                    i.list-icon-04
-                                    span 邀约来访
-                                .list-right
-                                    a(href="tel:1303030303")
-                                        i.right-icon-1
-                                    a(href="sms:13910101010")
-                                        i.right-icon-2
-                            .list-box
-                                .list-left
-                                    i.list-icon-05
-                                    span 计划时间
-                                .list-right
-                                    span 3天
-                                    a(href="#")
-                                        i.right-icon-3
 
-                        .wait-list
-                            .list-box
-                                .list-left
-                                    i.list-icon-01
-                                    span 客户姓名
-                                .list-right
-                                    span 司树磊
-                            .list-box
-                                .list-left
-                                    i.list-icon-02
-                                    span 当前级别
-                                .list-right
-                                    span A级客户
-                                    a(href="#")
-                                        i.right-icon-3
-                            .list-box
-                                .list-left
-                                    i.list-icon-03
-                                    span 最新接触
-                                .list-right
-                                    span 2014年12月23日  星期天
-                            .list-box
-                                .list-left
-                                    i.list-icon-04
-                                    span 邀约来访
-                                .list-right
-                                    a(href="tel:1303030303")
-                                        i.right-icon-1
-                                    a(href="sms:13910101010")
-                                        i.right-icon-2
-                            .list-box
-                                .list-left
-                                    i.list-icon-05
-                                    span 计划时间
-                                .list-right
-                                    span 3天
-                                    a(href="#")
-                                        i.right-icon-3
+            script(src="./js/index.js")
