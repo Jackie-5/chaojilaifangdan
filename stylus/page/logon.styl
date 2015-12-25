@@ -1,5 +1,5 @@
 //-Created by JackieWu on 12/16/15.
-.logon-box,.create-files-box
+.logon-box,.create-files-box,.forget-box
     width 100%
     height 100%
     background #ececec
@@ -19,13 +19,15 @@
                 height 100%
                 display block
                 float left
-            input
+            label,input
+                display block
                 float left
                 width 75%
                 height 100%
                 line-height 44px
                 border 0
                 background #fff
+                color #999
             .logon-icon-1
                 background url(../i/logon-icon-1.png) no-repeat
                 background-size 100%
@@ -62,7 +64,22 @@
         span
             color #25a9ff
     .input-box
+        .tips
+            color #333
+            font-size .625rem
+            margin-left 45px
+            margin-top 10px
+        .margin-top
+            margin-top 10px
         .input
+            .tel-box
+                input
+                    width 20%
+                span
+                    display block
+                    float left
+                    line-height 44px
+                    margin-right 5%
             .create-files-icon-1
                 background url(../i/create-files-icon-1.png) no-repeat
                 background-size 100%
@@ -72,3 +89,76 @@
             .create-files-icon-3
                 background url(../i/create-files-icon-3.png) no-repeat
                 background-size 100%
+            .gender-box
+                overflow hidden
+                margin 0 auto
+                .radio-input
+                    float left
+                    width 16px
+                    height 16px
+                    border-radius 100%
+                    border 1px solid #9b9b9b
+                    margin-top 13px
+                    margin-right 8px
+                    margin-left 10px
+                    input
+                        width 10px
+                        height 10px
+                        //background #000
+                        border 1px solid #9b9b9b
+                        border-radius 50%
+                        position relative
+                        margin-left 3px
+                        margin-top 3px
+                    input:checked
+                        &:before
+                            position absolute
+                            content ''
+                            top 0
+                            left 0
+                            width 8px
+                            height 8px
+                            border-radius 50%
+                            background #25a9ff
+                label
+                    display block
+                    font-size .8rem
+                    color #999
+                    width 13%
+
+.forget-box
+    .input-box
+        .input
+            margin-top 10px
+            position relative
+            .code
+                width 40%
+
+        .tips
+            font-size .8rem
+            margin-top 10px
+        .countdown
+            float right
+            padding 0 5%
+            height 44px
+            line-height 44px
+            background #25a9ff
+            color #fff
+        .active
+            background #a4a4a4
+    .forget-btn
+        height 44px
+        width 47%
+        background #25a9ff
+        border-radius 5px
+        text-align center
+        line-height 44px
+        color #fff
+        margin-top 40px
+        float left
+        margin-right 5%
+        &:last-child
+            margin-right 0
+            background #939393
+        &:active
+            background #1d94e1

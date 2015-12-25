@@ -8,18 +8,31 @@ html
             .create-files-box
                 .files-title
                     | 当前客户为
-                    span B
+                    span.J_level
                     | 级客户，现在就来为他创建档案吧！
                 .input-box
                     .input
                         i.create-files-icon-1
-                        input.J_create-date(type="date",placeholder="请选择建档日期（不选则默认今天）")
+                        label(for="create-date").J_create-date
+                            input#create-date.hide(type="date",placeholder="请选择建档日期（不选则默认今天）")
                     .input
                         i.create-files-icon-2
                         input.J_create-name(type="text",placeholder="请输入客户姓名或昵称")
                     .input
                         i.create-files-icon-3
-                        input.J_create-tel(type="tel",placeholder="请输入客户电话号码")
-
+                        .tel-box
+                            input.J_create-tel-1(type="tel",placeholder="前四位", maxlength="4")
+                            span ****
+                            input.J_create-tel-2(type="tel",placeholder="后四位",maxlength="4")
+                    .tips 注:清分别输入手机号的前四位和后四位
+                    .input.margin-top
+                        .gender-box.J_gender-box
+                            .radio-input
+                                input(type="radio" id="man" name="r-1" value="1" checked)
+                            label(for="man") 男士
+                            .radio-input
+                                input(type="radio" id="woman" name="r-1" value="1")
+                            label(for="woman") 女士
 
                     .logon-btn.J_create-files-btn 创建档案
+            script(src="./js/create-files.js")

@@ -1,0 +1,22 @@
+//-Created by JackieWu on 12/23/15.
+doctype html
+html
+    head
+        include ./common/head
+        title 忘记密码
+        body
+            .forget-box
+                .input-box
+                    .tips 手机号仅用于获取验证码,不会向第三方公开
+                    .input
+                        i.logon-icon-2
+                        input.J_forget-tel(type="tel",placeholder="请输入手机号码")
+                    .input
+                        i.logon-icon-3
+                        input.code.J_forget-code(type="text",placeholder="验证码")
+                        .countdown.J_countdown 获取验证码
+
+                    .forget-btn.J_forget-btn 提交
+                    a(href="login.html").forget-btn 退出
+
+            script(src="./js/forget.js")

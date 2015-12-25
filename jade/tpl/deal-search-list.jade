@@ -1,0 +1,39 @@
+//-Created by JackieWu on 12/25/15.
+| <?js it.msg.forEach(function(item,i){ ?>
+.deal-box
+    .search-result-list
+        .search-list
+            i.s-icon-1
+            .s-title 客户姓名
+            .s-cont 司树磊
+        .search-list
+            i.s-icon-2
+            .s-title 当前级别
+            .s-cont
+                .border
+                    i
+                    | A级客户
+        .search-list
+            i.s-icon-3
+            .s-title 最新接触
+            .s-cont 司树磊
+        .search-list
+            i.s-icon-4
+            .s-title 快速联系
+            .s-cont
+                a(href="sms:13013013030").s-icon-5
+                a(href="tel:13838383838").s-icon-6
+    .deal-state
+        .search-list
+            i.s-i-icon-5
+            .s-title 下一步行动
+            a(href="").s-cont.font-color 付意向金
+        .search-list
+            i.s-i-icon-6
+            .s-title 计划时间
+            .s-cont
+                span 3
+                | 天
+            label(for="date-@{i}").time-icon
+                input.hide(type="date",id="date-@{i}")
+| <?js }); ?>

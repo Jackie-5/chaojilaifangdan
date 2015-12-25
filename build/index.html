@@ -9,7 +9,8 @@
         <body>
             <div class="index-bg"></div>
             <div class="index-box">
-                <div class="index-top"><a href="#" class="date-picker">
+                <div class="index-top">
+                    <div class="date-picker">
                         <div class="date-title">
                             <div class="time">今天</div>
                             <div class="day J_index-day"></div>
@@ -19,14 +20,15 @@
                             <div class="calendar-box J_calendar"></div>
                             <div class="calendar-tips J_calendar-tips">
                                 <div class="tips">今日待办</div>
-                                <div class="num">4</div>
+                                <div class="num J_wait-number">0</div>
                             </div>
-                        </div></a>
+                        </div>
+                    </div>
                     <div class="my-photo">
                         <div class="photo-box">
                             <label for="photo" class="is-photo">
                                 <input type="file" id="photo" class="hide">
-                                <div class="camera"></div><img src="./images/login-photo.jpg">
+                                <div class="camera"></div><img src="./images/login-photo.jpg" class="J_photo">
                             </label>
                             <div class="center J_center">个人中心</div>
                         </div>
@@ -36,45 +38,18 @@
                     <div class="top bg-01"></div><i class="left-icon-01"></i>
                     <div class="right-title">新增来电来访</div>
                 </div>
-                <div class="new-content">
-                    <div class="box-01 box"><a href="answer.html">首次来访</a><a href="">再次来访</a></div>
-                    <div class="box-02 box"><a href="">意向金</a><a href="">定金</a><a href="">签约</a><a href="">付款</a></div>
-                </div><a href="#" class="title bg-02">
+                <div class="new-content J_link-box"></div>
+                <div class="title bg-02 J_search">
                     <div class="top bg-02"></div><i class="left-icon-02"></i>
-                    <div class="right-title">查询客户</div></a><a href="#" class="title bg-03">
+                    <div class="right-title">查询客户</div>
+                </div>
+                <div class="title bg-03 J_deal">
                     <div class="top bg-03"></div><i class="left-icon-03"></i>
-                    <div class="right-title">成交助手</div></a><a href="#" class="title bg-04">
+                    <div class="right-title">成交助手</div>
+                </div><a href="javascript:;" class="title bg-04">
                     <div class="top bg-04"></div><i class="left-icon-04"></i>
                     <div class="right-title">今日待办</div></a>
-                <div class="wait">
-                    <div class="box">
-                        <div class="wait-title">
-                            <div class="title-bg"><span>邀约来访</span></div>
-                        </div>
-                        <div class="wait-list">
-                            <div class="list-box">
-                                <div class="list-left"><i class="list-icon-01"></i><span>客户姓名</span></div>
-                                <div class="list-right"><span>司树磊</span></div>
-                            </div>
-                            <div class="list-box">
-                                <div class="list-left"><i class="list-icon-02"></i><span>当前级别</span></div>
-                                <div class="list-right"><span>A级客户</span><a href="#"><i class="right-icon-3"></i></a></div>
-                            </div>
-                            <div class="list-box">
-                                <div class="list-left"><i class="list-icon-03"></i><span>最新接触</span></div>
-                                <div class="list-right"><span>2014年12月23日  星期天</span></div>
-                            </div>
-                            <div class="list-box">
-                                <div class="list-left"><i class="list-icon-04"></i><span>邀约来访</span></div>
-                                <div class="list-right"><a href="tel:1303030303"><i class="right-icon-1"></i></a><a href="sms:13910101010"><i class="right-icon-2"></i></a></div>
-                            </div>
-                            <div class="list-box">
-                                <div class="list-left"><i class="list-icon-05"></i><span>计划时间</span></div>
-                                <div class="list-right"><span>3天</span><a href="#"><i class="right-icon-3"></i></a></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <div class="J_wait-box"></div>
             </div>
             <script src="./js/index.js"></script>
         </body>

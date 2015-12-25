@@ -1,0 +1,50 @@
+//-Created by JackieWu on 12/22/15.
+
+.wait
+    | <?js it.forEach(function(item,k){ ?>
+    .box
+        .wait-title
+            .title-bg
+                span @{item.order_type_name}
+        | <?js item.list.forEach(function(listItem, i){ ?>
+        .wait-list.J_wait-list
+            .list-box
+                .list-left
+                    i.list-icon-01
+                    span 客户姓名
+                .list-right
+                    span @{listItem.customer_name}
+            .list-box
+                .list-left
+                    i.list-icon-02
+                    span 当前级别
+                .list-right
+                    span @{listItem.level}级客户
+                    a(href="#")
+                        i.right-icon-3
+            .list-box
+                .list-left
+                    i.list-icon-03
+                    span 最新接触
+                .list-right
+                    span @{listItem.lasttime}
+            .list-box
+                .list-left
+                    i.list-icon-04
+                    span 邀约来访
+                .list-right
+                    a(href="tel:@{listItem.customer_mobile}")
+                        i.right-icon-1
+                    a(href="sms:@{listItem.customer_mobile}")
+                        i.right-icon-2
+            .list-box
+                .list-left
+                    i.list-icon-05
+                    span 计划时间
+                .list-right
+                    span @{listItem.diff_days}天
+                    label(for="input-@{k}-@{i}")
+                        input.hide(type="date", id="input-@{k}-@{i}")
+                        i.right-icon-3
+        | <?js }); ?>
+    | <?js }); ?>

@@ -2,55 +2,81 @@
  * Created by JackieWu on 12/21/15.
  */
 var $ = require('./common/zepto');
+var ajax = require('./lib/ajax');
 var mbox = require('./lib/Mbox');
-var ak = '8e9b109eedc27959233242342342';
+var Url = require('./lib/get-url');
+var url = new Url();
 var query = {
     $name: $('.J_logon-name'),
     $tel: $('.J_logon-tel'),
     $houses: $('.J_logon-houses'),
-    $pwd: $('.J_logon-pwd')
+    $pwd: $('.J_logon-pwd'),
+    $modifyBtn: $('.J_modify-btn')
 };
 
 
-$.ajax({
-    url:'/h5_app/interface_supervisit/get_user_info',
-    type: 'POST',
-    data:{
-        ak: ak,
-        user_id: query.$tel.val()
+ajax({
+    $: $,
+    url: 'get_user_info',
+    data: {
+        user_id: url.parameter('user_id')//url带进来
     },
     success: function (msg) {
-        if(msg.result === 1){
-
+        if (msg.result === 1) {
+            query.$name.val(msg.data.user_name);
+            query.$tel.val(msg.data.user_mobile);
+            query.$pwd.val(msg.data.user_pass);
+            query.$houses.val(msg.data.house_name);
         }
     }
 });
 
-query.$login.on('click',function(){
-    if(query.$name.val().length === ''){
-        mbox($,{
+query.$modifyBtn.on('touchend', function () {
+    if (query.$name.val().length === '') {
+        mbox($, {
             tips: '姓名不能为空'
         });
         return
     }
-    if(query.$tel.val().length === '' || !/0?(13|14|15|17|18)[0-9]{9}/.test(query.$tel.val()) || query.$tel.val().length !== 11){
-        mbox($,{
+    if (query.$tel.val().length === '' || !/0?(13|14|15|17|18)[0-9]{9}/.test(query.$tel.val()) || query.$tel.val().length !== 11) {
+        mbox($, {
             tips: '请输入正确的手机号'
         });
         return
     }
-    if(query.$houses.val().length === ''){
-        mbox($,{
+    if (query.$houses.val().length === '') {
+        mbox($, {
             tips: '楼盘不能为空'
         });
         return
     }
-    if(query.$pwd.val().length === ''){
-        mbox($,{
+    if (query.$pwd.val().length === '') {
+        mbox($, {
             tips: '密码不能为空'
         });
         return
     }
-
+    ajax({
+        $: $,
+        url: 'update_registration',
+        data: {
+            user_name: query.$name.val(),
+            user_mobile: query.$tel.val(),
+            user_pass: query.$pwd.val()
+        },
+        success: function (msg) {
+            mbox($, {
+                tips: '信息修改成功',
+                callback:function(){
+                    location.href = 'index.html?user_id=' + url.parameter('user_id')
+                }
+            });
+        },
+        error: function(msg){
+            mbox($, {
+                tips: msg.msg
+            });
+        }
+    });
 
 });

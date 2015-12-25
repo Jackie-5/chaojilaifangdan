@@ -2,19 +2,31 @@
  * Created by JackieWu on 12/20/15.
  */
 var $ = require('./common/zepto');
+var ajax = require('./lib/ajax');
 var Calendar = require('./common/Calendar');
+var Url = require('./lib/get-url');
 var mbox = require('./lib/Mbox');
-var ak = '8e9b109eedc27959233242342342';
+var tpl = require('./lib/tpl');
+var indexHtml = require('./tpl/index-tpl.html');
+var linkHtml = require('./tpl/index-link-tpl.html');
 var date = new Date();
 var YEAR = date.getFullYear();
 var MONTH = date.getMonth() + 1;
 var DAY = date.getDate();
 
-var quyer = {
+var url = new Url();
+var tplRender = tpl.render;
+var query = {
     $day: $('.J_index-day'),
-    $center: $('.J_center')
+    $center: $('.J_center'),
+    $photo: $('.J_photo'),
+    $wait: $('.J_wait-box'),
+    $number: $('.J_wait-number'),
+    $linkBox: $('.J_link-box'),
+    $search: $('.J_search'),
+    $deal: $('.J_deal')
 };
-
+//设置今天日期
 new Calendar({
     c: 'J_calendar',
     y: YEAR,
@@ -26,22 +38,73 @@ new Calendar({
     f: 0//显示双日历用1，单日历用0
 }, $);
 
-quyer.$day.html(YEAR + '年' + MONTH + '月' + DAY + '日');
+query.$day.html(YEAR + '年' + MONTH + '月' + DAY + '日');
 
-$.ajax({
-    url: '/h5_app/interface_supervisit/get_user_info',
-    type: 'POST',
-    data:{
-        ak: ak,
-        user_id: ''//哪用户登录的url
+//个人中心
+query.$center.on('touchend', function () {
+    location.href = 'personal.html?user_id=' + url.parameter('user_id')
+});
+//客户查询
+query.$search.on('touchend', function () {
+    location.href = 'search.html?user_id=' + url.parameter('user_id')
+});
+//成交助手
+query.$deal.on('touchend', function () {
+    location.href = 'deal.html?user_id=' + url.parameter('user_id') + '&deal_index=0';
+});
+
+query.$linkBox.html(tplRender(linkHtml, {
+    user_id: url.parameter('user_id')
+}));
+
+//同时去访问一次
+ajax({
+    $: $,
+    url: 'get_user_info',
+    data: {
+        user_id: url.parameter('user_id')
     },
-    success: function(msg){
-        if(msg.result !== 1){
-            mbox($,{
-                tips: '用户信息获取失败'
-            });
-        }else{
-
-        }
+    success: function (msg) {
+        query.$photo.attr('src', msg.data.head_pic);
+    },
+    error: function (msg) {
+        mbox($, {
+            tips: msg.msg
+        });
     }
+
+});
+ajax({
+    $: $,
+    url: 'user_task_list',
+    data: {
+        user_id: url.parameter('user_id')
+    },
+    success: function (msg) {
+        query.$wait.html(tplRender(indexHtml, msg.data));
+
+    },
+    error: function (msg) {
+        mbox($, {
+            tips: msg.msg
+        });
+    }
+
+});
+//待办事项总数
+ajax({
+    $: $,
+    url: 'user_task_count',
+    data: {
+        user_id: url.parameter('user_id')
+    },
+    success: function (msg) {
+        query.$number.html(msg.data);
+    },
+    error: function (msg) {
+        mbox($, {
+            tips: msg.msg
+        });
+    }
+
 });

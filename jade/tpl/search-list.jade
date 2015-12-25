@@ -1,0 +1,27 @@
+//-Created by JackieWu on 12/23/15. 搜索结果
+//-搜索结果
+| <?js it.msg.forEach(function(item,i){ ?>
+.search-result-list.J_search-list
+    .s-list-icon
+    .search-list
+        i.s-icon-1
+        .s-title 客户姓名
+        .s-cont @{item.customer_name}
+    .search-list
+        i.s-icon-2
+        .s-title 当前级别
+        .s-cont
+            .border
+                i
+                | @{item.customer_level}级客户
+    .search-list
+        i.s-icon-3
+        .s-title 最新接触
+        .s-cont @{item.lasttime}
+    .search-list
+        i.s-icon-4
+        .s-title 快速联系
+        .s-cont
+            a(href="sms:@{item.customer_mobile}").s-icon-5
+            a(href="tel:@{item.customer_mobile}").s-icon-6
+| <?js }); ?>

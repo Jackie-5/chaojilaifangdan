@@ -1,0 +1,84 @@
+{
+    "result": 1,
+    "msg": "查询成功",
+    "data": [
+        {
+            "order_type_name": "再次来访",
+            "count": 8,
+            "list": [
+                {
+                    "customer_name": "周致远",
+                    "customer_mobile": "15190908888",
+                    "customer_level": "3",
+                    "customer_order_id": "74",
+                    "order_type": "1",
+                    "rtime": "1437408000",
+                    "customer_id": "74",
+                    "task_time": "1437667200",
+                    "house_floor": "",
+                    "house_number": "",
+                    "level": "B",
+                    "lastweek": "1",
+                    "lasttime": "2015-07-20",
+                    "diff_days": 151,
+                    "payment_id": 0
+                },{
+                    "customer_name": "周致远",
+                    "customer_mobile": "15190908888",
+                    "customer_level": "3",
+                    "customer_order_id": "74",
+                    "order_type": "1",
+                    "rtime": "1437408000",
+                    "customer_id": "74",
+                    "task_time": "1437667200",
+                    "house_floor": "",
+                    "house_number": "",
+                    "level": "B",
+                    "lastweek": "1",
+                    "lasttime": "2015-07-20",
+                    "diff_days": 151,
+                    "payment_id": 0
+                }
+            ]
+        },
+        {
+            "order_type_name": "再次来访",
+            "count": 8,
+            "list": [
+                {
+                    "customer_name": "周致远",
+                    "customer_mobile": "15190908888",
+                    "customer_level": "3",
+                    "customer_order_id": "74",
+                    "order_type": "1",
+                    "rtime": "1437408000",
+                    "customer_id": "74",
+                    "task_time": "1437667200",
+                    "house_floor": "",
+                    "house_number": "",
+                    "level": "B",
+                    "lastweek": "1",
+                    "lasttime": "2015-07-20",
+                    "diff_days": 151,
+                    "payment_id": 0
+                },{
+                    "customer_name": "周致远",
+                    "customer_mobile": "15190908888",
+                    "customer_level": "3",
+                    "customer_order_id": "74",
+                    "order_type": "1",
+                    "rtime": "1437408000",
+                    "customer_id": "74",
+                    "task_time": "1437667200",
+                    "house_floor": "",
+                    "house_number": "",
+                    "level": "B",
+                    "lastweek": "1",
+                    "lasttime": "2015-07-20",
+                    "diff_days": 151,
+                    "payment_id": 0
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,66 @@
+//-Created by JackieWu on 12/23/15.
+//-定金
+.search-intention
+    .intention-list
+        .inten-name
+            i.s-i-icon-1
+            span 项目名称
+        .inten-input
+            input.J_inten-project(type='text',value="@{it.data.real_name}",disabled)
+    .intention-list
+        .inten-name
+            i.s-i-icon-7
+            span 购房房号
+        .inten-input.house-number
+            input.J_inten-number(type='text',value="@{it.data.house_number}")
+            .separated 栋
+            input.J_inten-floor(type='text',value="@{it.data.house_floor}")
+            .separated 层
+            input.J_inten-room(type='text',value="@{it.data.house_room}")
+            .separated 号
+    .intention-list
+        .inten-name
+            i.s-i-icon-2
+            span 建筑面积
+        .inten-input
+            input.J_inten-area(type='text', placeholder='请输入',value="@{it.data.house_area}")
+    .intention-list
+        .inten-name
+            i.s-i-icon-3
+            span 客户姓名
+        .inten-input
+            input.J_inten-name(type='text', placeholder='请输入',value="@{it.data.real_name}")
+    .intention-list
+        .inten-name
+            i.s-i-icon-4
+            span 联系电话
+        .inten-input
+            input.J_inten-phone(type='tel', placeholder='请输入',value="@{it.data.real_mobile}")
+    .intention-list
+        .inten-name
+            i.s-i-icon-5
+            span 下一步进度
+        .inten-cont
+            .border.J_drop
+                i
+                span 付意向金
+            .drop.J_drop-show.hide
+                span 再次来访
+                span 付意向金
+                span 付定金
+                span 签约
+                span 付款
+
+    .intention-list
+        .inten-name
+            i.s-i-icon-6
+            span 计划时间
+        .time-box
+            .time
+                span @{it.time}
+            label(for="btn-time").btn-icon
+                input.hide#btn-time(type="date")
+.search-inten-btn
+    span.J_cancel 退订
+    span.J_submit 提交
+.search-tips 注：退订后将被降为D级客户

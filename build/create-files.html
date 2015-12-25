@@ -8,20 +8,39 @@
         <title>超级来访单首页</title>
         <body>
             <div class="create-files-box">
-                <div class="files-title">当前客户为<span>B</span>级客户，现在就来为他创建档案吧！</div>
+                <div class="files-title">当前客户为<span class="J_level"></span>级客户，现在就来为他创建档案吧！</div>
                 <div class="input-box">
                     <div class="input"><i class="create-files-icon-1"></i>
-                        <input type="date" placeholder="请选择建档日期（不选则默认今天）" class="J_create-date">
+                        <label for="create-date" class="J_create-date">
+                            <input id="create-date" type="date" placeholder="请选择建档日期（不选则默认今天）" class="hide">
+                        </label>
                     </div>
                     <div class="input"><i class="create-files-icon-2"></i>
                         <input type="text" placeholder="请输入客户姓名或昵称" class="J_create-name">
                     </div>
                     <div class="input"><i class="create-files-icon-3"></i>
-                        <input type="tel" placeholder="请输入客户电话号码" class="J_create-tel">
+                        <div class="tel-box">
+                            <input type="tel" placeholder="前四位" maxlength="4" class="J_create-tel-1"><span>****</span>
+                            <input type="tel" placeholder="后四位" maxlength="4" class="J_create-tel-2">
+                        </div>
+                    </div>
+                    <div class="tips">注:清分别输入手机号的前四位和后四位</div>
+                    <div class="input margin-top">
+                        <div class="gender-box J_gender-box">
+                            <div class="radio-input">
+                                <input type="radio" id="man" name="r-1" value="1" checked>
+                            </div>
+                            <label for="man">男士</label>
+                            <div class="radio-input">
+                                <input type="radio" id="woman" name="r-1" value="1">
+                            </div>
+                            <label for="woman">女士</label>
+                        </div>
                     </div>
                     <div class="logon-btn J_create-files-btn">创建档案</div>
                 </div>
             </div>
+            <script src="./js/create-files.js"></script>
         </body>
     </head>
 </html>

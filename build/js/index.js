@@ -1668,19 +1668,31 @@ module.exports = Zepto;
  * Created by JackieWu on 12/20/15.
  */
 var $ = require('./common/zepto');
+var ajax = require('./lib/ajax');
 var Calendar = require('./common/Calendar');
+var Url = require('./lib/get-url');
 var mbox = require('./lib/Mbox');
-var ak = '8e9b109eedc27959233242342342';
+var tpl = require('./lib/tpl');
+var indexHtml = require('./tpl/index-tpl.html');
+var linkHtml = require('./tpl/index-link-tpl.html');
 var date = new Date();
 var YEAR = date.getFullYear();
 var MONTH = date.getMonth() + 1;
 var DAY = date.getDate();
 
-var quyer = {
+var url = new Url();
+var tplRender = tpl.render;
+var query = {
     $day: $('.J_index-day'),
-    $center: $('.J_center')
+    $center: $('.J_center'),
+    $photo: $('.J_photo'),
+    $wait: $('.J_wait-box'),
+    $number: $('.J_wait-number'),
+    $linkBox: $('.J_link-box'),
+    $search: $('.J_search'),
+    $deal: $('.J_deal')
 };
-
+//设置今天日期
 new Calendar({
     c: 'J_calendar',
     y: YEAR,
@@ -1692,26 +1704,77 @@ new Calendar({
     f: 0//显示双日历用1，单日历用0
 }, $);
 
-quyer.$day.html(YEAR + '年' + MONTH + '月' + DAY + '日');
+query.$day.html(YEAR + '年' + MONTH + '月' + DAY + '日');
 
-$.ajax({
-    url: '/h5_app/interface_supervisit/get_user_info',
-    type: 'POST',
-    data:{
-        ak: ak,
-        user_id: ''//哪用户登录的url
-    },
-    success: function(msg){
-        if(msg.result !== 1){
-            mbox($,{
-                tips: '用户信息获取失败'
-            });
-        }else{
-
-        }
-    }
+//个人中心
+query.$center.on('touchend', function () {
+    location.href = 'personal.html?user_id=' + url.parameter('user_id')
 });
-},{"./common/Calendar":1,"./common/zepto":2,"./lib/Mbox":4}],4:[function(require,module,exports){
+//客户查询
+query.$search.on('touchend', function () {
+    location.href = 'search.html?user_id=' + url.parameter('user_id')
+});
+//成交助手
+query.$deal.on('touchend', function () {
+    location.href = 'deal.html?user_id=' + url.parameter('user_id') + '&deal_index=0';
+});
+
+query.$linkBox.html(tplRender(linkHtml, {
+    user_id: url.parameter('user_id')
+}));
+
+//同时去访问一次
+ajax({
+    $: $,
+    url: 'get_user_info',
+    data: {
+        user_id: url.parameter('user_id')
+    },
+    success: function (msg) {
+        query.$photo.attr('src', msg.data.head_pic);
+    },
+    error: function (msg) {
+        mbox($, {
+            tips: msg.msg
+        });
+    }
+
+});
+ajax({
+    $: $,
+    url: 'user_task_list',
+    data: {
+        user_id: url.parameter('user_id')
+    },
+    success: function (msg) {
+        query.$wait.html(tplRender(indexHtml, msg.data));
+
+    },
+    error: function (msg) {
+        mbox($, {
+            tips: msg.msg
+        });
+    }
+
+});
+//待办事项总数
+ajax({
+    $: $,
+    url: 'user_task_count',
+    data: {
+        user_id: url.parameter('user_id')
+    },
+    success: function (msg) {
+        query.$number.html(msg.data);
+    },
+    error: function (msg) {
+        mbox($, {
+            tips: msg.msg
+        });
+    }
+
+});
+},{"./common/Calendar":1,"./common/zepto":2,"./lib/Mbox":4,"./lib/ajax":5,"./lib/get-url":6,"./lib/tpl":7,"./tpl/index-link-tpl.html":8,"./tpl/index-tpl.html":9}],4:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/20/15.
  */
@@ -1731,7 +1794,271 @@ var mbox = function ($, options) {
     });
 };
 module.exports = mbox;
-},{"../tpl/mbox.html.js":6,"./tpl":5}],5:[function(require,module,exports){
+},{"../tpl/mbox.html.js":10,"./tpl":7}],5:[function(require,module,exports){
+/**
+ * Created by JackieWu on 12/22/15.
+ */
+var mbox = require('./Mbox');
+var ajax = function (options) {
+    options.data.ak = '8e9b109eedc27959233242342342';
+    var ajaxUrl = {
+        regist: '/h5_app/interface_supervisit/regist', //用户注册
+        login: '/h5_app/interface_supervisit/login', //登录
+        update_registration: '/h5_app/interface_supervisit/update_registration', //个人中心更新用户信息
+        user_task_count: '/h5_app/interface_supervisit/user_task_count', //今日待办个数
+        update_pwd: '/h5_app/interface_supervisit/update_pwd', //找回密码
+        get_question: '/h5_app/interface_supervisit/get_question', //获取问答卷信息
+        create_customer_test: '/h5_app/interface_supervisit/create_customer_test', //创建用户档案(在用户填写完问卷之后)
+        update_customer_info_test: '/h5_app/interface_supervisit/update_customer_info_test',
+        get_user_info: '/h5_app/interface_supervisit/get_user_info',//获取用户信息
+        user_task_list: '/h5_app/interface_supervisit/user_task_list', //获取今日代办
+        get_yanzhengcode: '/h5_app/interface_supervisit/get_yanzhengcode', //获取验证码
+        is_yanzhengcode: '/h5_app/interface_supervisit/is_yanzhengcode', //确认验证码
+        get_answer_level: '/h5_app/interface_supervisit/get_answer_level', //获取用户等级
+        get_customer_info: '/h5_app/interface_supervisit/get_customer_info',
+        search_customer_by_level: '/h5_app/interface_supervisit/search_customer_by_level',//按等级查找客户
+        customer_order_actio: '/h5_app/interface_supervisit/customer_order_actio',//更新客户状态，再次来访，下意向金，下定，签约，付款
+        search_customer: '/h5_app/interface_supervisit/search_customer' //搜索查询
+    };
+    options.$.ajax({
+        url: ajaxUrl[options.url],
+        type: 'POST',
+        data: options.data,
+        success: function (msg) {
+            if(msg.result === 1 || msg.result === 10){
+                options.success && options.success(msg)
+            }else{
+                options.error && options.error(msg)
+            }
+        },
+        error: function(msg){
+            options.error && options.error(msg)
+        }
+
+    })
+};
+
+module.exports = ajax;
+},{"./Mbox":4}],6:[function(require,module,exports){
+/**
+ * Created by JackieWu on 12/22/15.
+ */
+var Url = function (href) {
+
+    this._href = href || location.href;
+    this._parameters = {};
+    this._parse();
+    this._parseQuery();
+    this._formatQuery();
+
+}, p = Url.prototype;
+
+/**
+ * parse url string to url object, and save to Url
+ * @returns {Url}
+ * @private
+ */
+p._parse = function () {
+
+    var a = document.createElement('a');
+    a.href = this._href;
+
+    this._protocol = a.protocol;
+    this._host = a.host;
+    this._hostname = a.hostname;
+    this._port = a.port;
+    this._pathname = a.pathname;
+    this._search = a.search;
+    this._hash = a.hash;
+
+    if (this._host === '') {
+        // fix ie cannot get url host, when _href has no host by default
+        this._host = location.host;
+    }
+
+    if (this._protocol === '') {
+        this._protocol = location.protocol;
+    }
+
+    if (this._pathname.split('')[0] !== '/') {
+        this._pathname = '/' + this._pathname;
+    }
+
+    this._path = this._pathname + this._search;
+    this._query = this._search.slice(1);
+
+    return this;
+};
+
+/**
+ * parse query string to query object, and save to _parameters
+ * @returns {Url}
+ * @private
+ */
+p._parseQuery = function () {
+
+    var qs = this._query.split('&'), l = qs.length;
+
+    for (var i = 0; i < l; i++) {
+        var split = qs[i].split('=');
+        if (split.length === 2) {
+            this._parameters[decodeURIComponent(split[0])] = decodeURIComponent(split[1]);
+        }
+    }
+
+    return this;
+};
+
+/**
+ * format parameters to query string, and update the url object
+ * @returns {Url}
+ * @private
+ */
+p._formatQuery = function () {
+    var query = '', obj = this._parameters;
+    for (var i in obj) {
+        if (obj.hasOwnProperty(i)) {
+            query += encodeURIComponent(i) + '=' + encodeURIComponent(obj[i]) + '&';
+        }
+    }
+    query = query.slice(0, -1);
+    this._query = query;
+    if (query !== '') {
+        this._search = '?' + query;
+    }
+    this._path = this._pathname + this._search;
+    this._href = this._protocol + '//' + this._host + this._path + this._hash;
+
+    return this;
+};
+
+/**
+ * get or set some parameter in query string
+ * url.parameter();                 => return all parameters in search string
+ * url.parameter('key');            => return parameter by key
+ * url.parameter('key', 'value');   => return url; set parameter `key` to `value`
+ * url.parameter({key: 'value'});   => return url; set parameter `key` to `value`
+ * @param key
+ * @param [value]
+ * @returns {*}
+ */
+p.parameter = function (key, value) {
+    switch (typeof key) {
+        case 'undefined':
+            // get all parameter
+            return this._parameters;
+            break;
+        case 'string':
+            if (value === undefined) { // get parameter by key
+                return this._parameters[key];
+            } else { // set parameter by key
+                this._parameters[key] = value;
+                this._formatQuery();
+                return this;
+            }
+        case 'object':
+            // set object to parameter
+            for (var _key in key) {
+                if (key.hasOwnProperty(_key)) {
+                    this._parameters[_key] = key[_key];
+                }
+            }
+            this._formatQuery();
+            return this;
+        default:
+            throw new Error('Url: type of first argument is not `undefined`, `string` or `object`');
+            return this;
+    }
+};
+
+/**
+ * remove parameter in query string
+ * @param key
+ * @returns {Url}
+ */
+p.removeParameter = function (key) {
+    delete this._parameters[key];
+    this._formatQuery();
+    return this;
+};
+
+/**
+ * to string
+ * @returns {*|string}
+ */
+p.toString = function () {
+    return this._href;
+};
+
+/**
+ * get property
+ * @param prop
+ * @returns {*}
+ */
+p.get = function (prop) {
+    return this['_' + prop];
+};
+
+/**
+ * set property
+ * @param prop
+ * @param value
+ * @returns {Url}
+ */
+p.set = function (prop, value) {
+
+    this['_' + prop] = value;
+
+    /**
+     * href |- protocol
+     *      |- host     |- hostname
+     *      |           |- port
+     *      |- path     |- pathname
+     *      |           |- search    |- query |- parameters
+     *      |- hash
+     */
+    switch (prop) {
+        case 'parameters':
+            throw new Error('Url: use `parameter` instead');
+            break;
+        case 'query':
+            this._path = this._pathname + (value === '' ? '' : '?' + this._query);
+            break;
+        case 'search':
+            if (value === '' || value.indexOf('?') === 0) {
+                this._path = this._pathname + value;
+            } else {
+                throw new Error('Url: `search` must starts with `?`');
+            }
+            break;
+        case 'pathname':
+            this._path = value + this._search;
+            break;
+        case 'port':
+            this._host = this._hostname + (value === '' ? '' : ':' + value);
+            break;
+        case 'hostname':
+            this._host = value + (this._port === '' ? '' : ':' + this._port);
+            break;
+        case 'hash':
+            if (value !== '' && value.indexOf('#') !== 0) {
+                throw new Error('Url: `hash` must starts with `#`');
+            }
+            break;
+        default:
+            throw new Error('Url: `' + prop + '` cannot be set to url');
+            break;
+    }
+
+    this._href = this._protocol + '//' + this._host + this._path + this._hash;
+    this._parameters = {};
+    this._parse();
+    this._parseQuery();
+    this._formatQuery();
+    return this;
+};
+module.exports = Url;
+},{}],7:[function(require,module,exports){
 function compile(template){
     var
 
@@ -1883,6 +2210,10 @@ exports.compile = function(template){
     return compile(template);
 };
 
-},{}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
+module.exports='<div class="box-01 box"><a href="answer.html?user_id=@{it.user_id}&amp;order_type=1">首次来访</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=2">再次来访</a></div><div class="box-02 box"><a href="search.html?user_id=@{it.user_id}&amp;order_type=4">意向金</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=5">定金</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=6">签约</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=7">付款</a></div>';
+},{}],9:[function(require,module,exports){
+module.exports='<div class="wait"><?js it.forEach(function(item,k){ ?><div class="box"><div class="wait-title"><div class="title-bg"><span>@{item.order_type_name}</span></div></div><?js item.list.forEach(function(listItem, i){ ?><div class="wait-list J_wait-list"><div class="list-box"><div class="list-left"><i class="list-icon-01"></i><span>客户姓名</span></div><div class="list-right"><span>@{listItem.customer_name}</span></div></div><div class="list-box"><div class="list-left"><i class="list-icon-02"></i><span>当前级别</span></div><div class="list-right"><span>@{listItem.level}级客户</span><a href="#"><i class="right-icon-3"></i></a></div></div><div class="list-box"><div class="list-left"><i class="list-icon-03"></i><span>最新接触</span></div><div class="list-right"><span>@{listItem.lasttime}</span></div></div><div class="list-box"><div class="list-left"><i class="list-icon-04"></i><span>邀约来访</span></div><div class="list-right"><a href="tel:@{listItem.customer_mobile}"><i class="right-icon-1"></i></a><a href="sms:@{listItem.customer_mobile}"><i class="right-icon-2"></i></a></div></div><div class="list-box"><div class="list-left"><i class="list-icon-05"></i><span>计划时间</span></div><div class="list-right"><span>@{listItem.diff_days}天</span><label for="input-@{k}-@{i}"><input type="date" id="input-@{k}-@{i}" class="hide"/><i class="right-icon-3"></i></label></div></div></div><?js }); ?></div><?js }); ?></div>';
+},{}],10:[function(require,module,exports){
 module.exports='<div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn">确定</div></div></div>';
 },{}]},{},[3])

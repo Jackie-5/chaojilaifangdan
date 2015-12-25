@@ -1,69 +1,68 @@
 //- Created by JackieWu on 15/12/14.
-
-body
-    background: #ececec
-
-.question-box
-    background #fff
-    padding 10px
-    margin-bottom 10px
-    h1
-        font-size .9rem
-        color #666
-        font-weight bold
-    .input-box
-        overflow hidden
-        height 27px
-        line-height 25px
-        margin-top 5px
-        margin-left 10px
-        .radio-input
-            float left
-            width 16px
-            height 16px
-            border-radius 100%
-            border 1px solid #9b9b9b
-            margin-top 3px
-            margin-right 8px
-            input
-                width 10px
-                height 10px
-                //background #000
+.answer-body
+    background #ececec
+    .question-box
+        background #fff
+        padding 10px
+        margin-bottom 10px
+        h1
+            font-size .9rem
+            color #666
+            font-weight bold
+            line-height 2
+        .input-box
+            overflow hidden
+            height 27px
+            line-height 25px
+            margin-top 5px
+            margin-left 10px
+            .radio-input
+                float left
+                width 16px
+                height 16px
+                border-radius 100%
                 border 1px solid #9b9b9b
-                border-radius 50%
-                position relative
-                margin-left 3px
                 margin-top 3px
-            input:checked
-                &:before
-                    position absolute
-                    content ''
-                    top 0
-                    left 0
-                    width 8px
-                    height 8px
+                margin-right 8px
+                input
+                    width 10px
+                    height 10px
+                    //background #000
+                    border 1px solid #9b9b9b
                     border-radius 50%
-                    background #25a9ff
-        label
-            display block
-            font-size .8rem
-            color #999
+                    position relative
+                    margin-left 3px
+                    margin-top 3px
+                input:checked
+                    &:before
+                        position absolute
+                        content ''
+                        top 0
+                        left 0
+                        width 8px
+                        height 8px
+                        border-radius 50%
+                        background #25a9ff
+            label
+                display block
+                font-size .8rem
+                color #999
 
-.question-btn-box
-    height 60px
-    padding-top 20px
-    background #fff
-    .question-btn
-        display block
-        width 80%
-        height 45px
-        background #25a9ff
-        border-radius 3px
-        text-align center
-        line-height 45px
-        font-size 1.25rem
-        margin 0 auto
-        color #fff
-    .question-btn:active
-        color #fff
-        background #25a9ff
+    .question-btn-box
+        height 60px
+        padding-top 20px
+        background #fff
+        .question-btn
+            display block
+            width 80%
+            height 45px
+            background #25a9ff
+            border-radius 3px
+            text-align center
+            line-height 45px
+            font-size 1.25rem
+            margin 0 auto
+            color #fff
+        .question-btn:active
+            color #fff
+            background #25a9ff

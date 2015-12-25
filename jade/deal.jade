@@ -5,18 +5,18 @@ html
         include ./common/head
         title 成交助手
         body
-            .deal-title-bar-box
-                .title.active
+            .deal-title-bar-box.J_deal-title-bar
+                a(href="#").title
                     span A+级
-                .title
+                a(href="#").title
                     span A级
-                .title
+                a(href="#").title
                     span B+级
-                .title
+                a(href="#").title
                     span B级
-                .title
+                a(href="#").title
                     span C+级
-                .title
+                a(href="#").title
                     span 待交房
             .deal-content
                 .deal-box
@@ -124,3 +124,4 @@ html
                                 | 天
                             .time-icon
                                 input.hide(type="date")
+            script(src="./js/deal.js")

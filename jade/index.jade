@@ -8,7 +8,7 @@ html
             .index-bg
             .index-box
                 .index-top
-                    a(href="#").date-picker
+                    .date-picker
                         .date-title
                             .time 今天
                             .day.J_index-day
@@ -18,84 +18,31 @@ html
 
                             .calendar-tips.J_calendar-tips
                                 .tips 今日待办
-                                .num 4
-
-
+                                .num.J_wait-number 0
                     .my-photo
                         .photo-box
                             label(for="photo").is-photo
                                 input.hide(type="file" id="photo")
                                 .camera
-                                img(src='./images/login-photo.jpg')
+                                img.J_photo(src='./images/login-photo.jpg')
                             .center.J_center 个人中心
                 .title.bg-01.J_index-title-01
                     .top.bg-01
                     i.left-icon-01
                     .right-title 新增来电来访
-                .new-content
-                    .box-01.box
-                        a(href="answer.html") 首次来访
-                        a(href="") 再次来访
-                    .box-02.box
-                        a(href="") 意向金
-                        a(href="") 定金
-                        a(href="") 签约
-                        a(href="") 付款
-                a(href="#").title.bg-02
+                .new-content.J_link-box
+
+                .title.bg-02.J_search
                     .top.bg-02
                     i.left-icon-02
                     .right-title 查询客户
-                a(href="#").title.bg-03
+                .title.bg-03.J_deal
                     .top.bg-03
                     i.left-icon-03
                     .right-title 成交助手
-                a(href="#").title.bg-04
+                a(href="javascript:;").title.bg-04
                     .top.bg-04
                     i.left-icon-04
                     .right-title 今日待办
-                .wait
-                    .box
-                        .wait-title
-                            .title-bg
-                                span 邀约来访
-                        .wait-list
-                            .list-box
-                                .list-left
-                                    i.list-icon-01
-                                    span 客户姓名
-                                .list-right
-                                    span 司树磊
-                            .list-box
-                                .list-left
-                                    i.list-icon-02
-                                    span 当前级别
-                                .list-right
-                                    span A级客户
-                                    a(href="#")
-                                        i.right-icon-3
-                            .list-box
-                                .list-left
-                                    i.list-icon-03
-                                    span 最新接触
-                                .list-right
-                                    span 2014年12月23日  星期天
-                            .list-box
-                                .list-left
-                                    i.list-icon-04
-                                    span 邀约来访
-                                .list-right
-                                    a(href="tel:1303030303")
-                                        i.right-icon-1
-                                    a(href="sms:13910101010")
-                                        i.right-icon-2
-                            .list-box
-                                .list-left
-                                    i.list-icon-05
-                                    span 计划时间
-                                .list-right
-                                    span 3天
-                                    a(href="#")
-                                        i.right-icon-3
-
-
+                .J_wait-box
             script(src="./js/index.js")

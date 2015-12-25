@@ -1,0 +1,51 @@
+//-Created by JackieWu on 12/23/15.
+//-付款
+| <?js var drop = (it.drop === 0 ? '分期付款': '一次性'); ?>
+| <?js if(!it.p){ ?>
+.J_payment
+    .deal-box
+        .deal-list
+            .pay.border-bottom
+                .p-title 付款方式
+                .p-cont
+                    .border.J_drop
+                        i
+                        span @{drop}
+                    .drop.J_drop-show.hide
+                        span 一次性
+                        span 分期付款
+                .p-cont-btn.J-cont-btn
+        .deal-list
+            .pay
+                .p-title 付款金额
+                .p-cont
+                    .p-money
+                        i ￥
+                        input(type='tel',value="20,000")
+        .deal-list
+            .pay.border-bottom
+                .p-title 付款时间
+                .p-cont
+                    .p-time
+                        label(for="p-time-@{it.index}") 2015-01-01
+                            input.hide(type='date',id="p-time-@{it.index}")
+                        i
+.deal-btn.J_deal-btn 提交
+| <?js } else { ?>
+.deal-box
+    .deal-list
+        .pay
+            .p-title 付款金额
+            .p-cont
+                .p-money
+                    i ￥
+                    input(type='tel',value="20,000")
+    .deal-list
+        .pay.border-bottom
+            .p-title 付款时间
+            .p-cont
+                .p-time
+                    label(for="p-time-@{it.index}") 2015-01-01
+                        input.hide(type='date',id="p-time-@{it.index}")
+                    i
+| <?js } ?>

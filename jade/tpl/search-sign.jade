@@ -1,0 +1,55 @@
+//-Created by JackieWu on 12/23/15.
+//-签约
+.search-intention
+    .intention-list
+        .inten-name
+            i.s-i-icon-1
+            span 项目名称
+        .inten-input
+            input.J_inten-project(type='text',value="@{it.data.real_name}",disabled)
+    .intention-list
+        .inten-name
+            i.s-i-icon-7
+            span 购房房号
+        .inten-input.house-number
+            input.J_inten-number(type='text',value="@{it.data.house_number}")
+            .separated 栋
+            input.J_inten-floor(type='text',value="@{it.data.house_floor}")
+            .separated 层
+            input.J_inten-room(type='text',value="@{it.data.house_room}")
+            .separated 号
+    .intention-list
+        .inten-name
+            i.s-i-icon-2
+            span 建筑面积
+        .inten-input
+            input.J_inten-area(type='tel',value="@{it.data.house_area}", placeholder='请输入')
+    .intention-list
+        .inten-name
+            i.s-i-icon-3
+            span 客户姓名
+        .inten-input
+            input.J_inten-name(type='text',value="@{it.data.real_name}", placeholder='请输入')
+    .intention-list
+        .inten-name
+            i.s-i-icon-4
+            span 联系电话
+        .inten-input
+            input.J_inten-phone(type='tel', value="@{it.data.real_mobile}", placeholder='请输入')
+    .intention-list
+        .inten-name
+            i.s-i-icon-9
+            span 购房总价
+        .inten-input
+            .icon-money ￥
+            input.J_inten-price(type='tel', value="@{it.data.total_price}", placeholder='请输入')
+    .intention-list
+        .inten-name
+            i.s-i-icon-10
+            span 购房单价
+        .inten-input
+            .icon-money ￥
+            .unit.J_unit @{it.data.price}
+
+.unit-tips 注：输入总价后自动换算单价
+.search-unit-btn.J_search-unit-btn.J_submit 提交
