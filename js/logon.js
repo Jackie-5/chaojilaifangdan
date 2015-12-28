@@ -4,6 +4,8 @@
 var $ = require('./common/zepto');
 var ajax = require('./lib/ajax');
 var mbox = require('./lib/Mbox');
+var Url = require('./lib/get-url');
+var url = new Url();
 var query = {
     $name: $('.J_logon-name'),
     $tel: $('.J_logon-tel'),
@@ -12,27 +14,34 @@ var query = {
     $logonBtn: $('.J_logon-btn')
 };
 
-query.$logonBtn.on('touchend',function(){
-    if(query.$name.val() === ''){
-        mbox($,{
+url.parameter('name') && query.$name.val(url.parameter('name'));
+url.parameter('tel') && query.$tel.val(url.parameter('tel'));
+url.parameter('houseName') && query.$houses.html(url.parameter('houseName'));
+url.parameter('pwd') && query.$pwd.val(url.parameter('pwd'));
+
+query.$houses.on('click', function () {
+    location.href = 'house-search.html?name=' + query.$name.val() + '&tel=' + query.$tel.val() + '&pwd=' + query.$pwd.val()
+});
+query.$logonBtn.on('touchend', function () {
+    if (query.$name.val() === '') {
+        mbox($, {
             tips: '姓名不能为空'
         });
         return
     }
-    if(query.$tel.val() === '' || !/0?(13|14|15|17|18)[0-9]{9}/.test(query.$tel.val()) || query.$tel.val().length !== 11){
-        mbox($,{
+    if (query.$tel.val() === '' || !/0?(13|14|15|17|18)[0-9]{9}/.test(query.$tel.val()) || query.$tel.val().length !== 11) {
+        mbox($, {
             tips: '请输入正确的手机号'
         });
         return
     }
-    if(query.$houses.val() === ''){
-        mbox($,{
+    if(url.parameter('houseId') == ''){
+        mbox($, {
             tips: '楼盘不能为空'
         });
-        return
     }
-    if(query.$pwd.val() === ''){
-        mbox($,{
+    if (query.$pwd.val() === '') {
+        mbox($, {
             tips: '密码不能为空'
         });
         return
@@ -44,12 +53,12 @@ query.$logonBtn.on('touchend',function(){
             user_mobile: query.$tel.val(),
             user_name: query.$name.val(),
             user_pass: query.$pwd.val(),
-            house_id: query.$houses.val()
+            house_id: url.parameter('houseId')
         },
         success: function (msg) {
-            mbox($,{
+            mbox($, {
                 tips: msg.msg,
-                callback:function(){
+                callback: function () {
                     location.href = 'login.html'
                 }
             });

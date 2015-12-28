@@ -4806,7 +4806,6 @@ var query = {
     $cTel2: $('.J_create-tel-2'),
     $gender: $('.J_gender-box'),
     $createFiles: $('.J_create-files-btn')
-
 };
 var gender;
 query.$level.html(url.parameter('level'));
@@ -4833,19 +4832,23 @@ query.$createFiles.on('touchend', function () {
     });
     ajax({
         $: $,
-        url: 'user_task_list',
+        url: 'create_customer_test',
         data: {
+            customer_name: query.$name.val(),
             pre_cus_mobile: query.$cTel1.val(),
             last_cus_mobile: query.$cTel2.val(),
             customer_gender: gender,
             user_id: url.parameter('user_id'),
-            house_id: query.$gender.val()
+            house_id: url.parameter('house_id'),
+            house_name: url.parameter('house_name'),
+            rtime: query.$createDate.html(),
+            question_info: url.parameter('question_info')
         },
         success: function (msg) {
             mbox($, {
-                tips: '创建成功',
+                tips: msg.msg,
                 callback: function () {
-                    location.href = 'index.html?user_id=' + url.parameter('user_id')
+                    location.href = 'index.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
                 }
             });
         },
@@ -4885,10 +4888,11 @@ module.exports = mbox;
  */
 var mbox = require('./Mbox');
 var ajax = function (options) {
-    options.data.ak = '8e9b109eedc27959233242342342';
+    options.data.ak = '57b7e940555a331c45f1f3aafa41320e';
     var ajaxUrl = {
         regist: '/h5_app/interface_supervisit/regist', //用户注册
         login: '/h5_app/interface_supervisit/login', //登录
+        house_list: '/h5_app/interface_supervisit/house_list', //获取楼盘id
         update_registration: '/h5_app/interface_supervisit/update_registration', //个人中心更新用户信息
         user_task_count: '/h5_app/interface_supervisit/user_task_count', //今日待办个数
         update_pwd: '/h5_app/interface_supervisit/update_pwd', //找回密码
@@ -4906,17 +4910,19 @@ var ajax = function (options) {
         search_customer: '/h5_app/interface_supervisit/search_customer' //搜索查询
     };
     options.$.ajax({
-        url: ajaxUrl[options.url],
+        url: 'http://Laifangdan.searchchinahouse.com' + ajaxUrl[options.url],
         type: 'POST',
         data: options.data,
         success: function (msg) {
-            if(msg.result === 1 || msg.result === 10){
+            if(typeof msg === 'string') msg = JSON.parse(msg);
+            if (msg.result === 1 || msg.result === 10) {
                 options.success && options.success(msg)
-            }else{
+            } else {
                 options.error && options.error(msg)
             }
         },
-        error: function(msg){
+        error: function (msg) {
+            if(typeof msg === 'string') msg = JSON.parse(msg);
             options.error && options.error(msg)
         }
 

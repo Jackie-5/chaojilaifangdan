@@ -901,7 +901,10 @@ input[type=number]::-webkit-outer-spin-button {
 .forget-box .input-box .input label,
 .logon-box .input-box .input input,
 .create-files-box .input-box .input input,
-.forget-box .input-box .input input {
+.forget-box .input-box .input input,
+.logon-box .input-box .input .logon-house,
+.create-files-box .input-box .input .logon-house,
+.forget-box .input-box .input .logon-house {
   display: block;
   float: left;
   width: 75%;
@@ -1609,6 +1612,16 @@ input[type=number]::-webkit-outer-spin-button {
 }
 .search-date .s-date-box label:last-child {
   border-left: 1px solid #fff;
+}
+.house-search-content-box {
+  margin-top: 45px;
+  padding: 0 3%;
+  background: #fff;
+}
+.house-search-content-box .house-list {
+  color: #333;
+  height: 40px;
+  line-height: 40px;
 }
 .deal-title-bar-box {
   width: 100%;

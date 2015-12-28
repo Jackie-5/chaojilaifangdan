@@ -1708,19 +1708,21 @@ query.$day.html(YEAR + '年' + MONTH + '月' + DAY + '日');
 
 //个人中心
 query.$center.on('touchend', function () {
-    location.href = 'personal.html?user_id=' + url.parameter('user_id')
+    location.href = 'personal.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
 });
 //客户查询
 query.$search.on('touchend', function () {
-    location.href = 'search.html?user_id=' + url.parameter('user_id')
+    location.href = 'search.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
 });
 //成交助手
 query.$deal.on('touchend', function () {
-    location.href = 'deal.html?user_id=' + url.parameter('user_id') + '&deal_index=0';
+    location.href = 'deal.html?user_id=' + url.parameter('user_id') + '&deal_index=0' +'&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
 });
 
 query.$linkBox.html(tplRender(linkHtml, {
-    user_id: url.parameter('user_id')
+    user_id: url.parameter('user_id'),
+    house_id: url.parameter('house_id'),
+    house_name: url.parameter('house_name')
 }));
 
 //同时去访问一次
@@ -1755,7 +1757,6 @@ ajax({
             tips: msg.msg
         });
     }
-
 });
 //待办事项总数
 ajax({
@@ -1800,10 +1801,11 @@ module.exports = mbox;
  */
 var mbox = require('./Mbox');
 var ajax = function (options) {
-    options.data.ak = '8e9b109eedc27959233242342342';
+    options.data.ak = '57b7e940555a331c45f1f3aafa41320e';
     var ajaxUrl = {
         regist: '/h5_app/interface_supervisit/regist', //用户注册
         login: '/h5_app/interface_supervisit/login', //登录
+        house_list: '/h5_app/interface_supervisit/house_list', //获取楼盘id
         update_registration: '/h5_app/interface_supervisit/update_registration', //个人中心更新用户信息
         user_task_count: '/h5_app/interface_supervisit/user_task_count', //今日待办个数
         update_pwd: '/h5_app/interface_supervisit/update_pwd', //找回密码
@@ -1821,17 +1823,19 @@ var ajax = function (options) {
         search_customer: '/h5_app/interface_supervisit/search_customer' //搜索查询
     };
     options.$.ajax({
-        url: ajaxUrl[options.url],
+        url: 'http://Laifangdan.searchchinahouse.com' + ajaxUrl[options.url],
         type: 'POST',
         data: options.data,
         success: function (msg) {
-            if(msg.result === 1 || msg.result === 10){
+            if(typeof msg === 'string') msg = JSON.parse(msg);
+            if (msg.result === 1 || msg.result === 10) {
                 options.success && options.success(msg)
-            }else{
+            } else {
                 options.error && options.error(msg)
             }
         },
-        error: function(msg){
+        error: function (msg) {
+            if(typeof msg === 'string') msg = JSON.parse(msg);
             options.error && options.error(msg)
         }
 
@@ -2211,9 +2215,9 @@ exports.compile = function(template){
 };
 
 },{}],8:[function(require,module,exports){
-module.exports='<div class="box-01 box"><a href="answer.html?user_id=@{it.user_id}&amp;order_type=1">首次来访</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=2">再次来访</a></div><div class="box-02 box"><a href="search.html?user_id=@{it.user_id}&amp;order_type=4">意向金</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=5">定金</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=6">签约</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=7">付款</a></div>';
+module.exports='<div class="box-01 box"><a href="answer.html?user_id=@{it.user_id}&amp;order_type=1&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">首次来访</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=2&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">再次来访</a></div><div class="box-02 box"><a href="search.html?user_id=@{it.user_id}&amp;order_type=4&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">意向金</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=5&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">定金</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=6&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">签约</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=7&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">付款</a></div>';
 },{}],9:[function(require,module,exports){
-module.exports='<div class="wait"><?js it.forEach(function(item,k){ ?><div class="box"><div class="wait-title"><div class="title-bg"><span>@{item.order_type_name}</span></div></div><?js item.list.forEach(function(listItem, i){ ?><div class="wait-list J_wait-list"><div class="list-box"><div class="list-left"><i class="list-icon-01"></i><span>客户姓名</span></div><div class="list-right"><span>@{listItem.customer_name}</span></div></div><div class="list-box"><div class="list-left"><i class="list-icon-02"></i><span>当前级别</span></div><div class="list-right"><span>@{listItem.level}级客户</span><a href="#"><i class="right-icon-3"></i></a></div></div><div class="list-box"><div class="list-left"><i class="list-icon-03"></i><span>最新接触</span></div><div class="list-right"><span>@{listItem.lasttime}</span></div></div><div class="list-box"><div class="list-left"><i class="list-icon-04"></i><span>邀约来访</span></div><div class="list-right"><a href="tel:@{listItem.customer_mobile}"><i class="right-icon-1"></i></a><a href="sms:@{listItem.customer_mobile}"><i class="right-icon-2"></i></a></div></div><div class="list-box"><div class="list-left"><i class="list-icon-05"></i><span>计划时间</span></div><div class="list-right"><span>@{listItem.diff_days}天</span><label for="input-@{k}-@{i}"><input type="date" id="input-@{k}-@{i}" class="hide"/><i class="right-icon-3"></i></label></div></div></div><?js }); ?></div><?js }); ?></div>';
+module.exports='<?js if(it.length > 0){ ?><div class="wait"><?js it.forEach(function(item,k){ ?><div class="box"><div class="wait-title"><div class="title-bg"><span>@{item.order_type_name}</span></div></div><?js item.list.forEach(function(listItem, i){ ?><div class="wait-list J_wait-list"><div class="list-box"><div class="list-left"><i class="list-icon-01"></i><span>客户姓名</span></div><div class="list-right"><span>@{listItem.customer_name}</span></div></div><div class="list-box"><div class="list-left"><i class="list-icon-02"></i><span>当前级别</span></div><div class="list-right"><span>@{listItem.level}级客户</span><a href="#"><i class="right-icon-3"></i></a></div></div><div class="list-box"><div class="list-left"><i class="list-icon-03"></i><span>最新接触</span></div><div class="list-right"><span>@{listItem.lasttime}</span></div></div><div class="list-box"><div class="list-left"><i class="list-icon-04"></i><span>邀约来访</span></div><div class="list-right"><a href="tel:@{listItem.customer_mobile}"><i class="right-icon-1"></i></a><a href="sms:@{listItem.customer_mobile}"><i class="right-icon-2"></i></a></div></div><div class="list-box"><div class="list-left"><i class="list-icon-05"></i><span>计划时间</span></div><div class="list-right"><span>@{listItem.diff_days}天</span><label for="input-@{k}-@{i}"><input type="date" id="input-@{k}-@{i}" class="hide"/><i class="right-icon-3"></i></label></div></div></div><?js }); ?></div><?js }); ?></div><?js } ?>';
 },{}],10:[function(require,module,exports){
 module.exports='<div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn">确定</div></div></div>';
 },{}]},{},[3])

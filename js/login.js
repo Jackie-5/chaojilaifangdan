@@ -24,7 +24,7 @@ query.$login.on('click', function () {
             user_pass: query.$pwd.val()
         },
         success: function (msg) {
-            location.href = 'index.html?user_id=' + msg.data.user_id
+            location.href = 'index.html?user_id=' + msg.data.user_id + '&house_id=' + msg.data.house_id + '&house_name=' + msg.data.house_name
         },
         error: function(msg){
             mbox($, {

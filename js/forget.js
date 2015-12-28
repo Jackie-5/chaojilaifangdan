@@ -37,7 +37,9 @@ query.$countdown.on('touchend', function () {
                 query.$countdown.html('重新获取('+ time +'S)');
                 if(time === 0){
                     clearInterval(interval);
-                    query.$countdown.html('获取验证码')
+                    query.$countdown.html('获取验证码');
+                    time = 120;
+                    query.$countdown.removeClass('active');
                 }
             },1000)
         },

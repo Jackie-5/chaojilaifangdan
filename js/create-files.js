@@ -17,7 +17,6 @@ var query = {
     $cTel2: $('.J_create-tel-2'),
     $gender: $('.J_gender-box'),
     $createFiles: $('.J_create-files-btn')
-
 };
 var gender;
 query.$level.html(url.parameter('level'));
@@ -44,19 +43,23 @@ query.$createFiles.on('touchend', function () {
     });
     ajax({
         $: $,
-        url: 'user_task_list',
+        url: 'create_customer_test',
         data: {
+            customer_name: query.$name.val(),
             pre_cus_mobile: query.$cTel1.val(),
             last_cus_mobile: query.$cTel2.val(),
             customer_gender: gender,
             user_id: url.parameter('user_id'),
-            house_id: query.$gender.val()
+            house_id: url.parameter('house_id'),
+            house_name: url.parameter('house_name'),
+            rtime: query.$createDate.html(),
+            question_info: url.parameter('question_info')
         },
         success: function (msg) {
             mbox($, {
-                tips: '创建成功',
+                tips: msg.msg,
                 callback: function () {
-                    location.href = 'index.html?user_id=' + url.parameter('user_id')
+                    location.href = 'index.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
                 }
             });
         },

@@ -1623,10 +1623,10 @@ var submit = function (date) {
         $: $,
         url: 'get_answer_level',
         data: {
-            question_info: {} //没有填写
+            question_info: QAArray.join(',') //没有填写
         },
         success: function (msg) {
-            location.href = 'create-files.html?level=' + msg.data.level + '&user_id=' + url.parameter('user_id')
+            location.href = 'create-files.html?level=' + msg.data.level + '&user_id=' + url.parameter('user_id') + '&question_info=' + QAArray.join(',') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
         },
         error: function (msg) {
             mbox($, {
@@ -1680,10 +1680,11 @@ module.exports = mbox;
  */
 var mbox = require('./Mbox');
 var ajax = function (options) {
-    options.data.ak = '8e9b109eedc27959233242342342';
+    options.data.ak = '57b7e940555a331c45f1f3aafa41320e';
     var ajaxUrl = {
         regist: '/h5_app/interface_supervisit/regist', //用户注册
         login: '/h5_app/interface_supervisit/login', //登录
+        house_list: '/h5_app/interface_supervisit/house_list', //获取楼盘id
         update_registration: '/h5_app/interface_supervisit/update_registration', //个人中心更新用户信息
         user_task_count: '/h5_app/interface_supervisit/user_task_count', //今日待办个数
         update_pwd: '/h5_app/interface_supervisit/update_pwd', //找回密码
@@ -1701,17 +1702,19 @@ var ajax = function (options) {
         search_customer: '/h5_app/interface_supervisit/search_customer' //搜索查询
     };
     options.$.ajax({
-        url: ajaxUrl[options.url],
+        url: 'http://Laifangdan.searchchinahouse.com' + ajaxUrl[options.url],
         type: 'POST',
         data: options.data,
         success: function (msg) {
-            if(msg.result === 1 || msg.result === 10){
+            if(typeof msg === 'string') msg = JSON.parse(msg);
+            if (msg.result === 1 || msg.result === 10) {
                 options.success && options.success(msg)
-            }else{
+            } else {
                 options.error && options.error(msg)
             }
         },
-        error: function(msg){
+        error: function (msg) {
+            if(typeof msg === 'string') msg = JSON.parse(msg);
             options.error && options.error(msg)
         }
 
@@ -2091,7 +2094,7 @@ exports.compile = function(template){
 };
 
 },{}],7:[function(require,module,exports){
-module.exports='<?js it.forEach(function(item,i){ ?><div class="question-box J_q-a"><?js i = i + 1; ?><h1>@{i}、@{item.question_title}</h1><?js item.option.forEach(function(itemOpt,k){ ?><div class="input-box J_input-@{item.question_id}"><div class="radio-input"><input type="radio" id="input-@{i}-@{k}" name="r-@{item.question_id}" value="@{item.question_id}"/></div><label for="input-@{i}-@{k}">@{itemOpt.option_title}</label></div><?js }); ?></div><?js }); ?>';
+module.exports='<?js it.forEach(function(item,i){ ?><div class="question-box J_q-a"><?js i = i + 1; ?><h1>@{i}、@{item.question_title}</h1><?js item.option.forEach(function(itemOpt,k){ ?><div class="input-box J_input-@{item.question_id}"><div class="radio-input"><input type="radio" id="input-@{i}-@{k}" name="r-@{item.question_id}" value="@{itemOpt.option_id}"/></div><label for="input-@{i}-@{k}">@{itemOpt.option_title}</label></div><?js }); ?></div><?js }); ?>';
 },{}],8:[function(require,module,exports){
 module.exports='<div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn">确定</div></div></div>';
 },{}]},{},[2])

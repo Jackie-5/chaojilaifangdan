@@ -1607,6 +1607,8 @@ query.$titleBar.find('a').each(function (i) {
     $(this).attr('href', './deal.html?user_id=' + url.parameter('user_id') + '&deal_index=' + i);
     i == url.parameter('deal_index') && $(this).addClass('active')
 });
+
+
 },{"./common/zepto":1,"./lib/Mbox":3,"./lib/ajax":4,"./lib/get-url":5,"./lib/tpl":6}],3:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/20/15.
@@ -1633,10 +1635,11 @@ module.exports = mbox;
  */
 var mbox = require('./Mbox');
 var ajax = function (options) {
-    options.data.ak = '8e9b109eedc27959233242342342';
+    options.data.ak = '57b7e940555a331c45f1f3aafa41320e';
     var ajaxUrl = {
         regist: '/h5_app/interface_supervisit/regist', //用户注册
         login: '/h5_app/interface_supervisit/login', //登录
+        house_list: '/h5_app/interface_supervisit/house_list', //获取楼盘id
         update_registration: '/h5_app/interface_supervisit/update_registration', //个人中心更新用户信息
         user_task_count: '/h5_app/interface_supervisit/user_task_count', //今日待办个数
         update_pwd: '/h5_app/interface_supervisit/update_pwd', //找回密码
@@ -1654,17 +1657,19 @@ var ajax = function (options) {
         search_customer: '/h5_app/interface_supervisit/search_customer' //搜索查询
     };
     options.$.ajax({
-        url: ajaxUrl[options.url],
+        url: 'http://Laifangdan.searchchinahouse.com' + ajaxUrl[options.url],
         type: 'POST',
         data: options.data,
         success: function (msg) {
-            if(msg.result === 1 || msg.result === 10){
+            if(typeof msg === 'string') msg = JSON.parse(msg);
+            if (msg.result === 1 || msg.result === 10) {
                 options.success && options.success(msg)
-            }else{
+            } else {
                 options.error && options.error(msg)
             }
         },
-        error: function(msg){
+        error: function (msg) {
+            if(typeof msg === 'string') msg = JSON.parse(msg);
             options.error && options.error(msg)
         }
 

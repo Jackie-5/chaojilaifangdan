@@ -6,7 +6,7 @@
     | <?js item.option.forEach(function(itemOpt,k){ ?>
     .input-box(class="J_input-@{item.question_id}")
         .radio-input
-            input(type="radio" id="input-@{i}-@{k}" name="r-@{item.question_id}" value="@{item.question_id}")
+            input(type="radio" id="input-@{i}-@{k}" name="r-@{item.question_id}" value="@{itemOpt.option_id}")
         label(for="input-@{i}-@{k}") @{itemOpt.option_title}
     | <?js }); ?>
 | <?js }); ?>

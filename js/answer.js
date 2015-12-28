@@ -33,10 +33,10 @@ var submit = function (date) {
         $: $,
         url: 'get_answer_level',
         data: {
-            question_info: {} //没有填写
+            question_info: QAArray.join(',') //没有填写
         },
         success: function (msg) {
-            location.href = 'create-files.html?level=' + msg.data.level + '&user_id=' + url.parameter('user_id')
+            location.href = 'create-files.html?level=' + msg.data.level + '&user_id=' + url.parameter('user_id') + '&question_info=' + QAArray.join(',') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
         },
         error: function (msg) {
             mbox($, {

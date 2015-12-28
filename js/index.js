@@ -42,19 +42,21 @@ query.$day.html(YEAR + '年' + MONTH + '月' + DAY + '日');
 
 //个人中心
 query.$center.on('touchend', function () {
-    location.href = 'personal.html?user_id=' + url.parameter('user_id')
+    location.href = 'personal.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
 });
 //客户查询
 query.$search.on('touchend', function () {
-    location.href = 'search.html?user_id=' + url.parameter('user_id')
+    location.href = 'search.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
 });
 //成交助手
 query.$deal.on('touchend', function () {
-    location.href = 'deal.html?user_id=' + url.parameter('user_id') + '&deal_index=0';
+    location.href = 'deal.html?user_id=' + url.parameter('user_id') + '&deal_index=0' +'&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
 });
 
 query.$linkBox.html(tplRender(linkHtml, {
-    user_id: url.parameter('user_id')
+    user_id: url.parameter('user_id'),
+    house_id: url.parameter('house_id'),
+    house_name: url.parameter('house_name')
 }));
 
 //同时去访问一次
@@ -89,7 +91,6 @@ ajax({
             tips: msg.msg
         });
     }
-
 });
 //待办事项总数
 ajax({
