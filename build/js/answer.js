@@ -1599,11 +1599,13 @@ var answerHtml = require('./tpl/answer-tpl.html');
 var Url = require('./lib/get-url');
 var url = new Url();
 var tplRender = tpl.render;
-
+var BACK = -1;
 var query = {
     $answerBox: $('.J_answer-box'),
     $answerBtn: $('.J_answer-btn')
 };
+var questionData = {};
+if (url.parameter('customer_id')) questionData.customer_id = url.parameter('customer_id');
 var submit = function (date) {
     var QAArray = [];
     $('.J_q-a').each(function (i) {
@@ -1619,30 +1621,62 @@ var submit = function (date) {
         });
         return
     }
-    ajax({
-        $: $,
-        url: 'get_answer_level',
-        data: {
-            question_info: QAArray.join(',') //没有填写
-        },
-        success: function (msg) {
-            location.href = 'create-files.html?level=' + msg.data.level + '&user_id=' + url.parameter('user_id') + '&question_info=' + QAArray.join(',') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
-        },
-        error: function (msg) {
-            mbox($, {
-                tips: msg.msg
-            });
-        }
-    });
+    if (!url.parameter('customer_id')) {
+        ajax({
+            $: $,
+            url: 'get_answer_level',
+            data: {
+                question_info: QAArray.join(',') //没有填写
+            },
+            success: function (msg) {
+                location.href = 'create-files.html?level=' + msg.data.level + '&user_id=' + url.parameter('user_id') + '&question_info=' + QAArray.join(',') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
+            },
+            error: function (msg) {
+                mbox($, {
+                    tips: msg.msg
+                });
+            }
+        });
+    } else {
+        ajax({
+            $: $,
+            url: 'customer_visit_agin',
+            data: {
+                customer_id: url.parameter('customer_id'),
+                question_info: QAArray.join(',') //没有填写
+            },
+            success: function (msg) {
+                mbox($, {
+                    tips: msg.msg,
+                    callback: function () {
+                        history.back(BACK)
+                    }
+                });
+            },
+            error: function (msg) {
+                mbox($, {
+                    tips: msg.msg
+                });
+            }
+        });
+    }
 };
 ajax({
     $: $,
     url: 'get_question',
-    data: {
-        //customer_id: url.parameter('user_id')
-    },
+    data: questionData,
     success: function (msg) {
         query.$answerBox.html(tplRender(answerHtml, msg.data));
+        msg.data.forEach(function (item) {
+            if (item.answer) {
+                $('.J_q-a').find('input').each(function () {
+                    if ($(this).val() == item.answer) {
+                        $(this).attr('checked', 'checked')
+                    }
+                });
+            }
+        });
+
         query.$answerBtn.on('touchend', function () {
             submit(msg.data)
         });
@@ -1654,6 +1688,7 @@ ajax({
     }
 
 });
+
 },{"./common/zepto":1,"./lib/Mbox":3,"./lib/ajax":4,"./lib/get-url":5,"./lib/tpl":6,"./tpl/answer-tpl.html":7}],3:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/20/15.
@@ -1668,12 +1703,13 @@ var mbox = function ($, options) {
     var mbox = $('.J_mbox');
     mboxBg.removeClass('hide');
     mbox.css('top', ($(window).height() - mbox.height()) / 2);
-    $('.J_m-box-btn').on('touchend', function () {
+    $('.J_m-box-btn').on('click', function () {
         options.callback && options.callback();
         mboxBg.addClass('hide').remove()
     });
 };
 module.exports = mbox;
+
 },{"../tpl/mbox.html.js":8,"./tpl":6}],4:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
@@ -1689,6 +1725,7 @@ var ajax = function (options) {
         user_task_count: '/h5_app/interface_supervisit/user_task_count', //今日待办个数
         update_pwd: '/h5_app/interface_supervisit/update_pwd', //找回密码
         get_question: '/h5_app/interface_supervisit/get_question', //获取问答卷信息
+        customer_visit_agin: '/h5_app/interface_supervisit/customer_visit_agin', //再次来访获取答案
         create_customer_test: '/h5_app/interface_supervisit/create_customer_test', //创建用户档案(在用户填写完问卷之后)
         update_customer_info_test: '/h5_app/interface_supervisit/update_customer_info_test',
         get_user_info: '/h5_app/interface_supervisit/get_user_info',//获取用户信息
@@ -1698,7 +1735,7 @@ var ajax = function (options) {
         get_answer_level: '/h5_app/interface_supervisit/get_answer_level', //获取用户等级
         get_customer_info: '/h5_app/interface_supervisit/get_customer_info',
         search_customer_by_level: '/h5_app/interface_supervisit/search_customer_by_level',//按等级查找客户
-        customer_order_actio: '/h5_app/interface_supervisit/customer_order_actio',//更新客户状态，再次来访，下意向金，下定，签约，付款
+        customer_order_action: '/h5_app/interface_supervisit/customer_order_action',//更新客户状态，再次来访，下意向金，下定，签约，付款
         search_customer: '/h5_app/interface_supervisit/search_customer' //搜索查询
     };
     options.$.ajax({
@@ -1722,6 +1759,7 @@ var ajax = function (options) {
 };
 
 module.exports = ajax;
+
 },{"./Mbox":3}],5:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.

@@ -17,7 +17,14 @@ var searchSign = require('./tpl/search-sign.html'); //签约
 var query = {
     $searchBtn: $('.J_search-btn'),
     $searchInput: $('.J_search-input'),
-    $contentBox: $('.J_search-content-box')
+    $contentBox: $('.J_search-content-box'),
+    $dateBtn: $('.J_search-date-btn'),
+    $searchDateBox: $('.J_search-date-box'),
+    $dateBtnSearch: $('.J_date-btn'),
+    $starTime: $('.J_time-star'),
+    $endTime: $('.J_time-end'),
+    $idStartTime : $('#start-time'),
+    $idEndTime : $('#end-time')
 };
 var url = new Url();
 var tplRender = tpl.render;
@@ -31,18 +38,25 @@ moment.locale('en', {
         yy: "%d年前"
     }
 });
-
+//设置时间
+var TODAY = moment().format('YYYY-MM-DD');
+query.$idStartTime.val(TODAY).on('change', function () {
+    query.$starTime.html(moment($(this).val()).format('YYYY-MM-DD')).attr('data-star',moment($(this).val()).format('YYYY-MM-DD'))
+});
+query.$idEndTime.val(TODAY).on('change', function () {
+    query.$endTime.html(moment($(this).val()).format('YYYY-MM-DD')).attr('data-star',moment($(this).val()).format('YYYY-MM-DD'))
+});
 var order_type = url.parameter('order_type'); //2再次来访 3付意向金 4付定金 5签约 6待付款 7付款
 var customer = function (data) {
     ajax({
         $: $,
-        url: 'customer_order_actio',
+        url: 'customer_order_action',
         data: data,
         success: function (msg) {
             mbox($, {
                 tips: msg.msg,
                 callback: function () {
-                    location.href = 'index.html?user_id=' + url.parameter('user_id')
+                    location.href = 'index.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' +  url.parameter('house_name')
                 }
             });
         },
@@ -53,17 +67,17 @@ var customer = function (data) {
         }
     });
 };
-var again = function () {
-    location.href = 'answer.html?user_id=' + url.parameter('user_id');
+var again = function (data) {
+    location.href = 'answer.html?user_id=' + url.parameter('user_id') + '&customer_id=' + data.customer_id + '&again=1';
 };
 
 var intention = function (data) {
-    //需要有一个请求
     var time = moment(parseInt(data.task_time)).toNow(true);
     if (order_type == 3) {
         query.$contentBox.html(tplRender(searchIntention, {
             time: time,
-            data: data
+            data: data,
+            house_name: url.parameter('house_name')
         }));
     } else {
         query.$contentBox.html(tplRender(searchDown, {
@@ -78,7 +92,7 @@ var intention = function (data) {
         tel: $('.J_inten-phone')
     };
     $('.J_cancel').on('touchend', function () {
-        //暂时不知道去哪里
+
     });
     $('.J_submit').on('touchend', function () {
         if (q.area.val() === '') {
@@ -89,7 +103,7 @@ var intention = function (data) {
         }
         if (q.name.val() === '') {
             mbox($, {
-                tips: '建筑面积不能为空'
+                tips: '姓名不能为空'
             });
             return
         }
@@ -207,8 +221,7 @@ var sign = function (data) {
         customer(data)
     })
 };
-
-query.$searchBtn.on('touchend', function () {
+var searchResult = function () {
     ajax({
         $: $,
         url: 'search_customer',
@@ -216,17 +229,17 @@ query.$searchBtn.on('touchend', function () {
             user_id: url.parameter('user_id'),
             search_key: query.$searchInput.val(),
             order_type: url.parameter('order_type'),
-            date1: '',
-            date2: ''
+            date1: query.$starTime.attr('data-star'),
+            date2: query.$endTime.attr('data-end')
         },
         success: function (msg) {
             query.$contentBox.html(tplRender(searchList, {
                 msg: msg.data.customer_info_list
             }));
 
-            $('.J_search-list').on('touchend', function () {
+            $('.J_search-list').on('click', function () {
                 if (order_type == 2) {//2再次来访
-                    again()
+                    again(msg.data.customer_info_list[$(this).index()])
                 } else if (order_type == 3 || order_type == 4) {//3付意向金 4付定金
                     intention(msg.data.customer_info_list[$(this).index()])
                 } else if (order_type == 5) {// 5签约
@@ -243,4 +256,21 @@ query.$searchBtn.on('touchend', function () {
         }
 
     });
+};
+query.$searchBtn.on('touchend', function () {
+    searchResult()
+});
+
+query.$dateBtnSearch.on('touchend', function () {
+    searchResult()
+});
+
+
+
+query.$dateBtn.on('touchend', function () {
+    if(query.$searchDateBox.hasClass('hide')){
+        query.$searchDateBox.removeClass('hide')
+    }else{
+        query.$searchDateBox.addClass('hide')
+    }
 });
