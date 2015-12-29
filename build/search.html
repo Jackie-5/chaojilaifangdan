@@ -17,20 +17,18 @@
                             <div class="search-btn J_search-btn">搜索</div>
                         </div>
                         <div class="search-input-box">
-                            <div class="search-date-btn">手机名字都忘了-试试来访日期搜索吧</div>
+                            <div class="search-date-btn J_search-date-btn">手机名字都忘了-试试来访日期搜索吧</div>
                         </div>
                     </div>
                     <!--查询后放到里面的内容-->
                     <div class="search-content-box J_search-content-box"></div>
-                    <div class="search-date hide">
-                        <div class="s-date-btn">查询</div>
-                        <div class="s-date-box">
-                            <label for="start-time">选择起始日期
-                                <input id="start-time" type="date" class="hide">
-                            </label>
-                            <label for="end-time">选择截止日期
-                                <input id="end-time" type="date" class="hide">
-                            </label>
+                    <div class="search-date J_search-date-box hide">
+                        <div class="s-date-btn J_date-btn">查询</div>
+                        <div class="s-date-box J_select-date">
+                            <!--label.J_time-star(for="start-time",data-star="") 选择起始日期-->
+                            <input id="start-time" type="date">
+                            <!--label.J_time-end(for="end-time",data-end="") 选择截止日期-->
+                            <input id="end-time" type="date">
                         </div>
                     </div>
                 </div>

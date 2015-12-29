@@ -1789,12 +1789,13 @@ var mbox = function ($, options) {
     var mbox = $('.J_mbox');
     mboxBg.removeClass('hide');
     mbox.css('top', ($(window).height() - mbox.height()) / 2);
-    $('.J_m-box-btn').on('touchend', function () {
+    $('.J_m-box-btn').on('click', function () {
         options.callback && options.callback();
         mboxBg.addClass('hide').remove()
     });
 };
 module.exports = mbox;
+
 },{"../tpl/mbox.html.js":10,"./tpl":7}],5:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
@@ -1810,6 +1811,7 @@ var ajax = function (options) {
         user_task_count: '/h5_app/interface_supervisit/user_task_count', //今日待办个数
         update_pwd: '/h5_app/interface_supervisit/update_pwd', //找回密码
         get_question: '/h5_app/interface_supervisit/get_question', //获取问答卷信息
+        customer_visit_agin: '/h5_app/interface_supervisit/customer_visit_agin', //再次来访获取答案
         create_customer_test: '/h5_app/interface_supervisit/create_customer_test', //创建用户档案(在用户填写完问卷之后)
         update_customer_info_test: '/h5_app/interface_supervisit/update_customer_info_test',
         get_user_info: '/h5_app/interface_supervisit/get_user_info',//获取用户信息
@@ -1819,7 +1821,7 @@ var ajax = function (options) {
         get_answer_level: '/h5_app/interface_supervisit/get_answer_level', //获取用户等级
         get_customer_info: '/h5_app/interface_supervisit/get_customer_info',
         search_customer_by_level: '/h5_app/interface_supervisit/search_customer_by_level',//按等级查找客户
-        customer_order_actio: '/h5_app/interface_supervisit/customer_order_actio',//更新客户状态，再次来访，下意向金，下定，签约，付款
+        customer_order_action: '/h5_app/interface_supervisit/customer_order_action',//更新客户状态，再次来访，下意向金，下定，签约，付款
         search_customer: '/h5_app/interface_supervisit/search_customer' //搜索查询
     };
     options.$.ajax({
@@ -1843,6 +1845,7 @@ var ajax = function (options) {
 };
 
 module.exports = ajax;
+
 },{"./Mbox":4}],6:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
@@ -2215,7 +2218,7 @@ exports.compile = function(template){
 };
 
 },{}],8:[function(require,module,exports){
-module.exports='<div class="box-01 box"><a href="answer.html?user_id=@{it.user_id}&amp;order_type=1&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">首次来访</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=2&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">再次来访</a></div><div class="box-02 box"><a href="search.html?user_id=@{it.user_id}&amp;order_type=4&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">意向金</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=5&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">定金</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=6&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">签约</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=7&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">付款</a></div>';
+module.exports='<div class="box-01 box"><a href="answer.html?user_id=@{it.user_id}&amp;order_type=1&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">首次来访</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=2&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">再次来访</a></div><div class="box-02 box"><a href="search.html?user_id=@{it.user_id}&amp;order_type=3&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">意向金</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=4&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">定金</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=5&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">签约</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=7&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">付款</a></div>';
 },{}],9:[function(require,module,exports){
 module.exports='<?js if(it.length > 0){ ?><div class="wait"><?js it.forEach(function(item,k){ ?><div class="box"><div class="wait-title"><div class="title-bg"><span>@{item.order_type_name}</span></div></div><?js item.list.forEach(function(listItem, i){ ?><div class="wait-list J_wait-list"><div class="list-box"><div class="list-left"><i class="list-icon-01"></i><span>客户姓名</span></div><div class="list-right"><span>@{listItem.customer_name}</span></div></div><div class="list-box"><div class="list-left"><i class="list-icon-02"></i><span>当前级别</span></div><div class="list-right"><span>@{listItem.level}级客户</span><a href="#"><i class="right-icon-3"></i></a></div></div><div class="list-box"><div class="list-left"><i class="list-icon-03"></i><span>最新接触</span></div><div class="list-right"><span>@{listItem.lasttime}</span></div></div><div class="list-box"><div class="list-left"><i class="list-icon-04"></i><span>邀约来访</span></div><div class="list-right"><a href="tel:@{listItem.customer_mobile}"><i class="right-icon-1"></i></a><a href="sms:@{listItem.customer_mobile}"><i class="right-icon-2"></i></a></div></div><div class="list-box"><div class="list-left"><i class="list-icon-05"></i><span>计划时间</span></div><div class="list-right"><span>@{listItem.diff_days}天</span><label for="input-@{k}-@{i}"><input type="date" id="input-@{k}-@{i}" class="hide"/><i class="right-icon-3"></i></label></div></div></div><?js }); ?></div><?js }); ?></div><?js } ?>';
 },{}],10:[function(require,module,exports){

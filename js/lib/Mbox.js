@@ -11,7 +11,7 @@ var mbox = function ($, options) {
     var mbox = $('.J_mbox');
     mboxBg.removeClass('hide');
     mbox.css('top', ($(window).height() - mbox.height()) / 2);
-    $('.J_m-box-btn').on('touchend', function () {
+    $('.J_m-box-btn').on('click', function () {
         options.callback && options.callback();
         mboxBg.addClass('hide').remove()
     });
