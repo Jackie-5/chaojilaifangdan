@@ -5013,7 +5013,7 @@ query.$searchBtn.on('touchend', function () {
                 msg: msg.data.customer_info_list
             }));
 
-            $('.J_search-list').on('touchend', function () {
+            $('.J_search-list').on('click', function () {
                 if (order_type == 2) {//2再次来访
                     again()
                 } else if (order_type == 3 || order_type == 4) {//3付意向金 4付定金
@@ -5033,6 +5033,7 @@ query.$searchBtn.on('touchend', function () {
 
     });
 });
+
 },{"./common/moment":1,"./common/zepto":2,"./lib/Mbox":4,"./lib/ajax":5,"./lib/drop":6,"./lib/get-url":7,"./lib/tpl":8,"./tpl/search-down.html":10,"./tpl/search-intention.html":11,"./tpl/search-list.html":12,"./tpl/search-payment.html":13,"./tpl/search-sign.html":14}],4:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/20/15.

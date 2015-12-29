@@ -224,7 +224,7 @@ query.$searchBtn.on('touchend', function () {
                 msg: msg.data.customer_info_list
             }));
 
-            $('.J_search-list').on('touchend', function () {
+            $('.J_search-list').on('click', function () {
                 if (order_type == 2) {//2再次来访
                     again()
                 } else if (order_type == 3 || order_type == 4) {//3付意向金 4付定金
