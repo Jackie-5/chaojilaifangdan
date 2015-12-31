@@ -20,8 +20,7 @@ $('.J_search-btn').on('touchend', function () {
         $: $,
         url: 'house_list',
         data: {
-            house_name: $('.J_search-input').val(),
-            ak: md5('8e9b109eedc27959233242342342')
+            house_name: $('.J_search-input').val()
         },
         success: function (msg) {
             var list = '';
@@ -37,6 +36,5 @@ $('.J_search-btn').on('touchend', function () {
                 tips: msg.msg
             });
         }
-
     });
 });

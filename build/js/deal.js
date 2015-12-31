@@ -1596,20 +1596,44 @@ var ajax = require('./lib/ajax');
 var Url = require('./lib/get-url');
 var mbox = require('./lib/Mbox');
 var tpl = require('./lib/tpl');
+var dealSearchList = require('./tpl/deal-search-list.html')
 
 var url = new Url();
 var tplRender = tpl.render;
 
 var query = {
-    $titleBar: $('.J_deal-title-bar')
+    $titleBar: $('.J_deal-title-bar'),
+    $dealBox: $('.J_deal-content-box')
 };
 query.$titleBar.find('a').each(function (i) {
-    $(this).attr('href', './deal.html?user_id=' + url.parameter('user_id') + '&deal_index=' + i);
-    i == url.parameter('deal_index') && $(this).addClass('active')
+    i == url.parameter('deal_page_index') && $(this).addClass('active');
+    $(this).attr('href','./deal.html?user_id=' + url.parameter('user_id') + '&deal_page_index=' + i + '&deal_index=' + $(this).attr('data-value'))
 });
+var levelAjax = function (level,page) {
+    ajax({
+        $: $,
+        url: 'search_customer_by_level',
+        data: {
+            level: level,
+            user_id: url.parameter('user_id'),
+            p: page //分页之后做
+        },
+        success: function (msg) {
+            query.$dealBox.html(tplRender(dealSearchList,{
+                msg: msg.data.customer_info_list
+            }))
+        },
+        error: function (msg) {
+            mbox($, {
+                tips: msg.msg
+            });
+        }
+    });
 
+};
+levelAjax(url.parameter('deal_index'),1);
 
-},{"./common/zepto":1,"./lib/Mbox":3,"./lib/ajax":4,"./lib/get-url":5,"./lib/tpl":6}],3:[function(require,module,exports){
+},{"./common/zepto":1,"./lib/Mbox":3,"./lib/ajax":4,"./lib/get-url":5,"./lib/tpl":6,"./tpl/deal-search-list.html":7}],3:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/20/15.
  */
@@ -1630,7 +1654,7 @@ var mbox = function ($, options) {
 };
 module.exports = mbox;
 
-},{"../tpl/mbox.html.js":7,"./tpl":6}],4:[function(require,module,exports){
+},{"../tpl/mbox.html.js":8,"./tpl":6}],4:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
  */
@@ -1656,10 +1680,12 @@ var ajax = function (options) {
         get_customer_info: '/h5_app/interface_supervisit/get_customer_info',
         search_customer_by_level: '/h5_app/interface_supervisit/search_customer_by_level',//按等级查找客户
         customer_order_action: '/h5_app/interface_supervisit/customer_order_action',//更新客户状态，再次来访，下意向金，下定，签约，付款
-        search_customer: '/h5_app/interface_supervisit/search_customer' //搜索查询
+        search_customer: '/h5_app/interface_supervisit/search_customer', //搜索查询
+        get_customer_dynamic_state: '/h5_app/interface_supervisit/get_customer_dynamic_state' //成交助手
     };
+    // 'http://Laifangdan.searchchinahouse.com'
     options.$.ajax({
-        url: 'http://Laifangdan.searchchinahouse.com' + ajaxUrl[options.url],
+        url: ajaxUrl[options.url],
         type: 'POST',
         data: options.data,
         success: function (msg) {
@@ -2052,5 +2078,7 @@ exports.compile = function(template){
 };
 
 },{}],7:[function(require,module,exports){
+module.exports='<?js it.msg.forEach(function(item,i){ ?><div class="deal-box"><div class="search-result-list"><div class="search-list"><i class="s-icon-1"></i><div class="s-title">客户姓名</div><div class="s-cont">@{item.customer_name}</div></div><div class="search-list"><i class="s-icon-2"></i><div class="s-title">当前级别</div><div class="s-cont"><div class="border"><i></i>@{item.customer_level}级客户</div></div></div><div class="search-list"><i class="s-icon-3"></i><div class="s-title">最新接触</div><div class="s-cont">@{item.lasttime}</div></div><div class="search-list"><i class="s-icon-4"></i><div class="s-title">快速联系</div><div class="s-cont"><a href="sms:@{item.customer_mobile}" class="s-icon-5"></a><a href="tel:@{item.customer_mobile}" class="s-icon-6"></a></div></div></div><div class="deal-state"><div class="search-list"><i class="s-i-icon-5"></i><div class="s-title">下一步行动</div><a href="" class="s-cont font-color">付意向金</a></div><div class="search-list"><i class="s-i-icon-6"></i><div class="s-title">计划时间</div><div class="s-cont"><span>3</span></div><label for="date-@{i}" class="time-icon"><input type="date" id="date-@{i}" class="hide"/></label></div></div></div><?js }); ?>';
+},{}],8:[function(require,module,exports){
 module.exports='<div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn">确定</div></div></div>';
 },{}]},{},[2])

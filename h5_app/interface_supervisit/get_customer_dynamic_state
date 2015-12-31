@@ -1,0 +1,51 @@
+{
+    "result": 1,
+    "msg": "成功",
+    "data": {
+        "customer_name": "郑致远",
+        "data_result": [
+            {
+                "detail": [
+                    {
+                        "house_name": "中远两湾城四期",
+                        "rtime": "1440574170",
+                        "order_type": "1",
+                        "order_type_action": "首次来访",
+                        "month": "01",
+                        "day": "01"
+                    },
+                    {
+                        "house_name": "华丽家族汇景天地",
+                        "rtime": "1440574227",
+                        "order_type": "1",
+                        "order_type_action": "首次来访",
+                        "month": "01",
+                        "day": "01"
+                    }
+                ],
+                "year": "2015"
+            },
+            {
+                "detail": [
+                    {
+                        "house_name": "中远两湾城四期",
+                        "rtime": "1440574170",
+                        "order_type": "1",
+                        "order_type_action": "首次来访",
+                        "month": "01",
+                        "day": "01"
+                    },
+                    {
+                        "house_name": "华丽家族汇景天地",
+                        "rtime": "1440574227",
+                        "order_type": "1",
+                        "order_type_action": "首次来访",
+                        "month": "01",
+                        "day": "01"
+                    }
+                ],
+                "year": "2014"
+            }
+        ]
+    }
+}

@@ -23,12 +23,15 @@ var query = {
     $dateBtnSearch: $('.J_date-btn'),
     $starTime: $('.J_time-star'),
     $endTime: $('.J_time-end'),
-    $idStartTime : $('#start-time'),
-    $idEndTime : $('#end-time')
+    $idStartTime: $('#start-time'),
+    $idEndTime: $('#end-time')
 };
 var url = new Url();
 var tplRender = tpl.render;
 
+var ua = navigator.userAgent;
+
+var setStarInterVal,setEndInterVal;
 //初始化moment
 moment.locale('en', {
     relativeTime: {
@@ -38,15 +41,7 @@ moment.locale('en', {
         yy: "%d年前"
     }
 });
-//设置时间
-var TODAY = moment().format('YYYY-MM-DD');
-query.$idStartTime.val(TODAY).on('change', function () {
-    query.$starTime.html(moment($(this).val()).format('YYYY-MM-DD')).attr('data-star',moment($(this).val()).format('YYYY-MM-DD'))
-});
-query.$idEndTime.val(TODAY).on('change', function () {
-    query.$endTime.html(moment($(this).val()).format('YYYY-MM-DD')).attr('data-star',moment($(this).val()).format('YYYY-MM-DD'))
-});
-var order_type = url.parameter('order_type'); //2再次来访 3付意向金 4付定金 5签约 6待付款 7付款
+var order_type = url.parameter('order_type'); //2再次来访 3付意向金 4付定金 5签约 6待付款 7确认付款 20为客户查询
 var customer = function (data) {
     ajax({
         $: $,
@@ -56,7 +51,7 @@ var customer = function (data) {
             mbox($, {
                 tips: msg.msg,
                 callback: function () {
-                    location.href = 'index.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' +  url.parameter('house_name')
+                    location.href = 'index.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
                 }
             });
         },
@@ -82,7 +77,8 @@ var intention = function (data) {
     } else {
         query.$contentBox.html(tplRender(searchDown, {
             time: time,
-            data: data
+            data: data,
+            house_name: url.parameter('house_name')
         }));
     }
     new Drop($);
@@ -113,6 +109,7 @@ var intention = function (data) {
             });
             return
         }
+        data.order_type = order_type;
         data.house_area = q.area.val();
         data.real_name = q.name.val();
         data.real_mobile = q.tel.val();
@@ -133,6 +130,11 @@ var payment = function (data, drop) {
         payBox: $('.J_payment'),
         dealBtn: $('.J_deal-btn')
     };
+    var addTime = function () {
+        $('.J_deal-box').find('.J_money-time').each(function () {
+            $(this).val(moment().format('YYYY-MM-DD'))
+        });
+    };
     drop === 1 && q.contBtn.addClass('hide');
     new Drop($, function (index) {
         if (index === 0) {
@@ -150,17 +152,39 @@ var payment = function (data, drop) {
                 p: 1,
                 index: pIndex
             }));
+            addTime();
         }
     });
+    addTime();
     q.dealBtn.off('click').on('click', function () {
+        var payMoney = [];
+        var payDate = [];
+        var dealBox = $('.J_deal-box');
+        data.order_type = order_type;
+        data.pay_type = $('.J_drop').attr('data-value');
+        dealBox.find('.J_money-input').each(function () {
+            payMoney.push($(this).val())
+        });
+        dealBox.find('.J_money-time').each(function () {
+            payDate.push($(this).val())
+        });
+        if(payDate.length > 1 && payMoney.length > 1){
+            data.pay_money = payMoney.join(',');
+            data.pay_date = payDate.join(',');
+        }else{
+            data.pay_money = payMoney[0];
+            data.pay_date = payDate[0]
+        }
 
+        customer(data)
     })
 
 };
 //签约
 var sign = function (data) {
     query.$contentBox.html(tplRender(searchSign, {
-        data: data
+        data: data,
+        house_name: url.parameter('house_name')
     }));
     var q = {
         area: $('.J_inten-area'), //面积
@@ -209,6 +233,7 @@ var sign = function (data) {
             });
             return
         }
+        data.order_type = order_type;
         data.house_area = q.area.val();
         data.real_name = q.name.val();
         data.real_mobile = q.tel.val();
@@ -244,8 +269,10 @@ var searchResult = function () {
                     intention(msg.data.customer_info_list[$(this).index()])
                 } else if (order_type == 5) {// 5签约
                     sign(msg.data.customer_info_list[$(this).index()])
-                } else if (order_type == 7) {// 7付款
+                } else if (order_type == 6) {// 7付款
                     payment(msg.data.customer_info_list[$(this).index()])
+                } else if(order_type == 20){
+                    location.href = 'time-line.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_mobile=' + msg.data.customer_info_list[$(this).index()].real_mobile + '&customer_id=' + msg.data.customer_info_list[$(this).index()].customer_id
                 }
             })
         },
@@ -261,16 +288,53 @@ query.$searchBtn.on('touchend', function () {
     searchResult()
 });
 
+//设置时间 (因为微信安卓不兼容input date change事件所以用setInterval 来实时获取时间)
+if(ua.indexOf('Android') > -1 && ua.toLowerCase().match(/MicroMessenger/i) == "micromessenger"){
+    query.$idStartTime.on('click', function () {
+        setStarInterVal = setInterval(function () {
+            if(query.$starTime.find('span').html().toString() !== query.$idStartTime.val().toString()){
+                query.$starTime.find('span').html(query.$idStartTime.val());
+                if(query.$starTime.find('span').html().toString() === query.$idStartTime.val().toString() && query.$starTime.find('span').html() !== ''){
+                    query.$idStartTime.val(query.$starTime.find('span').html());
+                    clearInterval(setStarInterVal);
+                }
+            }
+        },1);
+    });
+    query.$idEndTime.on('click', function () {
+        setStarInterVal = setInterval(function () {
+            if(query.$endTime.find('span').html().toString() !== query.$idEndTime.val().toString()){
+                query.$endTime.find('span').html(query.$idEndTime.val());
+                if(query.$endTime.find('span').html().toString() === query.$idEndTime.val().toString() && query.$endTime.find('span').html() !== ''){
+                    query.$idStartTime.val(query.$starTime.find('span').html());
+                    clearInterval(setStarInterVal);
+                }
+            }
+        },1);
+    });
+}else{
+    query.$idStartTime.on('change', function () {
+        query.$starTime.find('span').html(query.$idStartTime.val());
+    });
+    query.$idEndTime.on('change', function () {
+        query.$endTime.find('span').html(query.$idEndTime.val());
+    });
+}
+
 query.$dateBtnSearch.on('touchend', function () {
+    setEndInterVal && clearInterval(setEndInterVal);
+    setStarInterVal && clearInterval(setStarInterVal);
     searchResult()
 });
 
-
+if(order_type == 20){
+    searchResult()
+}
 
 query.$dateBtn.on('touchend', function () {
-    if(query.$searchDateBox.hasClass('hide')){
+    if (query.$searchDateBox.hasClass('hide')) {
         query.$searchDateBox.removeClass('hide')
-    }else{
+    } else {
         query.$searchDateBox.addClass('hide')
     }
 });
