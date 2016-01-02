@@ -50,7 +50,7 @@ query.$search.on('touchend', function () {
 });
 //成交助手
 query.$deal.on('touchend', function () {
-    location.href = 'deal.html?user_id=' + url.parameter('user_id') + '&deal_index=0' +'&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
+    location.href = 'deal.html?user_id=' + url.parameter('user_id') + '&deal_index=0' + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
 });
 
 query.$linkBox.html(tplRender(linkHtml, {
@@ -84,7 +84,27 @@ ajax({
     },
     success: function (msg) {
         query.$wait.html(tplRender(indexHtml, msg.data));
-
+        var index = 0;
+        var customerMobile = $('.J_customer-mobile');
+        msg.data.forEach(function (item, i) {
+            item.list.forEach(function (list, k) {
+                if (list.customer_mobile == '' || list.customer_mobile == null) {
+                    customerMobile.eq(index).find('a').on('click', function () {
+                        mbox($, {
+                            tips: '补全信息后才可使用',
+                            leftBtn: '去补全',
+                            callback: function () {
+                                location.href = 'fill-in.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_id=' + list.customer_id
+                            }
+                        });
+                    })
+                } else {
+                    customerMobile.eq(index).find('a').eq(0).attr('href', 'tel:' + list.customer_mobile);
+                    customerMobile.eq(index).find('a').eq(1).attr('href', 'sms:' + list.customer_mobile)
+                }
+                index += 1;
+            })
+        })
     },
     error: function (msg) {
         mbox($, {
@@ -109,3 +129,7 @@ ajax({
     }
 
 });
+
+function aaaa(){
+    console.log('aaa')
+}

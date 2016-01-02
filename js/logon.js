@@ -22,7 +22,7 @@ url.parameter('pwd') && query.$pwd.val(url.parameter('pwd'));
 query.$houses.on('click', function () {
     location.href = 'house-search.html?name=' + query.$name.val() + '&tel=' + query.$tel.val() + '&pwd=' + query.$pwd.val()
 });
-query.$logonBtn.on('touchend', function () {
+query.$logonBtn.on('click', function () {
     if (query.$name.val() === '') {
         mbox($, {
             tips: '姓名不能为空'

@@ -5,7 +5,6 @@ var $ = require('./common/zepto');
 var ajax = require('./lib/ajax');
 var Url = require('./lib/get-url');
 var mbox = require('./lib/Mbox');
-var md5 = require('./lib/md5');
 
 var url = new Url();
 
@@ -20,8 +19,7 @@ $('.J_search-btn').on('touchend', function () {
         $: $,
         url: 'house_list',
         data: {
-            house_name: $('.J_search-input').val(),
-            ak: md5('8e9b109eedc27959233242342342')
+            house_name: $('.J_search-input').val()
         },
         success: function (msg) {
             var list = '';

@@ -1589,96 +1589,90 @@ module.exports = Zepto;
 })(Zepto);
 },{}],2:[function(require,module,exports){
 /**
- * Created by JackieWu on 12/20/15.
+ * Created by JackieWu on 12/11/15.
  */
 var $ = require('./common/zepto');
 var ajax = require('./lib/ajax');
 var mbox = require('./lib/Mbox');
-
-var time = 120;
-var interval;
+var Url = require('./lib/get-url');
+var url = new Url();
 var query = {
-    $tel: $('.J_forget-tel'),
-    $code: $('.J_forget-code'),
-    $countdown: $('.J_countdown'),
-    $forgetBtn: $('.J_forget-btn')
+    $customer_name: $('.J_customer_name'),
+    $customer_mobile: $('J_customer_mobile'),
+    $customer_tel: $('.J_customer_tel'),
+    $customer_mobile2: $('.J_customer_mobile2'),
+    $customer_email: $('.J_customer_email'),
+    $customer_age: $('.J_customer_age'),
+    $customer_birthday: $('.J_customer_birthday'),
+    $gender_box: $('.J_gender-box'),
+    $logonBtn: $('.J_logon-btn')
 };
-
-query.$countdown.on('touchend', function () {
-    if(query.$tel.val().length === '' || !/0?(13|14|15|17|18)[0-9]{9}/.test(query.$tel.val()) || query.$tel.val().length !== 11){
-        mbox($, {
-            tips: '请输入正确的手机号'
-        });
-        return
-    }
-    ajax({
-        $: $,
-        url: 'get_yanzhengcode',
-        data: {
-            user_mobile: query.$tel.val()
-        },
-        success: function (msg) {
+var update = function(data){
+    query.$logonBtn.on('click', function () {
+        if (query.$customer_name.val() === '') {
             mbox($, {
-                tips: msg.msg
+                tips: '姓名不能为空'
             });
-            query.$countdown.addClass('active');
-            interval = setInterval(function(){
-                time--;
-                query.$countdown.html('重新获取('+ time +'S)');
-                if(time === 0){
-                    clearInterval(interval);
-                    query.$countdown.html('获取验证码');
-                    time = 120;
-                    query.$countdown.removeClass('active');
-                }
-            },1000)
-        },
-        error: function (msg) {
+            return
+        }
+        if (query.$customer_mobile.val() === '' || !/0?(13|14|15|17|18)[0-9]{9}/.test(query.$customer_mobile.val()) || query.$tel.$customer_mobile().length !== 11) {
             mbox($, {
-                tips: msg.msg
+                tips: '请输入正确的手机号'
             });
+            return
         }
 
-    });
-});
-
-query.$forgetBtn.on('touchend',function(){
-    if(query.$tel.val() === '' || !/0?(13|14|15|17|18)[0-9]{9}/.test(query.$tel.val()) || query.$tel.val().length !== 11){
-        mbox($, {
-            tips: '请输入正确的手机号'
+        data.customer_name = query.$customer_name.val();
+        data.customer_mobile = query.$customer_mobile.val();
+        data.customer_mobile = query.$customer_tel.val();
+        data.customer_mobile2 = query.$customer_mobile2.val();
+        data.$customer_email = query.$customer_email.val();
+        data.$customer_age = query.$customer_age.val();
+        data.$customer_birthday = query.$customer_birthday.val();
+        query.$gender_box.find('input').each(function(){
+            if($(this).prop('checked')){
+                data.customer_age = $(this).val()
+            }
         });
-        return
-    }
-    if(query.$code.val() === ''){
-        mbox($, {
-            tips: '请输入验证码'
-        });
-        return
-    }
-    ajax({
-        $: $,
-        url: 'is_yanzhengcode',
-        data: {
-            user_mobile: query.$tel.val(),
-            yanzheng_code: query.$code.val()
-        },
-        success: function (msg) {
-            mbox($, {
-                tips: msg.msg,
-                callback: function () {
-                    location.href = 'update-pwd.html?user_mobile=' + query.$tel.val()
-                }
-            });
-        },
-        error: function (msg) {
-            mbox($, {
-                tips: msg.msg
-            });
-        }
 
+        ajax({
+            $: $,
+            url: 'update_customer_info_test',
+            data: data,
+            success: function (msg) {
+                mbox($, {
+                    tips: msg.msg,
+                    callback: function () {
+                        location.href = 'index.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
+                    }
+                });
+            },
+            error: function (msg) {
+                mbox($, {
+                    tips: msg.msg
+                });
+            }
+
+        });
     });
+};
+ajax({
+    $: $,
+    url: 'get_customer_info',
+    data: {
+        customer_id: url.parameter('customer_id')
+    },
+    success: function (msg) {
+        update(msg.data)
+    },
+    error: function (msg) {
+        mbox($, {
+            tips: msg.msg
+        });
+    }
+
 });
-},{"./common/zepto":1,"./lib/Mbox":3,"./lib/ajax":4}],3:[function(require,module,exports){
+},{"./common/zepto":1,"./lib/Mbox":3,"./lib/ajax":4,"./lib/get-url":5}],3:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/20/15.
  */
@@ -1706,7 +1700,7 @@ var mbox = function ($, options) {
 };
 module.exports = mbox;
 
-},{"../tpl/mbox.html.js":6,"./tpl":5}],4:[function(require,module,exports){
+},{"../tpl/mbox.html.js":7,"./tpl":6}],4:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
  */
@@ -1757,6 +1751,225 @@ var ajax = function (options) {
 module.exports = ajax;
 
 },{"./Mbox":3}],5:[function(require,module,exports){
+/**
+ * Created by JackieWu on 12/22/15.
+ */
+var Url = function (href) {
+
+    this._href = href || location.href;
+    this._parameters = {};
+    this._parse();
+    this._parseQuery();
+    this._formatQuery();
+
+}, p = Url.prototype;
+
+/**
+ * parse url string to url object, and save to Url
+ * @returns {Url}
+ * @private
+ */
+p._parse = function () {
+
+    var a = document.createElement('a');
+    a.href = this._href;
+
+    this._protocol = a.protocol;
+    this._host = a.host;
+    this._hostname = a.hostname;
+    this._port = a.port;
+    this._pathname = a.pathname;
+    this._search = a.search;
+    this._hash = a.hash;
+
+    if (this._host === '') {
+        // fix ie cannot get url host, when _href has no host by default
+        this._host = location.host;
+    }
+
+    if (this._protocol === '') {
+        this._protocol = location.protocol;
+    }
+
+    if (this._pathname.split('')[0] !== '/') {
+        this._pathname = '/' + this._pathname;
+    }
+
+    this._path = this._pathname + this._search;
+    this._query = this._search.slice(1);
+
+    return this;
+};
+
+/**
+ * parse query string to query object, and save to _parameters
+ * @returns {Url}
+ * @private
+ */
+p._parseQuery = function () {
+
+    var qs = this._query.split('&'), l = qs.length;
+
+    for (var i = 0; i < l; i++) {
+        var split = qs[i].split('=');
+        if (split.length === 2) {
+            this._parameters[decodeURIComponent(split[0])] = decodeURIComponent(split[1]);
+        }
+    }
+
+    return this;
+};
+
+/**
+ * format parameters to query string, and update the url object
+ * @returns {Url}
+ * @private
+ */
+p._formatQuery = function () {
+    var query = '', obj = this._parameters;
+    for (var i in obj) {
+        if (obj.hasOwnProperty(i)) {
+            query += encodeURIComponent(i) + '=' + encodeURIComponent(obj[i]) + '&';
+        }
+    }
+    query = query.slice(0, -1);
+    this._query = query;
+    if (query !== '') {
+        this._search = '?' + query;
+    }
+    this._path = this._pathname + this._search;
+    this._href = this._protocol + '//' + this._host + this._path + this._hash;
+
+    return this;
+};
+
+/**
+ * get or set some parameter in query string
+ * url.parameter();                 => return all parameters in search string
+ * url.parameter('key');            => return parameter by key
+ * url.parameter('key', 'value');   => return url; set parameter `key` to `value`
+ * url.parameter({key: 'value'});   => return url; set parameter `key` to `value`
+ * @param key
+ * @param [value]
+ * @returns {*}
+ */
+p.parameter = function (key, value) {
+    switch (typeof key) {
+        case 'undefined':
+            // get all parameter
+            return this._parameters;
+            break;
+        case 'string':
+            if (value === undefined) { // get parameter by key
+                return this._parameters[key];
+            } else { // set parameter by key
+                this._parameters[key] = value;
+                this._formatQuery();
+                return this;
+            }
+        case 'object':
+            // set object to parameter
+            for (var _key in key) {
+                if (key.hasOwnProperty(_key)) {
+                    this._parameters[_key] = key[_key];
+                }
+            }
+            this._formatQuery();
+            return this;
+        default:
+            throw new Error('Url: type of first argument is not `undefined`, `string` or `object`');
+            return this;
+    }
+};
+
+/**
+ * remove parameter in query string
+ * @param key
+ * @returns {Url}
+ */
+p.removeParameter = function (key) {
+    delete this._parameters[key];
+    this._formatQuery();
+    return this;
+};
+
+/**
+ * to string
+ * @returns {*|string}
+ */
+p.toString = function () {
+    return this._href;
+};
+
+/**
+ * get property
+ * @param prop
+ * @returns {*}
+ */
+p.get = function (prop) {
+    return this['_' + prop];
+};
+
+/**
+ * set property
+ * @param prop
+ * @param value
+ * @returns {Url}
+ */
+p.set = function (prop, value) {
+
+    this['_' + prop] = value;
+
+    /**
+     * href |- protocol
+     *      |- host     |- hostname
+     *      |           |- port
+     *      |- path     |- pathname
+     *      |           |- search    |- query |- parameters
+     *      |- hash
+     */
+    switch (prop) {
+        case 'parameters':
+            throw new Error('Url: use `parameter` instead');
+            break;
+        case 'query':
+            this._path = this._pathname + (value === '' ? '' : '?' + this._query);
+            break;
+        case 'search':
+            if (value === '' || value.indexOf('?') === 0) {
+                this._path = this._pathname + value;
+            } else {
+                throw new Error('Url: `search` must starts with `?`');
+            }
+            break;
+        case 'pathname':
+            this._path = value + this._search;
+            break;
+        case 'port':
+            this._host = this._hostname + (value === '' ? '' : ':' + value);
+            break;
+        case 'hostname':
+            this._host = value + (this._port === '' ? '' : ':' + this._port);
+            break;
+        case 'hash':
+            if (value !== '' && value.indexOf('#') !== 0) {
+                throw new Error('Url: `hash` must starts with `#`');
+            }
+            break;
+        default:
+            throw new Error('Url: `' + prop + '` cannot be set to url');
+            break;
+    }
+
+    this._href = this._protocol + '//' + this._host + this._path + this._hash;
+    this._parameters = {};
+    this._parse();
+    this._parseQuery();
+    this._formatQuery();
+    return this;
+};
+module.exports = Url;
+},{}],6:[function(require,module,exports){
 function compile(template){
     var
 
@@ -1908,6 +2121,6 @@ exports.compile = function(template){
     return compile(template);
 };
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtn === undefined ? \'\' : \'hide\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
 },{}]},{},[2])

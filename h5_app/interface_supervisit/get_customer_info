@@ -1,0 +1,25 @@
+{
+  "result": 1,
+  "msg": "\u67e5\u8be2\u6210\u529f",
+  "data": {
+    "customer_id": "244",
+    "customer_name": "\u5218\u7ef4",
+    "customer_mobile": "18807194106",
+    "user_id": "52",
+    "house_id": "791",
+    "customer_level": "2",
+    "customer_tel": "",
+    "customer_address": "",
+    "customer_mobile2": "",
+    "customer_email": "",
+    "customer_age": "",
+    "customer_mark": "",
+    "customer_sex": "1",
+    "customer_birthday": "",
+    "customer_state": "1",
+    "create_time": "1444579200",
+    "create_date": "2015-10-12",
+    "incomplete_mobile": "1880***4106",
+    "notes": ""
+  }
+}

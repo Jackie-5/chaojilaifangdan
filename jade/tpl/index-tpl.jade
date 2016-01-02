@@ -20,8 +20,9 @@
                     span 当前级别
                 .list-right
                     span @{listItem.level}级客户
-                    a(href="#")
-                        i.right-icon-3
+                    // 后端接口无法直接的更改等级 所以暂时注释掉
+                    //a(href="#")
+                    //    i.right-icon-3
             .list-box
                 .list-left
                     i.list-icon-03
@@ -32,10 +33,10 @@
                 .list-left
                     i.list-icon-04
                     span 邀约来访
-                .list-right
-                    a(href="tel:@{listItem.customer_mobile}")
+                .list-right.J_customer-mobile
+                    a
                         i.right-icon-1
-                    a(href="sms:@{listItem.customer_mobile}")
+                    a
                         i.right-icon-2
             .list-box
                 .list-left
@@ -44,7 +45,7 @@
                 .list-right
                     span @{listItem.diff_days}天
                     label(for="input-@{k}-@{i}")
-                        input.hide(type="date", id="input-@{k}-@{i}")
+                        input(type="date", id="input-@{k}-@{i}")
                         i.right-icon-3
         | <?js }); ?>
     | <?js }); ?>

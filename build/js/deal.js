@@ -1617,16 +1617,23 @@ var tpl = require('./tpl');
 var mboxHtml = require('../tpl/mbox.html.js');
 var mbox = function ($, options) {
     $('body').append(tpl.render(mboxHtml, {
-        tips: options.tips
+        tips: options.tips,
+        leftBtn: options.leftBtn,
+        rightBtn: options.rightBtn
     }));
     var mboxBg = $('.J_mbox-bg');
     var mbox = $('.J_mbox');
+    var boxBtn = $('.J_m-box-btn');
     mboxBg.removeClass('hide');
     mbox.css('top', ($(window).height() - mbox.height()) / 2);
-    $('.J_m-box-btn').on('click', function () {
+    boxBtn.find('span').eq(0).on('click', function () {
         options.callback && options.callback();
         mboxBg.addClass('hide').remove()
     });
+    boxBtn.find('span').eq(1).on('click', function () {
+        mboxBg.addClass('hide').remove()
+    });
+
 };
 module.exports = mbox;
 
@@ -1647,13 +1654,13 @@ var ajax = function (options) {
         get_question: '/h5_app/interface_supervisit/get_question', //获取问答卷信息
         customer_visit_agin: '/h5_app/interface_supervisit/customer_visit_agin', //再次来访获取答案
         create_customer_test: '/h5_app/interface_supervisit/create_customer_test', //创建用户档案(在用户填写完问卷之后)
-        update_customer_info_test: '/h5_app/interface_supervisit/update_customer_info_test',
+        update_customer_info_test: '/h5_app/interface_supervisit/update_customer_info_test', //更新用户信息
         get_user_info: '/h5_app/interface_supervisit/get_user_info',//获取用户信息
         user_task_list: '/h5_app/interface_supervisit/user_task_list', //获取今日代办
         get_yanzhengcode: '/h5_app/interface_supervisit/get_yanzhengcode', //获取验证码
         is_yanzhengcode: '/h5_app/interface_supervisit/is_yanzhengcode', //确认验证码
         get_answer_level: '/h5_app/interface_supervisit/get_answer_level', //获取用户等级
-        get_customer_info: '/h5_app/interface_supervisit/get_customer_info',
+        get_customer_info: '/h5_app/interface_supervisit/get_customer_info', //获取用户信息
         search_customer_by_level: '/h5_app/interface_supervisit/search_customer_by_level',//按等级查找客户
         customer_order_action: '/h5_app/interface_supervisit/customer_order_action',//更新客户状态，再次来访，下意向金，下定，签约，付款
         search_customer: '/h5_app/interface_supervisit/search_customer' //搜索查询
@@ -2052,5 +2059,5 @@ exports.compile = function(template){
 };
 
 },{}],7:[function(require,module,exports){
-module.exports='<div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn">确定</div></div></div>';
+module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtn === undefined ? \'\' : \'hide\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
 },{}]},{},[2])

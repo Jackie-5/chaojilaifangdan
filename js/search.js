@@ -89,7 +89,10 @@ var intention = function (data) {
     var q = {
         area: $('.J_inten-area'),
         name: $('.J_inten-name'),
-        tel: $('.J_inten-phone')
+        tel: $('.J_inten-phone'),
+        houseNumber: $('.J_inten-number'),
+        houseFloor: $('.J_inten-floor'),
+        houseRoom: $('.J_inten-room')
     };
     $('.J_cancel').on('touchend', function () {
 
@@ -116,6 +119,9 @@ var intention = function (data) {
         data.house_area = q.area.val();
         data.real_name = q.name.val();
         data.real_mobile = q.tel.val();
+        data.house_number = q.houseNumber.val();
+        data.house_floor = q.houseFloor.val();
+        data.house_room = q.houseRoom.val();
         //下一步进度没有
         customer(data)
     })

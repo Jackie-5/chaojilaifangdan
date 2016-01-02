@@ -1,0 +1,42 @@
+//- Created by JackieWu on 16/1/2.
+doctype html
+html
+    head
+        include ./common/head
+        title 填写信息
+        body
+            .logon-box.create-files-box
+                .input-box
+                    .input
+                        i.logon-icon-1
+                        input.J_customer_name(type="text",placeholder="请输入姓名")
+                    .input
+                        i.logon-icon-2
+                        input.J_customer_mobile(type="tel",placeholder="请输入手机号码")
+                    .input
+                        i.logon-icon-3
+                        input.J_customer_tel(type="text",placeholder="固定电话")
+                    .input
+                        i.logon-icon-8
+                        input.J_customer_mobile2(type="tel",placeholder="备用手机号")
+                    .input
+                        i.logon-icon-5
+                        input.J_customer_email(type="text",placeholder="邮箱")
+                    .input
+                        i.logon-icon-6
+                        input.J_customer_age(type="number",placeholder="年龄")
+                    .input
+                        i.logon-icon-7
+                        input.J_customer_birthday(type="number",placeholder="生日")
+                    .input
+                        .gender-box.J_gender-box
+                            .radio-input
+                                input(type="radio" id="man" name="r-1" value="1" checked)
+                            label(for="man") 男士
+                            .radio-input
+                                input(type="radio" id="woman" name="r-1" value="1")
+                            label(for="woman") 女士
+
+
+                    .logon-btn.fill-in-btn.J_modify-btn 提交
+            script(src="./js/fill-in.js")
