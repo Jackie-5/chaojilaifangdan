@@ -1,0 +1,21 @@
+//-Created by JackieWu on 12/31/15.
+| <?js it.data.forEach(function(item,i){ ?>
+.year-box
+    .time-year-left
+        .time-year
+    .time-year-right
+        .time-year-icon
+        .year-cont @{item.year}
+| <?js item.detail.forEach(function(detail,k){ ?>
+.date-box
+    .time-date-left
+        span.day @{detail.day}
+        span /
+        span @{detail.month}
+    .time-date-right
+        .time-background
+        .time-date-icon
+            .time-d-i
+        .time-date-cont @{detail.order_type_action}
+| <?js }); ?>
+| <?js }); ?>

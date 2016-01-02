@@ -21,8 +21,10 @@ html
                     .search-date.J_search-date-box.hide
                         .s-date-btn.J_date-btn 查询
                         .s-date-box.J_select-date
-                            //label.J_time-star(for="start-time",data-star="") 选择起始日期
-                            input(id="start-time",type="date")
-                            //label.J_time-end(for="end-time",data-end="") 选择截止日期
-                            input(id="end-time",type="date")
+                            label.J_time-star(for="start-time",data-star="")
+                                span 选择起始日期
+                                input(id="start-time",type="date",value="")
+                            label.J_time-end(for="end-time",data-end="")
+                                span 选择截止日期
+                                input(id="end-time",type="date",value="")
             script(src="./js/search.js")

@@ -137,8 +137,11 @@
                                     color #999999
                                     line-height 25px
                             .p-time
-                                label
-                                    width auto
+                                padding-left 5px
+                                padding-right 5px
+                                input
+                                    text-align center
+                                    width 100px
                                 i
                                     display block
                                     width 16px
@@ -320,6 +323,7 @@
                             background transparent
                             float left
                         .unit
+                            max-width 90%
                             height 45px
                             color #cc0000
                             line-height 45px
@@ -327,6 +331,7 @@
                             float left
                     .house-number
                         input
+                            text-align center
                             width 20%
                         .separated
                             font-size .8rem
@@ -446,18 +451,28 @@
                 height 30px
                 display -webkit-box
                 display box
-                input
+                label
+                    border 0
                     text-align center
                     display block
                     width 0
                     -webkit-box-flex 1
                     box-flex 1
+                    position relative
                     &:last-child
                         border-left 1px solid #fff
-                //input
-                //    width 0
-                //    height 0
-                //    opacity 0
+                    input
+                        width 100%
+                        height 100%
+                        background transparent
+                        border 0
+                        position absolute
+                        top 0
+                        left 0
+                        text-align center
+                        color #fff
+                        opacity 0
+
 .house-search-content-box
     margin-top 45px
     padding 0 3%

@@ -1292,8 +1292,13 @@ input[type=number]::-webkit-outer-spin-button {
   color: #999;
   line-height: 25px;
 }
-.search-content-box .deal-box .deal-list .pay .p-cont .p-time label {
-  width: auto;
+.search-content-box .deal-box .deal-list .pay .p-cont .p-time {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+.search-content-box .deal-box .deal-list .pay .p-cont .p-time input {
+  text-align: center;
+  width: 100px;
 }
 .search-content-box .deal-box .deal-list .pay .p-cont .p-time i {
   display: block;
@@ -1513,6 +1518,7 @@ input[type=number]::-webkit-outer-spin-button {
   float: left;
 }
 .search-content-box .search-intention .intention-list .inten-input .unit {
+  max-width: 90%;
   height: 45px;
   color: #c00;
   line-height: 45px;
@@ -1520,6 +1526,7 @@ input[type=number]::-webkit-outer-spin-button {
   float: left;
 }
 .search-content-box .search-intention .intention-list .house-number input {
+  text-align: center;
   width: 20%;
 }
 .search-content-box .search-intention .intention-list .house-number .separated {
@@ -1657,15 +1664,29 @@ input[type=number]::-webkit-outer-spin-button {
   display: -webkit-box;
   display: box;
 }
-.search-date .s-date-box input {
+.search-date .s-date-box label {
+  border: 0;
   text-align: center;
   display: block;
   width: 0;
   -webkit-box-flex: 1;
   box-flex: 1;
+  position: relative;
 }
-.search-date .s-date-box input:last-child {
+.search-date .s-date-box label:last-child {
   border-left: 1px solid #fff;
+}
+.search-date .s-date-box label input {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  text-align: center;
+  color: #fff;
+  opacity: 0;
 }
 .house-search-content-box {
   margin-top: 45px;

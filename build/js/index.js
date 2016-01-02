@@ -1690,7 +1690,8 @@ var query = {
     $number: $('.J_wait-number'),
     $linkBox: $('.J_link-box'),
     $search: $('.J_search'),
-    $deal: $('.J_deal')
+    $deal: $('.J_deal'),
+    $photoInput: $('#photo')
 };
 //设置今天日期
 new Calendar({
@@ -1707,16 +1708,16 @@ new Calendar({
 query.$day.html(YEAR + '年' + MONTH + '月' + DAY + '日');
 
 //个人中心
-query.$center.on('touchend', function () {
+query.$center.on('click', function () {
     location.href = 'personal.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
 });
 //客户查询
-query.$search.on('touchend', function () {
-    location.href = 'search.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
+query.$search.on('click', function () {
+    location.href = 'search.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&order_type=20'
 });
 //成交助手
-query.$deal.on('touchend', function () {
-    location.href = 'deal.html?user_id=' + url.parameter('user_id') + '&deal_index=0' + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
+query.$deal.on('click', function () {
+    location.href = 'deal.html?user_id=' + url.parameter('user_id') + '&deal_index=6' + '&deal_page_index=0' + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
 });
 
 query.$linkBox.html(tplRender(linkHtml, {
@@ -1734,6 +1735,42 @@ ajax({
     },
     success: function (msg) {
         query.$photo.attr('src', msg.data.head_pic);
+        query.$photoInput.on('change', function (e) {
+            var file = $(this).get(0).files[0];
+            if (!/image\/\w+/.test(file.type)) {
+                mbox($, {
+                    tips: '请上传图片'
+                });
+                return false;
+            }
+            var reader = new FileReader();
+            //将文件以Data URL形式读入页面
+            reader.readAsDataURL(file);
+            reader.onload = function () {
+                var _this = this;
+                ajax({
+                    $: $,
+                    url: 'update_registration',
+                    data: {
+                        user_mobile: msg.data.user_mobile,
+                        head_pic: _this.result
+                    },
+                    success: function (updateMsg) {
+                        query.$photo.attr('src', _this.result);
+                        mbox($, {
+                            tips: updateMsg.msg
+                        });
+                    },
+                    error: function (updateMsg) {
+                        mbox($, {
+                            tips: updateMsg.msg
+                        });
+                    }
+
+                });
+            }
+        });
+
     },
     error: function (msg) {
         mbox($, {
@@ -1796,9 +1833,6 @@ ajax({
 
 });
 
-function aaaa(){
-    console.log('aaa')
-}
 },{"./common/Calendar":1,"./common/zepto":2,"./lib/Mbox":4,"./lib/ajax":5,"./lib/get-url":6,"./lib/tpl":7,"./tpl/index-link-tpl.html":8,"./tpl/index-tpl.html":9}],4:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/20/15.
@@ -1853,10 +1887,12 @@ var ajax = function (options) {
         get_customer_info: '/h5_app/interface_supervisit/get_customer_info', //获取用户信息
         search_customer_by_level: '/h5_app/interface_supervisit/search_customer_by_level',//按等级查找客户
         customer_order_action: '/h5_app/interface_supervisit/customer_order_action',//更新客户状态，再次来访，下意向金，下定，签约，付款
-        search_customer: '/h5_app/interface_supervisit/search_customer' //搜索查询
+        search_customer: '/h5_app/interface_supervisit/search_customer', //搜索查询
+        get_customer_dynamic_state: '/h5_app/interface_supervisit/get_customer_dynamic_state' //成交助手
     };
+    // 'http://Laifangdan.searchchinahouse.com'
     options.$.ajax({
-        url: 'http://Laifangdan.searchchinahouse.com' + ajaxUrl[options.url],
+        url: ajaxUrl[options.url],
         type: 'POST',
         data: options.data,
         success: function (msg) {
@@ -2249,7 +2285,7 @@ exports.compile = function(template){
 };
 
 },{}],8:[function(require,module,exports){
-module.exports='<div class="box-01 box"><a href="answer.html?user_id=@{it.user_id}&amp;order_type=1&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">首次来访</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=2&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">再次来访</a></div><div class="box-02 box"><a href="search.html?user_id=@{it.user_id}&amp;order_type=3&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">意向金</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=4&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">定金</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=5&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">签约</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=7&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">付款</a></div>';
+module.exports='<div class="box-01 box"><a href="answer.html?user_id=@{it.user_id}&amp;order_type=1&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">首次来访</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=2&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">再次来访</a></div><div class="box-02 box"><a href="search.html?user_id=@{it.user_id}&amp;order_type=3&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">意向金</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=4&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">定金</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=5&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">签约</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=6&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">付款</a></div>';
 },{}],9:[function(require,module,exports){
 module.exports='<?js if(it.length > 0){ ?><div class="wait"><?js it.forEach(function(item,k){ ?><div class="box"><div class="wait-title"><div class="title-bg"><span>@{item.order_type_name}</span></div></div><?js item.list.forEach(function(listItem, i){ ?><div class="wait-list J_wait-list"><div class="list-box"><div class="list-left"><i class="list-icon-01"></i><span>客户姓名</span></div><div class="list-right"><span>@{listItem.customer_name}</span></div></div><div class="list-box"><div class="list-left"><i class="list-icon-02"></i><span>当前级别</span></div><div class="list-right"><span>@{listItem.level}级客户</span><!-- 后端接口无法直接的更改等级 所以暂时注释掉--><!--a(href="#")--><!--    i.right-icon-3--></div></div><div class="list-box"><div class="list-left"><i class="list-icon-03"></i><span>最新接触</span></div><div class="list-right"><span>@{listItem.lasttime}</span></div></div><div class="list-box"><div class="list-left"><i class="list-icon-04"></i><span>邀约来访</span></div><div class="list-right J_customer-mobile"><a><i class="right-icon-1"></i></a><a><i class="right-icon-2"></i></a></div></div><div class="list-box"><div class="list-left"><i class="list-icon-05"></i><span>计划时间</span></div><div class="list-right"><span>@{listItem.diff_days}天</span><label for="input-@{k}-@{i}"><input type="date" id="input-@{k}-@{i}"/><i class="right-icon-3"></i></label></div></div></div><?js }); ?></div><?js }); ?></div><?js } ?>';
 },{}],10:[function(require,module,exports){

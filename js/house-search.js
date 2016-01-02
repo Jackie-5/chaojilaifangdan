@@ -35,6 +35,5 @@ $('.J_search-btn').on('touchend', function () {
                 tips: msg.msg
             });
         }
-
     });
 });

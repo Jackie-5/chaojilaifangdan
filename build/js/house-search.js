@@ -1625,9 +1625,9 @@ $('.J_search-btn').on('touchend', function () {
                 tips: msg.msg
             });
         }
-
     });
 });
+
 },{"./common/zepto":1,"./lib/Mbox":3,"./lib/ajax":4,"./lib/get-url":5}],3:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/20/15.
@@ -1682,10 +1682,12 @@ var ajax = function (options) {
         get_customer_info: '/h5_app/interface_supervisit/get_customer_info', //获取用户信息
         search_customer_by_level: '/h5_app/interface_supervisit/search_customer_by_level',//按等级查找客户
         customer_order_action: '/h5_app/interface_supervisit/customer_order_action',//更新客户状态，再次来访，下意向金，下定，签约，付款
-        search_customer: '/h5_app/interface_supervisit/search_customer' //搜索查询
+        search_customer: '/h5_app/interface_supervisit/search_customer', //搜索查询
+        get_customer_dynamic_state: '/h5_app/interface_supervisit/get_customer_dynamic_state' //成交助手
     };
+    // 'http://Laifangdan.searchchinahouse.com'
     options.$.ajax({
-        url: 'http://Laifangdan.searchchinahouse.com' + ajaxUrl[options.url],
+        url: ajaxUrl[options.url],
         type: 'POST',
         data: options.data,
         success: function (msg) {

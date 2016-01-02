@@ -24,7 +24,8 @@ var query = {
     $number: $('.J_wait-number'),
     $linkBox: $('.J_link-box'),
     $search: $('.J_search'),
-    $deal: $('.J_deal')
+    $deal: $('.J_deal'),
+    $photoInput: $('#photo')
 };
 //设置今天日期
 new Calendar({
@@ -41,16 +42,16 @@ new Calendar({
 query.$day.html(YEAR + '年' + MONTH + '月' + DAY + '日');
 
 //个人中心
-query.$center.on('touchend', function () {
+query.$center.on('click', function () {
     location.href = 'personal.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
 });
 //客户查询
-query.$search.on('touchend', function () {
-    location.href = 'search.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
+query.$search.on('click', function () {
+    location.href = 'search.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&order_type=20'
 });
 //成交助手
-query.$deal.on('touchend', function () {
-    location.href = 'deal.html?user_id=' + url.parameter('user_id') + '&deal_index=0' + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
+query.$deal.on('click', function () {
+    location.href = 'deal.html?user_id=' + url.parameter('user_id') + '&deal_index=6' + '&deal_page_index=0' + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
 });
 
 query.$linkBox.html(tplRender(linkHtml, {
@@ -68,6 +69,42 @@ ajax({
     },
     success: function (msg) {
         query.$photo.attr('src', msg.data.head_pic);
+        query.$photoInput.on('change', function (e) {
+            var file = $(this).get(0).files[0];
+            if (!/image\/\w+/.test(file.type)) {
+                mbox($, {
+                    tips: '请上传图片'
+                });
+                return false;
+            }
+            var reader = new FileReader();
+            //将文件以Data URL形式读入页面
+            reader.readAsDataURL(file);
+            reader.onload = function () {
+                var _this = this;
+                ajax({
+                    $: $,
+                    url: 'update_registration',
+                    data: {
+                        user_mobile: msg.data.user_mobile,
+                        head_pic: _this.result
+                    },
+                    success: function (updateMsg) {
+                        query.$photo.attr('src', _this.result);
+                        mbox($, {
+                            tips: updateMsg.msg
+                        });
+                    },
+                    error: function (updateMsg) {
+                        mbox($, {
+                            tips: updateMsg.msg
+                        });
+                    }
+
+                });
+            }
+        });
+
     },
     error: function (msg) {
         mbox($, {
@@ -129,7 +166,3 @@ ajax({
     }
 
 });
-
-function aaaa(){
-    console.log('aaa')
-}

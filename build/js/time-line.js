@@ -4788,81 +4788,40 @@ module.exports = Zepto;
 })(Zepto);
 },{}],3:[function(require,module,exports){
 /**
- * Created by JackieWu on 12/22/15.
+ * Created by JackieWu on 12/31/15.
  */
 var $ = require('./common/zepto');
 var ajax = require('./lib/ajax');
-var mbox = require('./lib/Mbox');
-var moment = require('./common/moment');
 var Url = require('./lib/get-url');
+var mbox = require('./lib/Mbox');
+var tpl = require('./lib/tpl');
+var moment = require('./common/moment');
+var timeLineTpl = require('./tpl/time-line.html');
+
 var url = new Url();
-var TODAY = moment().format('YYYY-MM-DD');
-var query = {
-    $level: $('.J_level'),
-    $createDate: $('.J_create-date'),
-    $createDateInput: $('#create-date'),
-    $name: $('.J_create-name'),
-    $cTel1: $('.J_create-tel-1'),//前四位
-    $cTel2: $('.J_create-tel-2'),
-    $gender: $('.J_gender-box'),
-    $createFiles: $('.J_create-files-btn')
-};
-var gender;
-query.$level.html(url.parameter('level'));
-query.$createDate.html(TODAY);
-query.$createDateInput.val(TODAY);
+var tplRender = tpl.render;
 
-query.$createFiles.on('touchend', function () {
-    if (query.$name.val() === '') {
+ajax({
+    $: $,
+    url: 'get_customer_dynamic_state',
+    data: {
+        customer_mobile: url.parameter('customer_mobile'),
+        customer_id: url.parameter('customer_id')
+    },
+    success: function (msg) {
+        $('.J_time-line-box').html(tplRender(timeLineTpl,{
+            data: msg.data.data_result
+        }))
+    },
+    error: function (msg) {
         mbox($, {
-            tips: '昵称不能为空'
+            tips: msg.msg
         });
-        return
     }
-    if (query.$cTel1.val() === '' && query.$cTel2.val() === '' && query.$cTel1.val().length === 4 && query.$cTel2.val().length === 4) {
-        mbox($, {
-            tips: '请输入正确手机号的前四位和后四位'
-        });
-        return
-    }
-    query.$gender.find('input').each(function () {
-        if ($(this).prop('checked')) {
-            gender = $(this).val()
-        }
-    });
-    ajax({
-        $: $,
-        url: 'create_customer_test',
-        data: {
-            customer_name: query.$name.val(),
-            pre_cus_mobile: query.$cTel1.val(),
-            last_cus_mobile: query.$cTel2.val(),
-            customer_gender: gender,
-            user_id: url.parameter('user_id'),
-            house_id: url.parameter('house_id'),
-            house_name: url.parameter('house_name'),
-            rtime: query.$createDate.html(),
-            question_info: url.parameter('question_info')
-        },
-        success: function (msg) {
-            mbox($, {
-                tips: msg.msg,
-                callback: function () {
-                    location.href = 'index.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
-                }
-            });
-        },
-        error: function (msg) {
-            mbox($, {
-                tips: msg.msg
-            });
-        }
 
-    });
 });
 
-
-},{"./common/moment":1,"./common/zepto":2,"./lib/Mbox":4,"./lib/ajax":5,"./lib/get-url":6}],4:[function(require,module,exports){
+},{"./common/moment":1,"./common/zepto":2,"./lib/Mbox":4,"./lib/ajax":5,"./lib/get-url":6,"./lib/tpl":7,"./tpl/time-line.html":9}],4:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/20/15.
  */
@@ -5315,4 +5274,6 @@ exports.compile = function(template){
 
 },{}],8:[function(require,module,exports){
 module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtn === undefined ? \'\' : \'hide\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
+},{}],9:[function(require,module,exports){
+module.exports='<?js it.data.forEach(function(item,i){ ?><div class="year-box"><div class="time-year-left"><div class="time-year"></div></div><div class="time-year-right"><div class="time-year-icon"></div><div class="year-cont">@{item.year}</div></div></div><?js item.detail.forEach(function(detail,k){ ?><div class="date-box"><div class="time-date-left"><span class="day">@{detail.day}</span><span>/</span><span>@{detail.month}</span></div><div class="time-date-right"><div class="time-background"></div><div class="time-date-icon"><div class="time-d-i"></div></div><div class="time-date-cont">@{detail.order_type_action}</div></div></div><?js }); ?><?js }); ?>';
 },{}]},{},[3])
