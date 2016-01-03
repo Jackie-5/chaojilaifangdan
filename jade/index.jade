@@ -22,7 +22,8 @@ html
                     .my-photo
                         .photo-box
                             label(for="photo").is-photo
-                                input.hide(type="file" id="photo")
+                                form(method="post" enctype="multipart/form-data" action="")
+                                    input.hide(type="file" id="photo")
                                 .camera
                                 img.J_photo(src='./images/login-photo.jpg')
                             .center.J_center 个人中心
@@ -40,7 +41,7 @@ html
                     .top.bg-03
                     i.left-icon-03
                     .right-title 成交助手
-                a(href="javascript:;").title.bg-04
+                .title.bg-04
                     .top.bg-04
                     i.left-icon-04
                     .right-title 今日待办

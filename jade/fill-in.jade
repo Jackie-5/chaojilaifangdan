@@ -12,13 +12,13 @@ html
                         input.J_customer_name(type="text",placeholder="请输入姓名")
                     .input
                         i.logon-icon-2
-                        input.J_customer_mobile(type="tel",placeholder="请输入手机号码")
+                        input.J_customer_mobile(type="tel",placeholder="请输入手机号码",maxlength="11")
                     .input
                         i.logon-icon-3
-                        input.J_customer_tel(type="text",placeholder="固定电话")
+                        input.J_customer_tel(type="number",placeholder="固定电话")
                     .input
                         i.logon-icon-8
-                        input.J_customer_mobile2(type="tel",placeholder="备用手机号")
+                        input.J_customer_mobile2(type="tel",placeholder="备用手机号",maxlength="11")
                     .input
                         i.logon-icon-5
                         input.J_customer_email(type="text",placeholder="邮箱")
@@ -34,7 +34,7 @@ html
                                 input(type="radio" id="man" name="r-1" value="1" checked)
                             label(for="man") 男士
                             .radio-input
-                                input(type="radio" id="woman" name="r-1" value="1")
+                                input(type="radio" id="woman" name="r-1" value="2")
                             label(for="woman") 女士
 
 

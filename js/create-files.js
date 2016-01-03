@@ -3,7 +3,7 @@
  */
 var $ = require('./common/zepto');
 var ajax = require('./lib/ajax');
-var mbox = require('./lib/Mbox');
+var Mbox = require('./lib/Mbox');
 var moment = require('./common/moment');
 var Url = require('./lib/get-url');
 var url = new Url();
@@ -11,7 +11,6 @@ var TODAY = moment().format('YYYY-MM-DD');
 var query = {
     $level: $('.J_level'),
     $createDate: $('.J_create-date'),
-    $createDateInput: $('#create-date'),
     $name: $('.J_create-name'),
     $cTel1: $('.J_create-tel-1'),//前四位
     $cTel2: $('.J_create-tel-2'),
@@ -20,18 +19,17 @@ var query = {
 };
 var gender;
 query.$level.html(url.parameter('level'));
-query.$createDate.html(TODAY);
-query.$createDateInput.val(TODAY);
+query.$createDate.val(TODAY);
 
-query.$createFiles.on('touchend', function () {
+query.$createFiles.on('click', function () {
     if (query.$name.val() === '') {
-        mbox($, {
+        new Mbox($, {
             tips: '昵称不能为空'
         });
         return
     }
-    if (query.$cTel1.val() === '' && query.$cTel2.val() === '' && query.$cTel1.val().length === 4 && query.$cTel2.val().length === 4) {
-        mbox($, {
+    if (query.$cTel1.val() === '' && query.$cTel2.val() === '' && query.$cTel1.val().length !== 4 && query.$cTel2.val().length !== 4) {
+        new Mbox($, {
             tips: '请输入正确手机号的前四位和后四位'
         });
         return
@@ -52,11 +50,11 @@ query.$createFiles.on('touchend', function () {
             user_id: url.parameter('user_id'),
             house_id: url.parameter('house_id'),
             house_name: url.parameter('house_name'),
-            rtime: query.$createDate.html(),
+            rtime: query.$createDate.val(),
             question_info: url.parameter('question_info')
         },
         success: function (msg) {
-            mbox($, {
+            new Mbox($, {
                 tips: msg.msg,
                 callback: function () {
                     location.href = 'index.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
@@ -64,7 +62,7 @@ query.$createFiles.on('touchend', function () {
             });
         },
         error: function (msg) {
-            mbox($, {
+            new Mbox($, {
                 tips: msg.msg
             });
         }

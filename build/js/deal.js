@@ -1594,7 +1594,8 @@ module.exports = Zepto;
 var $ = require('./common/zepto');
 var ajax = require('./lib/ajax');
 var Url = require('./lib/get-url');
-var mbox = require('./lib/Mbox');
+var dateChange = require('./lib/date-change');
+var Mbox = require('./lib/Mbox');
 var tpl = require('./lib/tpl');
 var dealSearchList = require('./tpl/deal-search-list.html');
 
@@ -1607,9 +1608,9 @@ var query = {
 };
 query.$titleBar.find('a').each(function (i) {
     i == url.parameter('deal_page_index') && $(this).addClass('active');
-    $(this).attr('href','./deal.html?user_id=' + url.parameter('user_id') + '&deal_page_index=' + i + '&deal_index=' + $(this).attr('data-value'))
+    $(this).attr('href', './deal.html?user_id=' + url.parameter('user_id') + '&deal_page_index=' + i + '&deal_index=' + $(this).attr('data-value') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name'))
 });
-var levelAjax = function (level,page) {
+var levelAjax = function (level, page) {
     ajax({
         $: $,
         url: 'search_customer_by_level',
@@ -1619,31 +1620,76 @@ var levelAjax = function (level,page) {
             p: page //分页之后做
         },
         success: function (msg) {
-            query.$dealBox.html(tplRender(dealSearchList,{
-                msg: msg.data.customer_info_list
-            }))
+            query.$dealBox.html(tplRender(dealSearchList, {
+                msg: msg.data.customer_info_list,
+                user_id: url.parameter('user_id'),
+                house_name: url.parameter('house_name'),
+                house_id: url.parameter('house_id')
+            }));
+            var mobile = $('.J_mobile');
+            msg.data.customer_info_list.forEach(function (item, i) {
+                if (item.real_mobile == '' || item.real_mobile == null || item.real_mobile == 0) {
+                    mobile.eq(i).find('a').off('click').on('click', function () {
+                        new Mbox($, {
+                            tips: '补全信息后才可使用',
+                            leftBtn: '去补全',
+                            rightBtnTrue: true,
+                            callback: function () {
+                                location.href = 'fill-in.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_id=' + item.customer_id
+                            }
+                        });
+                    });
+                } else {
+                    mobile.eq(i).find('a').eq(0).attr('href', 'tel:' + item.real_mobile);
+                    mobile.eq(i).find('a').eq(1).attr('href', 'sms:' + item.real_mobile)
+                }
+                if (item.order_type != 1 && item.order_type != 7) {
+                    $('.J_font-cont').attr('href', './search.html?user_id=' + url.parameter('user_id') + '&house_name=' + url.parameter('house_name') + '&house_id=' + url.parameter('house_id') + '&deal=' + item.customer_name + '&order_type=' + item.order_type)
+                }
+            });
+            dateChange($, $('.J_date-time-input'), function (time,_this) {
+                ajax({
+                    $: $,
+                    url: 'update_task_time',
+                    data: {
+                        customer_order_id: msg.data.customer_info_list[_this.parents('.J_deal-box').attr('data-value')].customer_order_id,
+                        task_time: time
+                    },
+                    success: function (msg) {
+                        new Mbox($, {
+                            tips: msg.msg
+                        });
+                    },
+                    error: function (msg) {
+                        new Mbox($, {
+                            tips: msg.msg
+                        });
+                    }
+                });
+            })
         },
         error: function (msg) {
-            mbox($, {
+            new Mbox($, {
                 tips: msg.msg
             });
         }
     });
 
 };
-levelAjax(url.parameter('deal_index'),1);
+levelAjax(url.parameter('deal_index'), 1);
 
-},{"./common/zepto":1,"./lib/Mbox":3,"./lib/ajax":4,"./lib/get-url":5,"./lib/tpl":6,"./tpl/deal-search-list.html":7}],3:[function(require,module,exports){
+},{"./common/zepto":1,"./lib/Mbox":3,"./lib/ajax":4,"./lib/date-change":5,"./lib/get-url":6,"./lib/tpl":7,"./tpl/deal-search-list.html":8}],3:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/20/15.
  */
 var tpl = require('./tpl');
 var mboxHtml = require('../tpl/mbox.html.js');
-var mbox = function ($, options) {
+var Mbox = function ($, options) {
     $('body').append(tpl.render(mboxHtml, {
         tips: options.tips,
         leftBtn: options.leftBtn,
-        rightBtn: options.rightBtn
+        rightBtn: options.rightBtn,
+        rightBtnTrue: options.rightBtnTrue
     }));
     var mboxBg = $('.J_mbox-bg');
     var mbox = $('.J_mbox');
@@ -1659,13 +1705,13 @@ var mbox = function ($, options) {
     });
 
 };
-module.exports = mbox;
+module.exports = Mbox;
 
-},{"../tpl/mbox.html.js":8,"./tpl":6}],4:[function(require,module,exports){
+},{"../tpl/mbox.html.js":9,"./tpl":7}],4:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
  */
-var mbox = require('./Mbox');
+var Mbox = require('./Mbox');
 var ajax = function (options) {
     options.data.ak = '57b7e940555a331c45f1f3aafa41320e';
     var ajaxUrl = {
@@ -1681,6 +1727,7 @@ var ajax = function (options) {
         update_customer_info_test: '/h5_app/interface_supervisit/update_customer_info_test', //更新用户信息
         get_user_info: '/h5_app/interface_supervisit/get_user_info',//获取用户信息
         user_task_list: '/h5_app/interface_supervisit/user_task_list', //获取今日代办
+        update_order_type: '/h5_app/interface_supervisit/update_order_type', //更新用户等级
         get_yanzhengcode: '/h5_app/interface_supervisit/get_yanzhengcode', //获取验证码
         is_yanzhengcode: '/h5_app/interface_supervisit/is_yanzhengcode', //确认验证码
         get_answer_level: '/h5_app/interface_supervisit/get_answer_level', //获取用户等级
@@ -1688,11 +1735,12 @@ var ajax = function (options) {
         search_customer_by_level: '/h5_app/interface_supervisit/search_customer_by_level',//按等级查找客户
         customer_order_action: '/h5_app/interface_supervisit/customer_order_action',//更新客户状态，再次来访，下意向金，下定，签约，付款
         search_customer: '/h5_app/interface_supervisit/search_customer', //搜索查询
-        get_customer_dynamic_state: '/h5_app/interface_supervisit/get_customer_dynamic_state' //成交助手
+        get_customer_dynamic_state: '/h5_app/interface_supervisit/get_customer_dynamic_state', //成交助手
+        update_task_time: '/h5_app/interface_supervisit/update_task_time' //更新用户时间线
     };
     // 'http://Laifangdan.searchchinahouse.com'
     options.$.ajax({
-        url: ajaxUrl[options.url],
+        url: 'http://Laifangdan.searchchinahouse.com' + ajaxUrl[options.url],
         type: 'POST',
         data: options.data,
         success: function (msg) {
@@ -1714,6 +1762,37 @@ var ajax = function (options) {
 module.exports = ajax;
 
 },{"./Mbox":3}],5:[function(require,module,exports){
+/**
+ * Created by JackieWu on 16/1/2.
+ */
+var ua = navigator.userAgent;
+var dateChange = function ($, container,cb) {
+    var setStarInterVal;
+    var time = '';
+    if(ua.indexOf('Android') > -1 && ua.toLowerCase().match(/MicroMessenger/i) == "micromessenger"){
+        container.on('click', function () {
+            var _this = $(this);
+            setStarInterVal = setInterval(function () {
+                if(time.toString() !== container.val().toString()){
+                    if(time.toString() ===  container.val().toString() && time !== ''){
+                        time = container.val();
+                        cb && cb(time,_this);
+                        clearInterval(setStarInterVal);
+                    }
+                }
+            },1);
+        });
+    }else{
+        container.on('blur', function () {
+            var _this = $(this);
+            time = container.val();
+            cb && cb(time,_this);
+        })
+
+    }
+};
+module.exports = dateChange;
+},{}],6:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
  */
@@ -1932,7 +2011,7 @@ p.set = function (prop, value) {
     return this;
 };
 module.exports = Url;
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 function compile(template){
     var
 
@@ -2084,8 +2163,8 @@ exports.compile = function(template){
     return compile(template);
 };
 
-},{}],7:[function(require,module,exports){
-module.exports='<?js it.msg.forEach(function(item,i){ ?><div class="deal-box"><div class="search-result-list"><div class="search-list"><i class="s-icon-1"></i><div class="s-title">客户姓名</div><div class="s-cont">@{item.customer_name}</div></div><div class="search-list"><i class="s-icon-2"></i><div class="s-title">当前级别</div><div class="s-cont"><div class="border"><i></i>@{item.customer_level}级客户</div></div></div><div class="search-list"><i class="s-icon-3"></i><div class="s-title">最新接触</div><div class="s-cont">@{item.lasttime}</div></div><div class="search-list"><i class="s-icon-4"></i><div class="s-title">快速联系</div><div class="s-cont"><a href="sms:@{item.customer_mobile}" class="s-icon-5"></a><a href="tel:@{item.customer_mobile}" class="s-icon-6"></a></div></div></div><div class="deal-state"><div class="search-list"><i class="s-i-icon-5"></i><div class="s-title">下一步行动</div><a href="" class="s-cont font-color">付意向金</a></div><div class="search-list"><i class="s-i-icon-6"></i><div class="s-title">计划时间</div><div class="s-cont"><span>3</span></div><label for="date-@{i}" class="time-icon"><input type="date" id="date-@{i}" class="hide"/></label></div></div></div><?js }); ?>';
 },{}],8:[function(require,module,exports){
-module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtn === undefined ? \'\' : \'hide\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
+module.exports='<?js it.msg.forEach(function(item,i){ ?><?js var order_type = \'付意向金\'; var href=\'\'; ?><?js if(item.order_type == 1){order_type= \'邀约来访\';}else if(item.order_type == 2){order_type= \'再次来访\';}else if(item.order_type == 3){order_type= \'付意向金\';}else if(item.order_type == 4){order_type= \'付定金\';}else if(item.order_type == 5){order_type= \'签约\';}else if(item.order_type == 6){order_type= \'待付款\';}else if(item.order_type == 7){order_type= \'确认付款\';} ?><div data-value="@{i}" class="deal-box J_deal-box"><div class="search-result-list"><div class="search-list"><i class="s-icon-1"></i><div class="s-title">客户姓名</div><div class="s-cont">@{item.customer_name}</div></div><div class="search-list"><i class="s-icon-2"></i><div class="s-title">当前级别</div><div class="s-cont"><div class="border"><i></i>@{item.customer_level}级客户</div></div></div><div class="search-list"><i class="s-icon-3"></i><div class="s-title">最新接触</div><div class="s-cont">@{item.lasttime}</div></div><div class="search-list"><i class="s-icon-4"></i><div class="s-title">快速联系</div><div class="s-cont J_mobile"><a href="javascript:;" class="s-icon-5"></a><a href="javascript:;" class="s-icon-6"></a></div></div></div><div class="deal-state"><div class="search-list"><i class="s-i-icon-5"></i><div class="s-title">下一步行动</div><a class="s-cont font-color J_font-cont">@{order_type}</a></div><div class="search-list"><i class="s-i-icon-6"></i><div class="s-title">计划时间</div><div class="s-cont"><span>@{item.diff_days}天</span></div><label class="time-icon"><input type="date" id="date-time" class="J_date-time-input"/></label></div></div></div><?js }); ?>';
+},{}],9:[function(require,module,exports){
+module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtnTrue === undefined ? \'hide\' : \'\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
 },{}]},{},[2])

@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=0">
+        <meta name="format-detection" content="telephone=no">
         <link rel="stylesheet" type="text/css" href="./css/main.css">
         <title>超级来访单首页</title>
         <body>
@@ -27,7 +28,9 @@
                     <div class="my-photo">
                         <div class="photo-box">
                             <label for="photo" class="is-photo">
-                                <input type="file" id="photo" class="hide">
+                                <form method="post" enctype="multipart/form-data" action="">
+                                    <input type="file" id="photo" class="hide">
+                                </form>
                                 <div class="camera"></div><img src="./images/login-photo.jpg" class="J_photo">
                             </label>
                             <div class="center J_center">个人中心</div>
@@ -46,9 +49,11 @@
                 <div class="title bg-03 J_deal">
                     <div class="top bg-03"></div><i class="left-icon-03"></i>
                     <div class="right-title">成交助手</div>
-                </div><a href="javascript:;" class="title bg-04">
+                </div>
+                <div class="title bg-04">
                     <div class="top bg-04"></div><i class="left-icon-04"></i>
-                    <div class="right-title">今日待办</div></a>
+                    <div class="right-title">今日待办</div>
+                </div>
                 <div class="J_wait-box"></div>
             </div>
             <script src="./js/index.js"></script>

@@ -19,7 +19,7 @@ html
                         .inten-cont
                             .border
                                 i
-                                | 付意向金
+                                span.J_order-type
 
                     .time-list
                         .time-bottom-name
@@ -27,8 +27,8 @@ html
                             span 计划时间
                         .time-box
                             .time
-                                span 3
-                                | 天
+                                span.J_time 3
+                                span 天
                             label(for="time-date").btn-icon
-                                input.hide(type="date",id="time-date")
+                                input(type="date",id="time-date")
             script(src="./js/time-line.js")

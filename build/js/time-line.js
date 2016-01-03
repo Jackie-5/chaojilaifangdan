@@ -4793,7 +4793,8 @@ module.exports = Zepto;
 var $ = require('./common/zepto');
 var ajax = require('./lib/ajax');
 var Url = require('./lib/get-url');
-var mbox = require('./lib/Mbox');
+var dateChange = require('./lib/date-change');
+var Mbox = require('./lib/Mbox');
 var tpl = require('./lib/tpl');
 var moment = require('./common/moment');
 var timeLineTpl = require('./tpl/time-line.html');
@@ -4805,33 +4806,74 @@ ajax({
     $: $,
     url: 'get_customer_dynamic_state',
     data: {
-        customer_mobile: url.parameter('customer_mobile'),
-        customer_id: url.parameter('customer_id')
+        customer_id: url.parameter('customer_id'),
+        house_id: url.parameter('house_id')
     },
     success: function (msg) {
-        $('.J_time-line-box').html(tplRender(timeLineTpl,{
+        $('.J_time-line-box').html(tplRender(timeLineTpl, {
             data: msg.data.data_result
-        }))
+        }));
+
+        $('.J_time').html(url.parameter('diff_days'));
+
+        var orderType = $('.J_order-type');
+        if (url.parameter('order_type') == 1) {
+            orderType.html('邀约来访');
+        } else if (url.parameter('order_type') == 2) {
+            orderType.html('再次来访');
+        } else if (url.parameter('order_type') == 3) {
+            orderType.html('付意向金');
+        } else if (url.parameter('order_type') == 4) {
+            orderType.html('付定金');
+        } else if (url.parameter('order_type') == 5) {
+            orderType.html('签约');
+        } else if (url.parameter('order_type') == 6) {
+            orderType.html('待付款');
+        } else if (url.parameter('order_type') == 7) {
+            orderType.html('确认付款');
+        }
+        dateChange($,$('#time-date'), function (time) {
+            ajax({
+                $: $,
+                url: 'update_order_type',
+                data: {
+                    customer_order_id: url.parameter('customer_order_id'),
+                    task_time: time
+                },
+                success: function (msg) {
+                    new Mbox($, {
+                        tips: msg.msg
+                    });
+                },
+                error: function (msg) {
+                    new Mbox($, {
+                        tips: msg.msg
+                    });
+                }
+
+            });
+        })
     },
     error: function (msg) {
-        mbox($, {
+        new Mbox($, {
             tips: msg.msg
         });
     }
 
 });
 
-},{"./common/moment":1,"./common/zepto":2,"./lib/Mbox":4,"./lib/ajax":5,"./lib/get-url":6,"./lib/tpl":7,"./tpl/time-line.html":9}],4:[function(require,module,exports){
+},{"./common/moment":1,"./common/zepto":2,"./lib/Mbox":4,"./lib/ajax":5,"./lib/date-change":6,"./lib/get-url":7,"./lib/tpl":8,"./tpl/time-line.html":10}],4:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/20/15.
  */
 var tpl = require('./tpl');
 var mboxHtml = require('../tpl/mbox.html.js');
-var mbox = function ($, options) {
+var Mbox = function ($, options) {
     $('body').append(tpl.render(mboxHtml, {
         tips: options.tips,
         leftBtn: options.leftBtn,
-        rightBtn: options.rightBtn
+        rightBtn: options.rightBtn,
+        rightBtnTrue: options.rightBtnTrue
     }));
     var mboxBg = $('.J_mbox-bg');
     var mbox = $('.J_mbox');
@@ -4847,13 +4889,13 @@ var mbox = function ($, options) {
     });
 
 };
-module.exports = mbox;
+module.exports = Mbox;
 
-},{"../tpl/mbox.html.js":8,"./tpl":7}],5:[function(require,module,exports){
+},{"../tpl/mbox.html.js":9,"./tpl":8}],5:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
  */
-var mbox = require('./Mbox');
+var Mbox = require('./Mbox');
 var ajax = function (options) {
     options.data.ak = '57b7e940555a331c45f1f3aafa41320e';
     var ajaxUrl = {
@@ -4869,6 +4911,7 @@ var ajax = function (options) {
         update_customer_info_test: '/h5_app/interface_supervisit/update_customer_info_test', //更新用户信息
         get_user_info: '/h5_app/interface_supervisit/get_user_info',//获取用户信息
         user_task_list: '/h5_app/interface_supervisit/user_task_list', //获取今日代办
+        update_order_type: '/h5_app/interface_supervisit/update_order_type', //更新用户等级
         get_yanzhengcode: '/h5_app/interface_supervisit/get_yanzhengcode', //获取验证码
         is_yanzhengcode: '/h5_app/interface_supervisit/is_yanzhengcode', //确认验证码
         get_answer_level: '/h5_app/interface_supervisit/get_answer_level', //获取用户等级
@@ -4876,11 +4919,12 @@ var ajax = function (options) {
         search_customer_by_level: '/h5_app/interface_supervisit/search_customer_by_level',//按等级查找客户
         customer_order_action: '/h5_app/interface_supervisit/customer_order_action',//更新客户状态，再次来访，下意向金，下定，签约，付款
         search_customer: '/h5_app/interface_supervisit/search_customer', //搜索查询
-        get_customer_dynamic_state: '/h5_app/interface_supervisit/get_customer_dynamic_state' //成交助手
+        get_customer_dynamic_state: '/h5_app/interface_supervisit/get_customer_dynamic_state', //成交助手
+        update_task_time: '/h5_app/interface_supervisit/update_task_time' //更新用户时间线
     };
     // 'http://Laifangdan.searchchinahouse.com'
     options.$.ajax({
-        url: ajaxUrl[options.url],
+        url: 'http://Laifangdan.searchchinahouse.com' + ajaxUrl[options.url],
         type: 'POST',
         data: options.data,
         success: function (msg) {
@@ -4902,6 +4946,37 @@ var ajax = function (options) {
 module.exports = ajax;
 
 },{"./Mbox":4}],6:[function(require,module,exports){
+/**
+ * Created by JackieWu on 16/1/2.
+ */
+var ua = navigator.userAgent;
+var dateChange = function ($, container,cb) {
+    var setStarInterVal;
+    var time = '';
+    if(ua.indexOf('Android') > -1 && ua.toLowerCase().match(/MicroMessenger/i) == "micromessenger"){
+        container.on('click', function () {
+            var _this = $(this);
+            setStarInterVal = setInterval(function () {
+                if(time.toString() !== container.val().toString()){
+                    if(time.toString() ===  container.val().toString() && time !== ''){
+                        time = container.val();
+                        cb && cb(time,_this);
+                        clearInterval(setStarInterVal);
+                    }
+                }
+            },1);
+        });
+    }else{
+        container.on('blur', function () {
+            var _this = $(this);
+            time = container.val();
+            cb && cb(time,_this);
+        })
+
+    }
+};
+module.exports = dateChange;
+},{}],7:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
  */
@@ -5120,7 +5195,7 @@ p.set = function (prop, value) {
     return this;
 };
 module.exports = Url;
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 function compile(template){
     var
 
@@ -5272,8 +5347,8 @@ exports.compile = function(template){
     return compile(template);
 };
 
-},{}],8:[function(require,module,exports){
-module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtn === undefined ? \'\' : \'hide\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
 },{}],9:[function(require,module,exports){
+module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtnTrue === undefined ? \'hide\' : \'\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
+},{}],10:[function(require,module,exports){
 module.exports='<?js it.data.forEach(function(item,i){ ?><div class="year-box"><div class="time-year-left"><div class="time-year"></div></div><div class="time-year-right"><div class="time-year-icon"></div><div class="year-cont">@{item.year}</div></div></div><?js item.detail.forEach(function(detail,k){ ?><div class="date-box"><div class="time-date-left"><span class="day">@{detail.day}</span><span>/</span><span>@{detail.month}</span></div><div class="time-date-right"><div class="time-background"></div><div class="time-date-icon"><div class="time-d-i"></div></div><div class="time-date-cont">@{detail.order_type_action}</div></div></div><?js }); ?><?js }); ?>';
 },{}]},{},[3])

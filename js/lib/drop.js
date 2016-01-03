@@ -10,10 +10,12 @@ var Drop = function($,callback){
         if(query.$show.hasClass('hide')){
             query.$show.removeClass('hide');
             query.$show.find('span').off('click').on('click', function () {
-                query.$drop.find('span').html($(this).html());
+                query.$drop.find('span').html($(this).html()).attr('data-value',$(this).attr('data-value'));
                 query.$show.addClass('hide');
                 callback && callback($(this).index())
             });
+        }else{
+            query.$show.addClass('hide');
         }
     })
 };

@@ -3,7 +3,7 @@
  */
 var $ = require('./common/zepto');
 var ajax = require('./lib/ajax');
-var mbox = require('./lib/Mbox');
+var Mbox = require('./lib/Mbox');
 var Url = require('./lib/get-url');
 var url = new Url();
 var query = {
@@ -24,24 +24,24 @@ query.$houses.on('click', function () {
 });
 query.$logonBtn.on('click', function () {
     if (query.$name.val() === '') {
-        mbox($, {
+        new Mbox($, {
             tips: '姓名不能为空'
         });
         return
     }
     if (query.$tel.val() === '' || !/0?(13|14|15|17|18)[0-9]{9}/.test(query.$tel.val()) || query.$tel.val().length !== 11) {
-        mbox($, {
+        new Mbox($, {
             tips: '请输入正确的手机号'
         });
         return
     }
     if(url.parameter('houseId') == ''){
-        mbox($, {
+        new Mbox($, {
             tips: '楼盘不能为空'
         });
     }
     if (query.$pwd.val() === '') {
-        mbox($, {
+        new Mbox($, {
             tips: '密码不能为空'
         });
         return
@@ -56,7 +56,7 @@ query.$logonBtn.on('click', function () {
             house_id: url.parameter('houseId')
         },
         success: function (msg) {
-            mbox($, {
+            new Mbox($, {
                 tips: msg.msg,
                 callback: function () {
                     location.href = 'login.html'
@@ -64,7 +64,7 @@ query.$logonBtn.on('click', function () {
             });
         },
         error: function (msg) {
-            mbox($, {
+            new Mbox($, {
                 tips: msg.msg
             });
         }

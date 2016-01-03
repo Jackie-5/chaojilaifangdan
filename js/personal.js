@@ -3,7 +3,7 @@
  */
 var $ = require('./common/zepto');
 var ajax = require('./lib/ajax');
-var mbox = require('./lib/Mbox');
+var Mbox = require('./lib/Mbox');
 var Url = require('./lib/get-url');
 var url = new Url();
 var query = {
@@ -31,27 +31,27 @@ ajax({
     }
 });
 
-query.$modifyBtn.on('touchend', function () {
+query.$modifyBtn.on('click', function () {
     if (query.$name.val().length === '') {
-        mbox($, {
+        new Mbox($, {
             tips: '姓名不能为空'
         });
         return
     }
     if (query.$tel.val().length === '' || !/0?(13|14|15|17|18)[0-9]{9}/.test(query.$tel.val()) || query.$tel.val().length !== 11) {
-        mbox($, {
+        new Mbox($, {
             tips: '请输入正确的手机号'
         });
         return
     }
     if (query.$houses.val().length === '') {
-        mbox($, {
+        new Mbox($, {
             tips: '楼盘不能为空'
         });
         return
     }
     if (query.$pwd.val().length === '') {
-        mbox($, {
+        new Mbox($, {
             tips: '密码不能为空'
         });
         return
@@ -65,15 +65,15 @@ query.$modifyBtn.on('touchend', function () {
             user_pass: query.$pwd.val()
         },
         success: function (msg) {
-            mbox($, {
+            new Mbox($, {
                 tips: '信息修改成功',
                 callback:function(){
-                    location.href = 'index.html?user_id=' + url.parameter('user_id')
+                    location.href = 'index.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
                 }
             });
         },
         error: function(msg){
-            mbox($, {
+            new Mbox($, {
                 tips: msg.msg
             });
         }

@@ -5,10 +5,11 @@ var $ = require('./common/zepto');
 var ajax = require('./lib/ajax');
 var Calendar = require('./common/Calendar');
 var Url = require('./lib/get-url');
-var mbox = require('./lib/Mbox');
+var Mbox = require('./lib/Mbox');
 var tpl = require('./lib/tpl');
 var indexHtml = require('./tpl/index-tpl.html');
 var linkHtml = require('./tpl/index-link-tpl.html');
+var changeDate = require('./lib/date-change');
 var date = new Date();
 var YEAR = date.getFullYear();
 var MONTH = date.getMonth() + 1;
@@ -72,7 +73,7 @@ ajax({
         query.$photoInput.on('change', function (e) {
             var file = $(this).get(0).files[0];
             if (!/image\/\w+/.test(file.type)) {
-                mbox($, {
+                new Mbox($, {
                     tips: '请上传图片'
                 });
                 return false;
@@ -91,12 +92,12 @@ ajax({
                     },
                     success: function (updateMsg) {
                         query.$photo.attr('src', _this.result);
-                        mbox($, {
+                        new Mbox($, {
                             tips: updateMsg.msg
                         });
                     },
                     error: function (updateMsg) {
-                        mbox($, {
+                        new Mbox($, {
                             tips: updateMsg.msg
                         });
                     }
@@ -107,48 +108,79 @@ ajax({
 
     },
     error: function (msg) {
-        mbox($, {
+        new Mbox($, {
             tips: msg.msg
         });
     }
 
 });
-ajax({
-    $: $,
-    url: 'user_task_list',
-    data: {
-        user_id: url.parameter('user_id')
-    },
-    success: function (msg) {
-        query.$wait.html(tplRender(indexHtml, msg.data));
-        var index = 0;
-        var customerMobile = $('.J_customer-mobile');
-        msg.data.forEach(function (item, i) {
-            item.list.forEach(function (list, k) {
-                if (list.customer_mobile == '' || list.customer_mobile == null) {
-                    customerMobile.eq(index).find('a').on('click', function () {
-                        mbox($, {
-                            tips: '补全信息后才可使用',
-                            leftBtn: '去补全',
-                            callback: function () {
-                                location.href = 'fill-in.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_id=' + list.customer_id
-                            }
+var userTaskList = function () {
+    ajax({
+        $: $,
+        url: 'user_task_list',
+        data: {
+            user_id: url.parameter('user_id')
+        },
+        success: function (msg) {
+            query.$wait.html(tplRender(indexHtml, msg.data));
+            var index = 0;
+            var customerMobile = $('.J_customer-mobile');
+            msg.data.forEach(function (item, i) {
+                item.list.forEach(function (list, k) {
+                    if (list.customer_mobile == '' || list.customer_mobile == null) {
+                        customerMobile.eq(index).find('a').off('click').on('click', function () {
+                            new Mbox($, {
+                                tips: '补全信息后才可使用',
+                                leftBtn: '去补全',
+                                rightBtnTrue: true,
+                                callback: function () {
+                                    location.href = 'fill-in.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_id=' + list.customer_id
+                                }
+                            });
                         });
-                    })
-                } else {
-                    customerMobile.eq(index).find('a').eq(0).attr('href', 'tel:' + list.customer_mobile);
-                    customerMobile.eq(index).find('a').eq(1).attr('href', 'sms:' + list.customer_mobile)
-                }
-                index += 1;
-            })
-        })
-    },
-    error: function (msg) {
-        mbox($, {
-            tips: msg.msg
-        });
-    }
-});
+                    } else {
+                        customerMobile.eq(index).find('a').eq(0).attr('href', 'tel:' + list.customer_mobile);
+                        customerMobile.eq(index).find('a').eq(1).attr('href', 'sms:' + list.customer_mobile)
+                    }
+
+                    changeDate($, $('.J_customer-date-input').eq(index).find('input').off('click'), function (time) {
+                        ajax({
+                            $: $,
+                            url: 'update_order_type',
+                            data: {
+                                customer_order_id: list.customer_order_id,
+                                task_time: time
+                            },
+                            success: function (msg) {
+                                new Mbox($, {
+                                    tips: msg.msg,
+                                    callback: function () {
+                                        userTaskList();
+                                    }
+                                });
+                            },
+                            error: function (msg) {
+                                new Mbox($, {
+                                    tips: msg.msg
+                                });
+                            }
+
+                        });
+                    });
+                    index += 1;
+                })
+            });
+        },
+        error: function (msg) {
+            new Mbox($, {
+                tips: msg.msg
+            });
+        }
+    });
+};
+
+userTaskList();
+
 //待办事项总数
 ajax({
     $: $,
@@ -160,7 +192,7 @@ ajax({
         query.$number.html(msg.data);
     },
     error: function (msg) {
-        mbox($, {
+        new Mbox($, {
             tips: msg.msg
         });
     }

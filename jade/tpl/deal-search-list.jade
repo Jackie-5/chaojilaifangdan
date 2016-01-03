@@ -1,6 +1,8 @@
 //-Created by JackieWu on 12/25/15.
 | <?js it.msg.forEach(function(item,i){ ?>
-.deal-box
+| <?js var order_type = '付意向金'; var href=''; ?>
+| <?js if(item.order_type == 1){order_type= '邀约来访';}else if(item.order_type == 2){order_type= '再次来访';}else if(item.order_type == 3){order_type= '付意向金';}else if(item.order_type == 4){order_type= '付定金';}else if(item.order_type == 5){order_type= '签约';}else if(item.order_type == 6){order_type= '待付款';}else if(item.order_type == 7){order_type= '确认付款';} ?>
+.deal-box.J_deal-box(data-value="@{i}")
     .search-result-list
         .search-list
             i.s-icon-1
@@ -20,19 +22,19 @@
         .search-list
             i.s-icon-4
             .s-title 快速联系
-            .s-cont
-                a(href="sms:@{item.customer_mobile}").s-icon-5
-                a(href="tel:@{item.customer_mobile}").s-icon-6
+            .s-cont.J_mobile
+                a(href="javascript:;").s-icon-5
+                a(href="javascript:;").s-icon-6
     .deal-state
         .search-list
             i.s-i-icon-5
             .s-title 下一步行动
-            a(href="").s-cont.font-color 付意向金
+            a.s-cont.font-color.J_font-cont @{order_type}
         .search-list
             i.s-i-icon-6
             .s-title 计划时间
             .s-cont
-                span 3
-            label(for="date-@{i}").time-icon
-                input.hide(type="date",id="date-@{i}")
+                span @{item.diff_days}天
+            label.time-icon
+                input.J_date-time-input(type="date",id="date-time")
 | <?js }); ?>

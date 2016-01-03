@@ -3,7 +3,7 @@
  */
 var $ = require('./common/zepto');
 var ajax = require('./lib/ajax');
-var mbox = require('./lib/Mbox');
+var Mbox = require('./lib/Mbox');
 var Url = require('./lib/get-url');
 var url = new Url();
 var query = {
@@ -14,13 +14,13 @@ var query = {
 url.parameter('user_mobile') && query.$tel.val(url.parameter('user_mobile'));
 query.$logonBtn.on('touchend',function(){
     if(query.$tel.val().length === '' || !/0?(13|14|15|17|18)[0-9]{9}/.test(query.$tel.val()) || query.$tel.val().length !== 11){
-        mbox($,{
+        new Mbox($,{
             tips: '请输入正确的手机号'
         });
         return
     }
     if(query.$pwd.val() === ''){
-        mbox($,{
+        new Mbox($,{
             tips: '密码不能为空'
         });
         return
@@ -33,7 +33,7 @@ query.$logonBtn.on('touchend',function(){
             user_pass: query.$pwd.val()
         },
         success: function (msg) {
-            mbox($,{
+            new Mbox($,{
                 tips: msg.msg,
                 callback:function(){
                     location.href = 'login.html'
@@ -41,7 +41,7 @@ query.$logonBtn.on('touchend',function(){
             });
         },
         error: function (msg) {
-            mbox($, {
+            new Mbox($, {
                 tips: msg.msg
             });
         }

@@ -1592,7 +1592,7 @@ module.exports = Zepto;
  * Created by JackieWu on 12/22/15.
  */
 var $ = require('./common/zepto');
-var mbox = require('./lib/Mbox');
+var Mbox = require('./lib/Mbox');
 var tpl = require('./lib/tpl');
 var ajax = require('./lib/ajax');
 var answerHtml = require('./tpl/answer-tpl.html');
@@ -1616,7 +1616,7 @@ var submit = function (date) {
         })
     });
     if (QAArray.length !== date.length) {
-        mbox($, {
+        new Mbox($, {
             tips: '请把问题填写完整'
         });
         return
@@ -1632,7 +1632,7 @@ var submit = function (date) {
                 location.href = 'create-files.html?level=' + msg.data.level + '&user_id=' + url.parameter('user_id') + '&question_info=' + QAArray.join(',') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
             },
             error: function (msg) {
-                mbox($, {
+                new Mbox($, {
                     tips: msg.msg
                 });
             }
@@ -1646,7 +1646,7 @@ var submit = function (date) {
                 question_info: QAArray.join(',') //没有填写
             },
             success: function (msg) {
-                mbox($, {
+                new Mbox($, {
                     tips: msg.msg,
                     callback: function () {
                         history.back(BACK)
@@ -1654,7 +1654,7 @@ var submit = function (date) {
                 });
             },
             error: function (msg) {
-                mbox($, {
+                new Mbox($, {
                     tips: msg.msg
                 });
             }
@@ -1677,12 +1677,12 @@ ajax({
             }
         });
 
-        query.$answerBtn.on('touchend', function () {
+        query.$answerBtn.on('click', function () {
             submit(msg.data)
         });
     },
     error: function (msg) {
-        mbox($, {
+        new Mbox($, {
             tips: msg.msg
         });
     }
@@ -1695,11 +1695,12 @@ ajax({
  */
 var tpl = require('./tpl');
 var mboxHtml = require('../tpl/mbox.html.js');
-var mbox = function ($, options) {
+var Mbox = function ($, options) {
     $('body').append(tpl.render(mboxHtml, {
         tips: options.tips,
         leftBtn: options.leftBtn,
-        rightBtn: options.rightBtn
+        rightBtn: options.rightBtn,
+        rightBtnTrue: options.rightBtnTrue
     }));
     var mboxBg = $('.J_mbox-bg');
     var mbox = $('.J_mbox');
@@ -1715,13 +1716,13 @@ var mbox = function ($, options) {
     });
 
 };
-module.exports = mbox;
+module.exports = Mbox;
 
 },{"../tpl/mbox.html.js":8,"./tpl":6}],4:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
  */
-var mbox = require('./Mbox');
+var Mbox = require('./Mbox');
 var ajax = function (options) {
     options.data.ak = '57b7e940555a331c45f1f3aafa41320e';
     var ajaxUrl = {
@@ -1737,6 +1738,7 @@ var ajax = function (options) {
         update_customer_info_test: '/h5_app/interface_supervisit/update_customer_info_test', //更新用户信息
         get_user_info: '/h5_app/interface_supervisit/get_user_info',//获取用户信息
         user_task_list: '/h5_app/interface_supervisit/user_task_list', //获取今日代办
+        update_order_type: '/h5_app/interface_supervisit/update_order_type', //更新用户等级
         get_yanzhengcode: '/h5_app/interface_supervisit/get_yanzhengcode', //获取验证码
         is_yanzhengcode: '/h5_app/interface_supervisit/is_yanzhengcode', //确认验证码
         get_answer_level: '/h5_app/interface_supervisit/get_answer_level', //获取用户等级
@@ -1744,11 +1746,12 @@ var ajax = function (options) {
         search_customer_by_level: '/h5_app/interface_supervisit/search_customer_by_level',//按等级查找客户
         customer_order_action: '/h5_app/interface_supervisit/customer_order_action',//更新客户状态，再次来访，下意向金，下定，签约，付款
         search_customer: '/h5_app/interface_supervisit/search_customer', //搜索查询
-        get_customer_dynamic_state: '/h5_app/interface_supervisit/get_customer_dynamic_state' //成交助手
+        get_customer_dynamic_state: '/h5_app/interface_supervisit/get_customer_dynamic_state', //成交助手
+        update_task_time: '/h5_app/interface_supervisit/update_task_time' //更新用户时间线
     };
     // 'http://Laifangdan.searchchinahouse.com'
     options.$.ajax({
-        url: ajaxUrl[options.url],
+        url: 'http://Laifangdan.searchchinahouse.com' + ajaxUrl[options.url],
         type: 'POST',
         data: options.data,
         success: function (msg) {
@@ -2143,5 +2146,5 @@ exports.compile = function(template){
 },{}],7:[function(require,module,exports){
 module.exports='<?js it.forEach(function(item,i){ ?><div class="question-box J_q-a"><?js i = i + 1; ?><h1>@{i}、@{item.question_title}</h1><?js item.option.forEach(function(itemOpt,k){ ?><div class="input-box J_input-@{item.question_id}"><div class="radio-input"><input type="radio" id="input-@{i}-@{k}" name="r-@{item.question_id}" value="@{itemOpt.option_id}"/></div><label for="input-@{i}-@{k}">@{itemOpt.option_title}</label></div><?js }); ?></div><?js }); ?>';
 },{}],8:[function(require,module,exports){
-module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtn === undefined ? \'\' : \'hide\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
+module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtnTrue === undefined ? \'hide\' : \'\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
 },{}]},{},[2])

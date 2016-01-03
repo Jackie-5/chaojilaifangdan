@@ -2,7 +2,7 @@
  * Created by JackieWu on 12/22/15.
  */
 var $ = require('./common/zepto');
-var mbox = require('./lib/Mbox');
+var Mbox = require('./lib/Mbox');
 var tpl = require('./lib/tpl');
 var ajax = require('./lib/ajax');
 var answerHtml = require('./tpl/answer-tpl.html');
@@ -26,7 +26,7 @@ var submit = function (date) {
         })
     });
     if (QAArray.length !== date.length) {
-        mbox($, {
+        new Mbox($, {
             tips: '请把问题填写完整'
         });
         return
@@ -42,7 +42,7 @@ var submit = function (date) {
                 location.href = 'create-files.html?level=' + msg.data.level + '&user_id=' + url.parameter('user_id') + '&question_info=' + QAArray.join(',') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
             },
             error: function (msg) {
-                mbox($, {
+                new Mbox($, {
                     tips: msg.msg
                 });
             }
@@ -56,7 +56,7 @@ var submit = function (date) {
                 question_info: QAArray.join(',') //没有填写
             },
             success: function (msg) {
-                mbox($, {
+                new Mbox($, {
                     tips: msg.msg,
                     callback: function () {
                         history.back(BACK)
@@ -64,7 +64,7 @@ var submit = function (date) {
                 });
             },
             error: function (msg) {
-                mbox($, {
+                new Mbox($, {
                     tips: msg.msg
                 });
             }
@@ -87,12 +87,12 @@ ajax({
             }
         });
 
-        query.$answerBtn.on('touchend', function () {
+        query.$answerBtn.on('click', function () {
             submit(msg.data)
         });
     },
     error: function (msg) {
-        mbox($, {
+        new Mbox($, {
             tips: msg.msg
         });
     }

@@ -1,5 +1,7 @@
 //-Created by JackieWu on 12/23/15.
 //-意向金
+| <?js var value = '付意向金'; ?>
+| <?js if(it.data.order_type == 1){value = '首次来访';}else if(it.data.order_type == 2){value='再次来访';}else if(it.data.order_type == 3){value='付意向金';}else if(it.data.order_type == 4){value='付定金';}else if(it.data.order_type == 5){value='签约';}else if(it.data.order_type == 6){value='待付款';}else if(it.data.order_type == 7){value='确认付款';} ?>
 .search-intention
     .intention-list
         .inten-name
@@ -32,13 +34,13 @@
         .inten-cont
             .border.J_drop
                 i
-                span 付意向金
+                span(data-value="@{it.data.order_type}") @{value}
             .drop.J_drop-show.hide
-                span 再次来访
-                span 付意向金
-                span 付定金
-                span 签约
-                span 付款
+                span(data-value="2") 再次来访
+                span(data-value="3") 付意向金
+                span(data-value="4") 付定金
+                span(data-value="5") 签约
+                span(data-value="6") 付款
 
     .intention-list
         .inten-name
@@ -46,9 +48,9 @@
             span 计划时间
         .time-box
             .time
-                span @{it.time}
-            label(for="btn-time").btn-icon
-                input.hide#btn-time(type="date")
+                span @{it.data.diff_days}天
+            label.btn-icon
+                input#btn-time(type="date")
 
 .search-inten-btn
     span.J_cancel 退订

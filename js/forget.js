@@ -3,7 +3,7 @@
  */
 var $ = require('./common/zepto');
 var ajax = require('./lib/ajax');
-var mbox = require('./lib/Mbox');
+var Mbox = require('./lib/Mbox');
 
 var time = 120;
 var interval;
@@ -16,7 +16,7 @@ var query = {
 
 query.$countdown.on('touchend', function () {
     if(query.$tel.val().length === '' || !/0?(13|14|15|17|18)[0-9]{9}/.test(query.$tel.val()) || query.$tel.val().length !== 11){
-        mbox($, {
+        new Mbox($, {
             tips: '请输入正确的手机号'
         });
         return
@@ -28,7 +28,7 @@ query.$countdown.on('touchend', function () {
             user_mobile: query.$tel.val()
         },
         success: function (msg) {
-            mbox($, {
+            new Mbox($, {
                 tips: msg.msg
             });
             query.$countdown.addClass('active');
@@ -44,7 +44,7 @@ query.$countdown.on('touchend', function () {
             },1000)
         },
         error: function (msg) {
-            mbox($, {
+            new Mbox($, {
                 tips: msg.msg
             });
         }
@@ -54,13 +54,13 @@ query.$countdown.on('touchend', function () {
 
 query.$forgetBtn.on('touchend',function(){
     if(query.$tel.val() === '' || !/0?(13|14|15|17|18)[0-9]{9}/.test(query.$tel.val()) || query.$tel.val().length !== 11){
-        mbox($, {
+        new Mbox($, {
             tips: '请输入正确的手机号'
         });
         return
     }
     if(query.$code.val() === ''){
-        mbox($, {
+        new Mbox($, {
             tips: '请输入验证码'
         });
         return
@@ -73,7 +73,7 @@ query.$forgetBtn.on('touchend',function(){
             yanzheng_code: query.$code.val()
         },
         success: function (msg) {
-            mbox($, {
+            new Mbox($, {
                 tips: msg.msg,
                 callback: function () {
                     location.href = 'update-pwd.html?user_mobile=' + query.$tel.val()
@@ -81,7 +81,7 @@ query.$forgetBtn.on('touchend',function(){
             });
         },
         error: function (msg) {
-            mbox($, {
+            new Mbox($, {
                 tips: msg.msg
             });
         }

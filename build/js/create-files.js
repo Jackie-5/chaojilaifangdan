@@ -4792,7 +4792,7 @@ module.exports = Zepto;
  */
 var $ = require('./common/zepto');
 var ajax = require('./lib/ajax');
-var mbox = require('./lib/Mbox');
+var Mbox = require('./lib/Mbox');
 var moment = require('./common/moment');
 var Url = require('./lib/get-url');
 var url = new Url();
@@ -4800,7 +4800,6 @@ var TODAY = moment().format('YYYY-MM-DD');
 var query = {
     $level: $('.J_level'),
     $createDate: $('.J_create-date'),
-    $createDateInput: $('#create-date'),
     $name: $('.J_create-name'),
     $cTel1: $('.J_create-tel-1'),//前四位
     $cTel2: $('.J_create-tel-2'),
@@ -4809,18 +4808,17 @@ var query = {
 };
 var gender;
 query.$level.html(url.parameter('level'));
-query.$createDate.html(TODAY);
-query.$createDateInput.val(TODAY);
+query.$createDate.val(TODAY);
 
-query.$createFiles.on('touchend', function () {
+query.$createFiles.on('click', function () {
     if (query.$name.val() === '') {
-        mbox($, {
+        new Mbox($, {
             tips: '昵称不能为空'
         });
         return
     }
-    if (query.$cTel1.val() === '' && query.$cTel2.val() === '' && query.$cTel1.val().length === 4 && query.$cTel2.val().length === 4) {
-        mbox($, {
+    if (query.$cTel1.val() === '' && query.$cTel2.val() === '' && query.$cTel1.val().length !== 4 && query.$cTel2.val().length !== 4) {
+        new Mbox($, {
             tips: '请输入正确手机号的前四位和后四位'
         });
         return
@@ -4841,11 +4839,11 @@ query.$createFiles.on('touchend', function () {
             user_id: url.parameter('user_id'),
             house_id: url.parameter('house_id'),
             house_name: url.parameter('house_name'),
-            rtime: query.$createDate.html(),
+            rtime: query.$createDate.val(),
             question_info: url.parameter('question_info')
         },
         success: function (msg) {
-            mbox($, {
+            new Mbox($, {
                 tips: msg.msg,
                 callback: function () {
                     location.href = 'index.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
@@ -4853,7 +4851,7 @@ query.$createFiles.on('touchend', function () {
             });
         },
         error: function (msg) {
-            mbox($, {
+            new Mbox($, {
                 tips: msg.msg
             });
         }
@@ -4868,11 +4866,12 @@ query.$createFiles.on('touchend', function () {
  */
 var tpl = require('./tpl');
 var mboxHtml = require('../tpl/mbox.html.js');
-var mbox = function ($, options) {
+var Mbox = function ($, options) {
     $('body').append(tpl.render(mboxHtml, {
         tips: options.tips,
         leftBtn: options.leftBtn,
-        rightBtn: options.rightBtn
+        rightBtn: options.rightBtn,
+        rightBtnTrue: options.rightBtnTrue
     }));
     var mboxBg = $('.J_mbox-bg');
     var mbox = $('.J_mbox');
@@ -4888,13 +4887,13 @@ var mbox = function ($, options) {
     });
 
 };
-module.exports = mbox;
+module.exports = Mbox;
 
 },{"../tpl/mbox.html.js":8,"./tpl":7}],5:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
  */
-var mbox = require('./Mbox');
+var Mbox = require('./Mbox');
 var ajax = function (options) {
     options.data.ak = '57b7e940555a331c45f1f3aafa41320e';
     var ajaxUrl = {
@@ -4910,6 +4909,7 @@ var ajax = function (options) {
         update_customer_info_test: '/h5_app/interface_supervisit/update_customer_info_test', //更新用户信息
         get_user_info: '/h5_app/interface_supervisit/get_user_info',//获取用户信息
         user_task_list: '/h5_app/interface_supervisit/user_task_list', //获取今日代办
+        update_order_type: '/h5_app/interface_supervisit/update_order_type', //更新用户等级
         get_yanzhengcode: '/h5_app/interface_supervisit/get_yanzhengcode', //获取验证码
         is_yanzhengcode: '/h5_app/interface_supervisit/is_yanzhengcode', //确认验证码
         get_answer_level: '/h5_app/interface_supervisit/get_answer_level', //获取用户等级
@@ -4917,11 +4917,12 @@ var ajax = function (options) {
         search_customer_by_level: '/h5_app/interface_supervisit/search_customer_by_level',//按等级查找客户
         customer_order_action: '/h5_app/interface_supervisit/customer_order_action',//更新客户状态，再次来访，下意向金，下定，签约，付款
         search_customer: '/h5_app/interface_supervisit/search_customer', //搜索查询
-        get_customer_dynamic_state: '/h5_app/interface_supervisit/get_customer_dynamic_state' //成交助手
+        get_customer_dynamic_state: '/h5_app/interface_supervisit/get_customer_dynamic_state', //成交助手
+        update_task_time: '/h5_app/interface_supervisit/update_task_time' //更新用户时间线
     };
     // 'http://Laifangdan.searchchinahouse.com'
     options.$.ajax({
-        url: ajaxUrl[options.url],
+        url: 'http://Laifangdan.searchchinahouse.com' + ajaxUrl[options.url],
         type: 'POST',
         data: options.data,
         success: function (msg) {
@@ -5314,5 +5315,5 @@ exports.compile = function(template){
 };
 
 },{}],8:[function(require,module,exports){
-module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtn === undefined ? \'\' : \'hide\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
+module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtnTrue === undefined ? \'hide\' : \'\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
 },{}]},{},[3])

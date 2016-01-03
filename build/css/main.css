@@ -485,9 +485,6 @@ input[type=number]::-webkit-outer-spin-button {
   left: 50%;
   margin-left: -40%;
 }
-.index-box .index-top .my-photo .photo-box .center:active {
-  background: rgba(255,255,255,0.5);
-}
 .index-box .title {
   width: 100%;
   height: 50px;
@@ -542,38 +539,14 @@ input[type=number]::-webkit-outer-spin-button {
 .index-box .bg-01 {
   background: #4f60b2;
 }
-.index-box .bg-01:active {
-  background: #435192;
-}
-.index-box .bg-01:active .top {
-  background: #435192;
-}
 .index-box .bg-02 {
   background: #ff8f1d;
-}
-.index-box .bg-02:active {
-  background: #e87907;
-}
-.index-box .bg-02:active .top {
-  background: #e87907;
 }
 .index-box .bg-03 {
   background: #ba5fd0;
 }
-.index-box .bg-03:active {
-  background: #8c34a1;
-}
-.index-box .bg-03:active .top {
-  background: #8c34a1;
-}
 .index-box .bg-04 {
   background: #7bc920;
-}
-.index-box .bg-04:active {
-  background: #65a817;
-}
-.index-box .bg-04:active .top {
-  background: #65a817;
 }
 .index-box .new-content {
   background: #c9dce9;
@@ -1574,6 +1547,7 @@ input[type=number]::-webkit-outer-spin-button {
   border-top: 1px solid #cdcdcd;
   border-left: 1px solid #cdcdcd;
   border-right: 1px solid #cdcdcd;
+  z-index: 999;
 }
 .search-content-box .search-intention .intention-list .inten-cont .drop span {
   display: block;
@@ -1601,6 +1575,18 @@ input[type=number]::-webkit-outer-spin-button {
   margin-left: 8%;
   border-radius: 3px;
   margin-top: 10px;
+  position: relative;
+}
+.search-content-box .search-intention .intention-list .time-box .btn-icon input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  opacity: 0;
+  font-size: 0;
+  border: 0;
 }
 .search-content-box .search-inten-btn {
   text-align: center;
@@ -1718,13 +1704,13 @@ input[type=number]::-webkit-outer-spin-button {
   display: block;
   color: #ccc;
   text-align: center;
+  padding-top: 10px;
 }
 .deal-title-bar-box .title span {
   display: block;
   width: 100%;
   line-height: 25px;
   height: 25px;
-  margin-top: 10px;
   border-right: 1px solid #e0e0e0;
 }
 .deal-title-bar-box .title:last-child span {
@@ -1826,6 +1812,19 @@ input[type=number]::-webkit-outer-spin-button {
   background-size: 100%;
   margin-left: 20px;
   margin-top: 5px;
+  position: relative;
+}
+.deal-content .deal-box .search-result-list .search-list .time-icon input,
+.deal-content .deal-box .deal-state .search-list .time-icon input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  opacity: 0;
+  font-size: 0;
+  border: 0;
 }
 .deal-content .deal-box .search-result-list .search-list .s-icon-1,
 .deal-content .deal-box .deal-state .search-list .s-icon-1 {
@@ -1978,7 +1977,8 @@ input[type=number]::-webkit-outer-spin-button {
   font-size: 0.8rem;
 }
 .time-line-box .time-top {
-  padding-bottom: 90px;
+  margin-top: 10px;
+  padding-bottom: 110px;
 }
 .time-line-box .time-top .year-box {
   overflow: hidden;
@@ -2169,4 +2169,16 @@ input[type=number]::-webkit-outer-spin-button {
   margin-left: 8%;
   border-radius: 3px;
   margin-top: 10px;
+  position: relative;
+}
+.time-line-box .time-bottom .time-list .time-box .btn-icon input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  opacity: 0;
+  font-size: 0;
+  border: 0;
 }

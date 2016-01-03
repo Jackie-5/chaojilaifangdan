@@ -4,7 +4,7 @@
 var $ = require('./common/zepto');
 var ajax = require('./lib/ajax');
 var Url = require('./lib/get-url');
-var mbox = require('./lib/Mbox');
+var Mbox = require('./lib/Mbox');
 var tpl = require('./lib/tpl');
 var moment = require('./common/moment');
 var Drop = require('./lib/drop');
@@ -31,7 +31,7 @@ var tplRender = tpl.render;
 
 var ua = navigator.userAgent;
 
-var setStarInterVal,setEndInterVal;
+var setStarInterVal, setEndInterVal;
 //初始化moment
 moment.locale('en', {
     relativeTime: {
@@ -48,7 +48,7 @@ var customer = function (data) {
         url: 'customer_order_action',
         data: data,
         success: function (msg) {
-            mbox($, {
+            new Mbox($, {
                 tips: msg.msg,
                 callback: function () {
                     location.href = 'index.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
@@ -56,7 +56,7 @@ var customer = function (data) {
             });
         },
         error: function (msg) {
-            mbox($, {
+            new Mbox($, {
                 tips: msg.msg
             });
         }
@@ -67,16 +67,13 @@ var again = function (data) {
 };
 
 var intention = function (data) {
-    var time = moment(parseInt(data.task_time)).toNow(true);
     if (order_type == 3) {
         query.$contentBox.html(tplRender(searchIntention, {
-            time: time,
             data: data,
             house_name: url.parameter('house_name')
         }));
     } else {
         query.$contentBox.html(tplRender(searchDown, {
-            time: time,
             data: data,
             house_name: url.parameter('house_name')
         }));
@@ -88,38 +85,46 @@ var intention = function (data) {
         tel: $('.J_inten-phone'),
         houseNumber: $('.J_inten-number'),
         houseFloor: $('.J_inten-floor'),
-        houseRoom: $('.J_inten-room')
+        houseRoom: $('.J_inten-room'),
+        drop: $('.J_drop'),
+        planTime: $('#btn-time')
     };
-    $('.J_cancel').on('touchend', function () {
 
+    q.planTime.val(moment().add(3,'d').format('YYYY-MM-DD'));
+
+    $('.J_cancel').on('click', function () {
+        customer({
+            order_type: -1,
+            customer_id: data.customer_id
+        });
     });
-    $('.J_submit').on('touchend', function () {
+    $('.J_submit').on('click', function () {
         if (q.area.val() === '') {
-            mbox($, {
+            new Mbox($, {
                 tips: '建筑面积不能为空'
             });
             return
         }
         if (q.name.val() === '') {
-            mbox($, {
+            new Mbox($, {
                 tips: '姓名不能为空'
             });
             return
         }
         if (q.tel.val() === '' || !/0?(13|14|15|17|18)[0-9]{9}/.test(q.tel.val()) || q.tel.val().length !== 11) {
-            mbox($, {
+            new Mbox($, {
                 tips: '请输入正确的手机号'
             });
             return
         }
-        data.order_type = order_type;
+        data.order_type = q.drop.find('span').attr('data-value');
         data.house_area = q.area.val();
         data.real_name = q.name.val();
         data.real_mobile = q.tel.val();
         data.house_number = q.houseNumber.val();
         data.house_floor = q.houseFloor.val();
         data.house_room = q.houseRoom.val();
-        //下一步进度没有
+        data.task_time = q.planTime.val();
         customer(data)
     })
 };
@@ -174,10 +179,10 @@ var payment = function (data, drop) {
         dealBox.find('.J_money-time').each(function () {
             payDate.push($(this).val())
         });
-        if(payDate.length > 1 && payMoney.length > 1){
+        if (payDate.length > 1 && payMoney.length > 1) {
             data.pay_money = payMoney.join(',');
             data.pay_date = payDate.join(',');
-        }else{
+        } else {
             data.pay_money = payMoney[0];
             data.pay_date = payDate[0]
         }
@@ -214,27 +219,27 @@ var sign = function (data) {
     q.price.on('keyup', function () {
         calculate()
     });
-    $('.J_submit').on('touchend', function () {
+    $('.J_submit').on('click', function () {
         if (q.area.val() === '') {
-            mbox($, {
+            new Mbox($, {
                 tips: '建筑面积不能为空'
             });
             return
         }
         if (q.name.val() === '') {
-            mbox($, {
+            new Mbox($, {
                 tips: '姓名不能为空'
             });
             return
         }
         if (q.tel.val() === '' || !/0?(13|14|15|17|18)[0-9]{9}/.test(q.tel.val()) || q.tel.val().length !== 11) {
-            mbox($, {
+            new Mbox($, {
                 tips: '请输入正确的手机号'
             });
             return
         }
         if (q.price.val() === '') {
-            mbox($, {
+            new Mbox($, {
                 tips: '购房总价不能为空'
             });
             return
@@ -267,7 +272,6 @@ var searchResult = function () {
             query.$contentBox.html(tplRender(searchList, {
                 msg: msg.data.customer_info_list
             }));
-
             $('.J_search-list').on('click', function () {
                 if (order_type == 2) {//2再次来访
                     again(msg.data.customer_info_list[$(this).index()])
@@ -277,70 +281,79 @@ var searchResult = function () {
                     sign(msg.data.customer_info_list[$(this).index()])
                 } else if (order_type == 6) {// 7付款
                     payment(msg.data.customer_info_list[$(this).index()])
-                } else if(order_type == 20){
-                    location.href = 'time-line.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_mobile=' + msg.data.customer_info_list[$(this).index()].real_mobile + '&customer_id=' + msg.data.customer_info_list[$(this).index()].customer_id
+                } else if (order_type == 20) {
+                    location.href = 'time-line.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_id=' + msg.data.customer_info_list[$(this).index()].customer_id + '&order_type=' + msg.data.customer_info_list[$(this).index()].order_type + '&diff_days=' + msg.data.customer_info_list[$(this).index()].diff_days + '&customer_order_id=' + msg.data.customer_info_list[$(this).index()].customer_order_id
                 }
             })
         },
         error: function (msg) {
-            mbox($, {
+            new Mbox($, {
                 tips: msg.msg
             });
         }
 
     });
 };
-query.$searchBtn.on('touchend', function () {
+query.$searchBtn.on('click', function () {
     searchResult()
 });
 
 //设置时间 (因为微信安卓不兼容input date change事件所以用setInterval 来实时获取时间)
-if(ua.indexOf('Android') > -1 && ua.toLowerCase().match(/MicroMessenger/i) == "micromessenger"){
+if (ua.indexOf('Android') > -1 && ua.toLowerCase().match(/MicroMessenger/i) == "micromessenger") {
     query.$idStartTime.on('click', function () {
         setStarInterVal = setInterval(function () {
-            if(query.$starTime.find('span').html().toString() !== query.$idStartTime.val().toString()){
+            if (query.$starTime.find('span').html().toString() !== query.$idStartTime.val().toString()) {
                 query.$starTime.find('span').html(query.$idStartTime.val());
-                if(query.$starTime.find('span').html().toString() === query.$idStartTime.val().toString() && query.$starTime.find('span').html() !== ''){
+                if (query.$starTime.find('span').html().toString() === query.$idStartTime.val().toString() && query.$starTime.find('span').html() !== '') {
                     query.$idStartTime.val(query.$starTime.find('span').html());
+                    query.$starTime.attr('data-star', query.$idStartTime.val());
                     clearInterval(setStarInterVal);
                 }
             }
-        },1);
+        }, 1);
     });
     query.$idEndTime.on('click', function () {
         setStarInterVal = setInterval(function () {
-            if(query.$endTime.find('span').html().toString() !== query.$idEndTime.val().toString()){
+            if (query.$endTime.find('span').html().toString() !== query.$idEndTime.val().toString()) {
                 query.$endTime.find('span').html(query.$idEndTime.val());
-                if(query.$endTime.find('span').html().toString() === query.$idEndTime.val().toString() && query.$endTime.find('span').html() !== ''){
-                    query.$idStartTime.val(query.$starTime.find('span').html());
+                if (query.$endTime.find('span').html().toString() === query.$idEndTime.val().toString() && query.$endTime.find('span').html() !== '') {
+                    query.$idEndTime.val(query.$endTime.find('span').html());
+                    query.$endTime.attr('data-end', query.$idEndTime.val());
                     clearInterval(setStarInterVal);
                 }
             }
-        },1);
+        }, 1);
     });
-}else{
+} else {
     query.$idStartTime.on('change', function () {
         query.$starTime.find('span').html(query.$idStartTime.val());
+        query.$starTime.attr('data-star', query.$idStartTime.val());
     });
     query.$idEndTime.on('change', function () {
         query.$endTime.find('span').html(query.$idEndTime.val());
+        query.$endTime.attr('data-end', query.$idEndTime.val());
     });
 }
 
-query.$dateBtnSearch.on('touchend', function () {
+query.$dateBtnSearch.on('click', function () {
     setEndInterVal && clearInterval(setEndInterVal);
     setStarInterVal && clearInterval(setStarInterVal);
     searchResult()
 });
 
-if(order_type == 20){
+if (order_type == 20) {
     searchResult()
 }
 
-query.$dateBtn.on('touchend', function () {
+query.$dateBtn.on('click', function () {
     if (query.$searchDateBox.hasClass('hide')) {
         query.$searchDateBox.removeClass('hide')
     } else {
         query.$searchDateBox.addClass('hide')
     }
 });
+
+if (url.parameter('deal')) {
+    query.$searchInput.val(url.parameter('deal'));
+    searchResult()
+}

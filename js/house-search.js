@@ -4,7 +4,7 @@
 var $ = require('./common/zepto');
 var ajax = require('./lib/ajax');
 var Url = require('./lib/get-url');
-var mbox = require('./lib/Mbox');
+var Mbox = require('./lib/Mbox');
 
 var url = new Url();
 
@@ -31,7 +31,7 @@ $('.J_search-btn').on('touchend', function () {
             })
         },
         error: function (msg) {
-            mbox($, {
+            new Mbox($, {
                 tips: msg.msg
             });
         }
