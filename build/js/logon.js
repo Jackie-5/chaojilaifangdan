@@ -1726,6 +1726,8 @@ var ajax = function (options) {
         url: 'http://Laifangdan.searchchinahouse.com' + ajaxUrl[options.url],
         type: 'POST',
         data: options.data,
+        processData: !options.uploadFile,
+        contentType: options.uploadFile ? false : undefined,
         success: function (msg) {
             if(typeof msg === 'string') msg = JSON.parse(msg);
             if (msg.result === 1 || msg.result === 10) {

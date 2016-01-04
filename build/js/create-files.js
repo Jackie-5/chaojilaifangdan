@@ -4817,7 +4817,7 @@ query.$createFiles.on('click', function () {
         });
         return
     }
-    if (query.$cTel1.val() === '' && query.$cTel2.val() === '' && query.$cTel1.val().length !== 4 && query.$cTel2.val().length !== 4) {
+    if ((query.$cTel1.val() !== '' && query.$cTel1.val().length !== 4) || (query.$cTel2.val() !== '' && query.$cTel2.val().length !== 4)) {
         new Mbox($, {
             tips: '请输入正确手机号的前四位和后四位'
         });
@@ -4925,6 +4925,8 @@ var ajax = function (options) {
         url: 'http://Laifangdan.searchchinahouse.com' + ajaxUrl[options.url],
         type: 'POST',
         data: options.data,
+        processData: !options.uploadFile,
+        contentType: options.uploadFile ? false : undefined,
         success: function (msg) {
             if(typeof msg === 'string') msg = JSON.parse(msg);
             if (msg.result === 1 || msg.result === 10) {

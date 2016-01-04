@@ -15,6 +15,10 @@ var YEAR = date.getFullYear();
 var MONTH = date.getMonth() + 1;
 var DAY = date.getDate();
 
+var ua = navigator.userAgent;
+
+var maxsize = 100 * 1024;
+
 var url = new Url();
 var tplRender = tpl.render;
 var query = {
@@ -70,42 +74,7 @@ ajax({
     },
     success: function (msg) {
         query.$photo.attr('src', msg.data.head_pic);
-        query.$photoInput.on('change', function (e) {
-            var file = $(this).get(0).files[0];
-            if (!/image\/\w+/.test(file.type)) {
-                new Mbox($, {
-                    tips: '请上传图片'
-                });
-                return false;
-            }
-            var reader = new FileReader();
-            //将文件以Data URL形式读入页面
-            reader.readAsDataURL(file);
-            reader.onload = function () {
-                var _this = this;
-                ajax({
-                    $: $,
-                    url: 'update_registration',
-                    data: {
-                        user_mobile: msg.data.user_mobile,
-                        head_pic: _this.result
-                    },
-                    success: function (updateMsg) {
-                        query.$photo.attr('src', _this.result);
-                        new Mbox($, {
-                            tips: updateMsg.msg
-                        });
-                    },
-                    error: function (updateMsg) {
-                        new Mbox($, {
-                            tips: updateMsg.msg
-                        });
-                    }
-
-                });
-            }
-        });
-
+        uploadImage(msg.data.user_mobile);
     },
     error: function (msg) {
         new Mbox($, {
@@ -114,6 +83,98 @@ ajax({
     }
 
 });
+
+var uploadImage = function (mobile) {
+    query.$photoInput.on('change', function () {
+        var file = this.files[0];
+        if (!/image\/\w+/.test(file.type)) {
+            new Mbox($, {
+                tips: '请上传图片'
+            });
+            return false;
+        }
+        var readBase64 = new FileReader();
+        if (!(ua.indexOf('Android') > -1 && ua.toLowerCase().match(/MicroMessenger/i) == "micromessenger")) {
+            // 将文件以Data URL形式读入页面
+            readBase64.addEventListener('load', function () {
+                var result = this.result;
+                var img = new Image();
+                img.src = result;
+                if (result.length <= maxsize) {
+                    img = null;
+                    upload(result, file.type, mobile);
+                    return;
+                }
+                if (img.complete) {
+                    callback();
+                } else {
+                    img.onload = callback;
+                }
+                function callback() {
+                    var data = compress(img);
+                    upload(data, file.type, mobile);
+                    img = null;
+                }
+            });
+        } else {
+            // upload
+            var formData = new FormData();
+            formData.append('user_mobile', mobile);
+            formData.append('head_pic', file);
+            uploadAjax(formData)
+        }
+
+        readBase64.readAsDataURL(file);
+    });
+};
+
+
+var upload = function (basestr, type, mobile) {
+    // upload
+    var text = window.atob(basestr.split(",")[1]);
+    var buffer = new Uint8Array(text.length);
+    for (var i = 0; i < text.length; i++) {
+        buffer[i] = text.charCodeAt(i);
+    }
+    var blob = getBlob(buffer, type);
+    var formData = new FormData();
+
+    formData.append('user_mobile', mobile);
+    formData.append('head_pic', blob);
+    uploadAjax(formData)
+};
+
+var uploadAjax = function (formData) {
+    ajax({
+        $: $,
+        url: 'update_registration',
+        data: formData,
+        uploadFile: true,
+        success: function (updateMsg) {
+            query.$photo.attr('src', updateMsg.head_pic);
+            new Mbox($, {
+                tips: updateMsg.msg
+            });
+        },
+        error: function (updateMsg) {
+            new Mbox($, {
+                tips: updateMsg.msg
+            });
+        }
+    });
+};
+
+function getBlob(buffer, format) {
+    var Builder = window.WebKitBlobBuilder || window.MozBlobBuilder;
+    if (Builder) {
+        var builder = new Builder;
+        builder.append(buffer);
+        return builder.getBlob(format);
+    } else {
+        return new window.Blob([buffer], {type: format});
+    }
+}
+
 var userTaskList = function () {
     ajax({
         $: $,
@@ -198,3 +259,53 @@ ajax({
     }
 
 });
+
+
+function compress(img) {
+    var canvas = document.createElement("canvas");
+    var ctx = canvas.getContext('2d');
+    var tCanvas = document.createElement("canvas");
+    var tctx = tCanvas.getContext("2d");
+    var initSize = img.src.length;
+    var width = img.width;
+    var height = img.height;
+    //如果图片大于四百万像素，计算压缩比并将大小压至400万以下
+    var ratio;
+    if ((ratio = width * height / 4000000) > 1) {
+        ratio = Math.sqrt(ratio);
+        width /= ratio;
+        height /= ratio;
+    } else {
+        ratio = 1;
+    }
+    canvas.width = width;
+    canvas.height = height;
+//        铺底色
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    //如果图片像素大于100万则使用瓦片绘制
+    var count;
+    if ((count = width * height / 1000000) > 1) {
+        count = ~~(Math.sqrt(count) + 1); //计算要分成多少块瓦片
+//            计算每块瓦片的宽和高
+        var nw = ~~(width / count);
+        var nh = ~~(height / count);
+        tCanvas.width = nw;
+        tCanvas.height = nh;
+        for (var i = 0; i < count; i++) {
+            for (var j = 0; j < count; j++) {
+                tctx.drawImage(img, i * nw * ratio, j * nh * ratio, nw * ratio, nh * ratio, 0, 0, nw, nh);
+                ctx.drawImage(tCanvas, i * nw, j * nh, nw, nh);
+            }
+        }
+    } else {
+        ctx.drawImage(img, 0, 0, width, height);
+    }
+    //进行最小压缩
+    var ndata = canvas.toDataURL('image/jpeg', 0.1);
+    alert('压缩前：' + initSize);
+    alert('压缩后：' + ndata.length);
+    alert('压缩率：' + ~~(100 * (initSize - ndata.length) / initSize) + "%");
+    tCanvas.width = tCanvas.height = canvas.width = canvas.height = 0;
+    return ndata;
+}

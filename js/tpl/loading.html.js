@@ -1,0 +1,1 @@
+module.exports='<div class="loading-box hide J_loading"><div class="cont"><div class="loader"></div><div class="loading">正在加载...</div></div></div>';

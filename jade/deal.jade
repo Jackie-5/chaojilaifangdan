@@ -4,7 +4,7 @@ html
     head
         include ./common/head
         title 成交助手
-        body(style="height:100%;background:#ececec")
+        body(style="background:#ececec")
             .deal-title-bar-box.J_deal-title-bar
                 a(href="javascript:;",data-value="6").title
                     span A+级
@@ -19,5 +19,8 @@ html
                 a(href="javascript:;",data-value="7").title
                     span 待交房
             .deal-content.J_deal-content-box
-
+            .loading-box.hide.J_loading
+                .cont
+                    .loader
+                    .loading 正在加载...
             script(src="./js/deal.js")

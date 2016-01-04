@@ -1,0 +1,20 @@
+{
+  "dependencies": {},
+  "asyncDependencies": {},
+  "devDependencies": {},
+  "directories": {},
+  "engines": {},
+  "scripts": {},
+  "name": "chaojilaifangdan",
+  "version": "1.0.0",
+  "description": "### 项目说明",
+  "main": "./gulpfile.js",
+  "author": "",
+  "license": "ISC",
+  "readme": "## 如需启用本项目,需要装载node环境\n\n### 项目说明\n\n> jade做html\n> stylus做css\n> 模块化js方法遵循CMD规范 用gulp-browserify 来编译\n> doc为项目所有提供的文件文件.\n\n### 前端配置\n\n下载项目后需 `npm install` \n\n#### `gulp build` 为编译文件\n\n> 用于测试环境使用\n\n#### `gulp server` 为启用本地服务(本地服务在 gulp build 后即可启用)\n\n> 服务启用后 链接为 http://localhost:8000/目录(或者文件名字)\n\n#### `gulp release` 为发布线上文件(压缩js,css)\n\n> 当所有的调试已经做好用release版本来发布最终页面,到线上后会把js和css压缩.",
+  "readmeFilename": "README.md",
+  "gitHead": "088cbfc4cdfbb752b0c64bdfa54934f25386807b",
+  "_id": "chaojilaifangdan@1.0.0",
+  "css": [],
+  "entries": []
+}

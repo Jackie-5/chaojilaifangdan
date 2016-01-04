@@ -1598,13 +1598,15 @@ var dateChange = require('./lib/date-change');
 var Mbox = require('./lib/Mbox');
 var tpl = require('./lib/tpl');
 var dealSearchList = require('./tpl/deal-search-list.html');
+var setTime;
 
 var url = new Url();
 var tplRender = tpl.render;
-
+var index = 1;
 var query = {
     $titleBar: $('.J_deal-title-bar'),
-    $dealBox: $('.J_deal-content-box')
+    $dealBox: $('.J_deal-content-box'),
+    $loading: $('.J_loading')
 };
 query.$titleBar.find('a').each(function (i) {
     i == url.parameter('deal_page_index') && $(this).addClass('active');
@@ -1620,53 +1622,58 @@ var levelAjax = function (level, page) {
             p: page //分页之后做
         },
         success: function (msg) {
-            query.$dealBox.html(tplRender(dealSearchList, {
-                msg: msg.data.customer_info_list,
-                user_id: url.parameter('user_id'),
-                house_name: url.parameter('house_name'),
-                house_id: url.parameter('house_id')
-            }));
-            var mobile = $('.J_mobile');
-            msg.data.customer_info_list.forEach(function (item, i) {
-                if (item.real_mobile == '' || item.real_mobile == null || item.real_mobile == 0) {
-                    mobile.eq(i).find('a').off('click').on('click', function () {
-                        new Mbox($, {
-                            tips: '补全信息后才可使用',
-                            leftBtn: '去补全',
-                            rightBtnTrue: true,
-                            callback: function () {
-                                location.href = 'fill-in.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_id=' + item.customer_id
-                            }
+            //loading
+            query.$loading.addClass('hide');
+            index += 1;
+            if(msg.data.customer_info_list.length > 0){
+                query.$dealBox.append(tplRender(dealSearchList, {
+                    msg: msg.data.customer_info_list,
+                    user_id: url.parameter('user_id'),
+                    house_name: url.parameter('house_name'),
+                    house_id: url.parameter('house_id')
+                }));
+                var mobile = $('.J_mobile');
+                msg.data.customer_info_list.forEach(function (item, i) {
+                    if (item.real_mobile == '' || item.real_mobile == null || item.real_mobile == 0) {
+                        mobile.eq(i).find('a').off('click').on('click', function () {
+                            new Mbox($, {
+                                tips: '补全信息后才可使用',
+                                leftBtn: '去补全',
+                                rightBtnTrue: true,
+                                callback: function () {
+                                    location.href = 'fill-in.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_id=' + item.customer_id
+                                }
+                            });
                         });
-                    });
-                } else {
-                    mobile.eq(i).find('a').eq(0).attr('href', 'tel:' + item.real_mobile);
-                    mobile.eq(i).find('a').eq(1).attr('href', 'sms:' + item.real_mobile)
-                }
-                if (item.order_type != 1 && item.order_type != 7) {
-                    $('.J_font-cont').attr('href', './search.html?user_id=' + url.parameter('user_id') + '&house_name=' + url.parameter('house_name') + '&house_id=' + url.parameter('house_id') + '&deal=' + item.customer_name + '&order_type=' + item.order_type)
-                }
-            });
-            dateChange($, $('.J_date-time-input'), function (time,_this) {
-                ajax({
-                    $: $,
-                    url: 'update_task_time',
-                    data: {
-                        customer_order_id: msg.data.customer_info_list[_this.parents('.J_deal-box').attr('data-value')].customer_order_id,
-                        task_time: time
-                    },
-                    success: function (msg) {
-                        new Mbox($, {
-                            tips: msg.msg
-                        });
-                    },
-                    error: function (msg) {
-                        new Mbox($, {
-                            tips: msg.msg
-                        });
+                    } else {
+                        mobile.eq(i).find('a').eq(0).attr('href', 'tel:' + item.real_mobile);
+                        mobile.eq(i).find('a').eq(1).attr('href', 'sms:' + item.real_mobile)
+                    }
+                    if (item.order_type != 1 && item.order_type != 7) {
+                        $('.J_font-cont').attr('href', './search.html?user_id=' + url.parameter('user_id') + '&house_name=' + url.parameter('house_name') + '&house_id=' + url.parameter('house_id') + '&deal=' + item.customer_name + '&order_type=' + item.order_type)
                     }
                 });
-            })
+                dateChange($, $('.J_date-time-input'), function (time,_this) {
+                    ajax({
+                        $: $,
+                        url: 'update_task_time',
+                        data: {
+                            customer_order_id: msg.data.customer_info_list[_this.parents('.J_deal-box').attr('data-value')].customer_order_id,
+                            task_time: time
+                        },
+                        success: function (msg) {
+                            new Mbox($, {
+                                tips: msg.msg
+                            });
+                        },
+                        error: function (msg) {
+                            new Mbox($, {
+                                tips: msg.msg
+                            });
+                        }
+                    });
+                })
+            }
         },
         error: function (msg) {
             new Mbox($, {
@@ -1674,9 +1681,18 @@ var levelAjax = function (level, page) {
             });
         }
     });
-
 };
-levelAjax(url.parameter('deal_index'), 1);
+levelAjax(url.parameter('deal_index'), index);
+$(window).on('scroll', function () {
+    if($(window).scrollTop() + $(window).height() > $('body').height() - 5 && query.$loading.hasClass('hide')){
+        setTime = setTimeout(function(){
+            levelAjax(url.parameter('deal_index'), index);
+            setTime && clearTimeout(setTime);
+        },2000);
+        query.$loading.removeClass('hide')
+    }
+});
+
 
 },{"./common/zepto":1,"./lib/Mbox":3,"./lib/ajax":4,"./lib/date-change":5,"./lib/get-url":6,"./lib/tpl":7,"./tpl/deal-search-list.html":8}],3:[function(require,module,exports){
 /**
@@ -1743,6 +1759,8 @@ var ajax = function (options) {
         url: 'http://Laifangdan.searchchinahouse.com' + ajaxUrl[options.url],
         type: 'POST',
         data: options.data,
+        processData: !options.uploadFile,
+        contentType: options.uploadFile ? false : undefined,
         success: function (msg) {
             if(typeof msg === 'string') msg = JSON.parse(msg);
             if (msg.result === 1 || msg.result === 10) {
@@ -1770,7 +1788,7 @@ var dateChange = function ($, container,cb) {
     var setStarInterVal;
     var time = '';
     if(ua.indexOf('Android') > -1 && ua.toLowerCase().match(/MicroMessenger/i) == "micromessenger"){
-        container.on('click', function () {
+        container.off('click').on('click', function () {
             var _this = $(this);
             setStarInterVal = setInterval(function () {
                 if(time.toString() !== container.val().toString()){
@@ -1783,7 +1801,7 @@ var dateChange = function ($, container,cb) {
             },1);
         });
     }else{
-        container.on('blur', function () {
+        container.off('blur').on('blur', function () {
             var _this = $(this);
             time = container.val();
             cb && cb(time,_this);
@@ -1792,6 +1810,7 @@ var dateChange = function ($, container,cb) {
     }
 };
 module.exports = dateChange;
+
 },{}],6:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.

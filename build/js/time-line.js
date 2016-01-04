@@ -4927,6 +4927,8 @@ var ajax = function (options) {
         url: 'http://Laifangdan.searchchinahouse.com' + ajaxUrl[options.url],
         type: 'POST',
         data: options.data,
+        processData: !options.uploadFile,
+        contentType: options.uploadFile ? false : undefined,
         success: function (msg) {
             if(typeof msg === 'string') msg = JSON.parse(msg);
             if (msg.result === 1 || msg.result === 10) {
@@ -4954,7 +4956,7 @@ var dateChange = function ($, container,cb) {
     var setStarInterVal;
     var time = '';
     if(ua.indexOf('Android') > -1 && ua.toLowerCase().match(/MicroMessenger/i) == "micromessenger"){
-        container.on('click', function () {
+        container.off('click').on('click', function () {
             var _this = $(this);
             setStarInterVal = setInterval(function () {
                 if(time.toString() !== container.val().toString()){
@@ -4967,7 +4969,7 @@ var dateChange = function ($, container,cb) {
             },1);
         });
     }else{
-        container.on('blur', function () {
+        container.off('blur').on('blur', function () {
             var _this = $(this);
             time = container.val();
             cb && cb(time,_this);
@@ -4976,6 +4978,7 @@ var dateChange = function ($, container,cb) {
     }
 };
 module.exports = dateChange;
+
 },{}],7:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.

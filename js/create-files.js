@@ -28,7 +28,7 @@ query.$createFiles.on('click', function () {
         });
         return
     }
-    if (query.$cTel1.val() === '' && query.$cTel2.val() === '' && query.$cTel1.val().length !== 4 && query.$cTel2.val().length !== 4) {
+    if ((query.$cTel1.val() !== '' && query.$cTel1.val().length !== 4) || (query.$cTel2.val() !== '' && query.$cTel2.val().length !== 4)) {
         new Mbox($, {
             tips: '请输入正确手机号的前四位和后四位'
         });
