@@ -4,6 +4,31 @@
     .time-top
         margin-top 10px
         padding-bottom 110px
+        position relative
+        .time-name
+            position absolute
+            left 52%
+            top 11px
+            width 40%
+            z-index 9
+            span
+                width 35px
+                overflow hidden
+                text-overflow ellipsis
+                white-space nowrap
+                float left
+                line-height 17px
+            .btn-icon
+                display block
+                width 45px
+                height 25px
+                background url(../i/p-time-icon-2.png) 10px 2px no-repeat
+                background-size 60%
+                float right
+                margin-left 8%
+                border-radius 3px
+                margin-top -4px
+                position relative
         .year-box
             overflow hidden
             .time-year-left
@@ -179,3 +204,10 @@
                         opacity 0
                         font-size 0
                         border 0
+    .is-pad
+        padding-bottom 20px
+        .time-name
+            .over
+                width auto
+                overflow initial
+                white-space normal

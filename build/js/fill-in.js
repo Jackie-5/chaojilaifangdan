@@ -1664,9 +1664,11 @@ ajax({
     success: function (msg) {
         update(msg.data);
         query.$customer_name.val(msg.data.customer_name);
-        query.$customer_mobile.val(msg.data.customer_mobile);
+        query.$customer_mobile.val(msg.data.customer_mobile).on('focus', function () {
+            $(this).val('')
+        });
         query.$customer_tel.val(msg.data.customer_tel);
-        query.$customer_mobile2.val(msg.data.customer_mobile);
+        query.$customer_mobile2.val(msg.data.customer_mobile2);
         query.$customer_email.val(msg.data.customer_email);
         query.$customer_age.val(msg.data.customer_age);
         query.$customer_birthday.val(msg.data.customer_birthday);
@@ -1678,6 +1680,7 @@ ajax({
             }
         })
 
+
     },
     error: function (msg) {
         new Mbox($, {
@@ -1686,6 +1689,7 @@ ajax({
     }
 
 });
+
 },{"./common/zepto":1,"./lib/Mbox":3,"./lib/ajax":4,"./lib/get-url":5}],3:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/20/15.
@@ -1693,24 +1697,29 @@ ajax({
 var tpl = require('./tpl');
 var mboxHtml = require('../tpl/mbox.html.js');
 var Mbox = function ($, options) {
-    $('body').append(tpl.render(mboxHtml, {
-        tips: options.tips,
-        leftBtn: options.leftBtn,
-        rightBtn: options.rightBtn,
-        rightBtnTrue: options.rightBtnTrue
-    }));
-    var mboxBg = $('.J_mbox-bg');
-    var mbox = $('.J_mbox');
-    var boxBtn = $('.J_m-box-btn');
-    mboxBg.removeClass('hide');
-    mbox.css('top', ($(window).height() - mbox.height()) / 2);
-    boxBtn.find('span').eq(0).on('click', function () {
-        options.callback && options.callback();
-        mboxBg.addClass('hide').remove()
-    });
-    boxBtn.find('span').eq(1).on('click', function () {
-        mboxBg.addClass('hide').remove()
-    });
+    if(!options.firstMbox){
+        options.firstMbox = true;
+        $('body').append(tpl.render(mboxHtml, {
+            tips: options.tips,
+            leftBtn: options.leftBtn,
+            rightBtn: options.rightBtn,
+            rightBtnTrue: options.rightBtnTrue
+        }));
+        var mboxBg = $('.J_mbox-bg');
+        var mbox = $('.J_mbox');
+        var boxBtn = $('.J_m-box-btn');
+        mboxBg.removeClass('hide');
+        mbox.css('top', ($(window).height() - mbox.height()) / 2);
+        boxBtn.find('span').eq(0).on('click', function () {
+            options.callback && options.callback();
+            options.firstMbox = false;
+            mboxBg.remove()
+        });
+        boxBtn.find('span').eq(1).on('click', function () {
+            options.firstMbox = false;
+            mboxBg.remove()
+        });
+    }
 
 };
 module.exports = Mbox;
@@ -1744,7 +1753,10 @@ var ajax = function (options) {
         customer_order_action: '/h5_app/interface_supervisit/customer_order_action',//更新客户状态，再次来访，下意向金，下定，签约，付款
         search_customer: '/h5_app/interface_supervisit/search_customer', //搜索查询
         get_customer_dynamic_state: '/h5_app/interface_supervisit/get_customer_dynamic_state', //成交助手
-        update_task_time: '/h5_app/interface_supervisit/update_task_time' //更新用户时间线
+        check_customer_mobile: '/h5_app/interface_supervisit/check_customer_mobile', //查看这个人是否填写过真正的手机号
+        update_task_time: '/h5_app/interface_supervisit/update_task_time', //更新用户时间线
+        update_customer_notes: '/h5_app/interface_supervisit/update_customer_notes', //更新用户备注信息
+        get_customer_dynamic_status: '/h5_app/interface_supervisit/get_customer_dynamic_status' //用户时间线
     };
     // 'http://Laifangdan.searchchinahouse.com'
     options.$.ajax({
@@ -1763,6 +1775,7 @@ var ajax = function (options) {
         },
         error: function (msg) {
             if(typeof msg === 'string') msg = JSON.parse(msg);
+            msg = msg || '未知错误';
             options.error && options.error(msg)
         }
 

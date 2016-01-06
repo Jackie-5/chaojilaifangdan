@@ -1,4 +1,8 @@
 //-Created by JackieWu on 12/31/15.
+.time-name
+    span 姓名:
+    span @{it.name}
+    a(href="fill-in.html?user_id=@{it.user_id}&house_id=@{it.house_id}&house_name=@{it.house_name}&customer_id=@{it.customer_id}&order_type=@{it.order_type}&customer_order_id=@{it.customer_order_id}}").btn-icon
 | <?js it.data.forEach(function(item,i){ ?>
 .year-box
     .time-year-left

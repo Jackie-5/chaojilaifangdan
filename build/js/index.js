@@ -1696,7 +1696,11 @@ var query = {
     $linkBox: $('.J_link-box'),
     $search: $('.J_search'),
     $deal: $('.J_deal'),
-    $photoInput: $('#photo')
+    $photoInput: $('#photo'),
+    $indexTitle: $('.J_index-title-01'),
+    $todayClick: $('.J_today-click'),
+    $photoLoad: $('.J_photo-load'),
+    $purchasing: $('.J_purchasing')
 };
 //设置今天日期
 new Calendar({
@@ -1725,11 +1729,29 @@ query.$deal.on('click', function () {
     location.href = 'deal.html?user_id=' + url.parameter('user_id') + '&deal_index=6' + '&deal_page_index=0' + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
 });
 
+query.$purchasing.on('click', function () {
+    new Mbox($, {
+        tips: '新功能即将开通'
+    });
+});
+
+query.$todayClick.on('click', function () {
+    location.href = 'today.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
+});
+
 query.$linkBox.html(tplRender(linkHtml, {
     user_id: url.parameter('user_id'),
     house_id: url.parameter('house_id'),
     house_name: url.parameter('house_name')
 }));
+
+query.$indexTitle.on('click', function () {
+    if (query.$linkBox.hasClass('hide')) {
+        query.$linkBox.removeClass('hide')
+    } else {
+        query.$linkBox.addClass('hide')
+    }
+});
 
 //同时去访问一次
 ajax({
@@ -1759,6 +1781,9 @@ var uploadImage = function (mobile) {
             });
             return false;
         }
+
+        query.$photoLoad.hasClass('hide') ? query.$photoLoad.removeClass('hide') : query.$photoLoad.addClass('hide');
+
         var readBase64 = new FileReader();
         if (!(ua.indexOf('Android') > -1 && ua.toLowerCase().match(/MicroMessenger/i) == "micromessenger")) {
             // 将文件以Data URL形式读入页面
@@ -1818,6 +1843,9 @@ var uploadAjax = function (formData) {
         uploadFile: true,
         success: function (updateMsg) {
             query.$photo.attr('src', updateMsg.head_pic);
+            query.$photo.on('load', function () {
+                query.$photoLoad.addClass('hide')
+            });
             new Mbox($, {
                 tips: updateMsg.msg
             });
@@ -1841,72 +1869,72 @@ function getBlob(buffer, format) {
     }
 }
 
-var userTaskList = function () {
-    ajax({
-        $: $,
-        url: 'user_task_list',
-        data: {
-            user_id: url.parameter('user_id')
-        },
-        success: function (msg) {
-            query.$wait.html(tplRender(indexHtml, msg.data));
-            var index = 0;
-            var customerMobile = $('.J_customer-mobile');
-            msg.data.forEach(function (item, i) {
-                item.list.forEach(function (list, k) {
-                    if (list.customer_mobile == '' || list.customer_mobile == null) {
-                        customerMobile.eq(index).find('a').off('click').on('click', function () {
-                            new Mbox($, {
-                                tips: '补全信息后才可使用',
-                                leftBtn: '去补全',
-                                rightBtnTrue: true,
-                                callback: function () {
-                                    location.href = 'fill-in.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_id=' + list.customer_id
-                                }
-                            });
-                        });
-                    } else {
-                        customerMobile.eq(index).find('a').eq(0).attr('href', 'tel:' + list.customer_mobile);
-                        customerMobile.eq(index).find('a').eq(1).attr('href', 'sms:' + list.customer_mobile)
-                    }
-
-                    changeDate($, $('.J_customer-date-input').eq(index).find('input').off('click'), function (time) {
-                        ajax({
-                            $: $,
-                            url: 'update_order_type',
-                            data: {
-                                customer_order_id: list.customer_order_id,
-                                task_time: time
-                            },
-                            success: function (msg) {
-                                new Mbox($, {
-                                    tips: msg.msg,
-                                    callback: function () {
-                                        userTaskList();
-                                    }
-                                });
-                            },
-                            error: function (msg) {
-                                new Mbox($, {
-                                    tips: msg.msg
-                                });
-                            }
-
-                        });
-                    });
-                    index += 1;
-                })
-            });
-        },
-        error: function (msg) {
-            new Mbox($, {
-                tips: msg.msg
-            });
-        }
-    });
-};
-
-userTaskList();
+//var userTaskList = function () {
+//    ajax({
+//        $: $,
+//        url: 'user_task_list',
+//        data: {
+//            user_id: url.parameter('user_id')
+//        },
+//        success: function (msg) {
+//            query.$wait.html(tplRender(indexHtml, msg.data));
+//            var index = 0;
+//            var customerMobile = $('.J_customer-mobile');
+//            msg.data.forEach(function (item, i) {
+//                item.list.forEach(function (list, k) {
+//                    if (list.customer_mobile == '' || list.customer_mobile == null) {
+//                        customerMobile.eq(index).find('a').off('click').on('click', function () {
+//                            new Mbox($, {
+//                                tips: '补全信息后才可使用',
+//                                leftBtn: '去补全',
+//                                rightBtnTrue: true,
+//                                callback: function () {
+//                                    location.href = 'fill-in.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_id=' + list.customer_id
+//                                }
+//                            });
+//                        });
+//                    } else {
+//                        customerMobile.eq(index).find('a').eq(0).attr('href', 'tel:' + list.customer_mobile);
+//                        customerMobile.eq(index).find('a').eq(1).attr('href', 'sms:' + list.customer_mobile)
+//                    }
+//
+//                    changeDate($, $('.J_customer-date-input').eq(index).find('input').off('click'), function (time) {
+//                        ajax({
+//                            $: $,
+//                            url: 'update_order_type',
+//                            data: {
+//                                customer_order_id: list.customer_order_id,
+//                                task_time: time
+//                            },
+//                            success: function (msg) {
+//                                new Mbox($, {
+//                                    tips: msg.msg,
+//                                    callback: function () {
+//                                        userTaskList();
+//                                    }
+//                                });
+//                            },
+//                            error: function (msg) {
+//                                new Mbox($, {
+//                                    tips: msg.msg
+//                                });
+//                            }
+//
+//                        });
+//                    });
+//                    index += 1;
+//                })
+//            });
+//        },
+//        error: function (msg) {
+//            new Mbox($, {
+//                tips: msg.msg
+//            });
+//        }
+//    });
+//};
+//
+//userTaskList();
 
 //待办事项总数
 ajax({
@@ -1969,9 +1997,9 @@ function compress(img) {
     }
     //进行最小压缩
     var ndata = canvas.toDataURL('image/jpeg', 0.1);
-    alert('压缩前：' + initSize);
-    alert('压缩后：' + ndata.length);
-    alert('压缩率：' + ~~(100 * (initSize - ndata.length) / initSize) + "%");
+    //alert('压缩前：' + initSize);
+    //alert('压缩后：' + ndata.length);
+    //alert('压缩率：' + ~~(100 * (initSize - ndata.length) / initSize) + "%");
     tCanvas.width = tCanvas.height = canvas.width = canvas.height = 0;
     return ndata;
 }
@@ -1983,24 +2011,29 @@ function compress(img) {
 var tpl = require('./tpl');
 var mboxHtml = require('../tpl/mbox.html.js');
 var Mbox = function ($, options) {
-    $('body').append(tpl.render(mboxHtml, {
-        tips: options.tips,
-        leftBtn: options.leftBtn,
-        rightBtn: options.rightBtn,
-        rightBtnTrue: options.rightBtnTrue
-    }));
-    var mboxBg = $('.J_mbox-bg');
-    var mbox = $('.J_mbox');
-    var boxBtn = $('.J_m-box-btn');
-    mboxBg.removeClass('hide');
-    mbox.css('top', ($(window).height() - mbox.height()) / 2);
-    boxBtn.find('span').eq(0).on('click', function () {
-        options.callback && options.callback();
-        mboxBg.addClass('hide').remove()
-    });
-    boxBtn.find('span').eq(1).on('click', function () {
-        mboxBg.addClass('hide').remove()
-    });
+    if(!options.firstMbox){
+        options.firstMbox = true;
+        $('body').append(tpl.render(mboxHtml, {
+            tips: options.tips,
+            leftBtn: options.leftBtn,
+            rightBtn: options.rightBtn,
+            rightBtnTrue: options.rightBtnTrue
+        }));
+        var mboxBg = $('.J_mbox-bg');
+        var mbox = $('.J_mbox');
+        var boxBtn = $('.J_m-box-btn');
+        mboxBg.removeClass('hide');
+        mbox.css('top', ($(window).height() - mbox.height()) / 2);
+        boxBtn.find('span').eq(0).on('click', function () {
+            options.callback && options.callback();
+            options.firstMbox = false;
+            mboxBg.remove()
+        });
+        boxBtn.find('span').eq(1).on('click', function () {
+            options.firstMbox = false;
+            mboxBg.remove()
+        });
+    }
 
 };
 module.exports = Mbox;
@@ -2034,7 +2067,10 @@ var ajax = function (options) {
         customer_order_action: '/h5_app/interface_supervisit/customer_order_action',//更新客户状态，再次来访，下意向金，下定，签约，付款
         search_customer: '/h5_app/interface_supervisit/search_customer', //搜索查询
         get_customer_dynamic_state: '/h5_app/interface_supervisit/get_customer_dynamic_state', //成交助手
-        update_task_time: '/h5_app/interface_supervisit/update_task_time' //更新用户时间线
+        check_customer_mobile: '/h5_app/interface_supervisit/check_customer_mobile', //查看这个人是否填写过真正的手机号
+        update_task_time: '/h5_app/interface_supervisit/update_task_time', //更新用户时间线
+        update_customer_notes: '/h5_app/interface_supervisit/update_customer_notes', //更新用户备注信息
+        get_customer_dynamic_status: '/h5_app/interface_supervisit/get_customer_dynamic_status' //用户时间线
     };
     // 'http://Laifangdan.searchchinahouse.com'
     options.$.ajax({
@@ -2053,6 +2089,7 @@ var ajax = function (options) {
         },
         error: function (msg) {
             if(typeof msg === 'string') msg = JSON.parse(msg);
+            msg = msg || '未知错误';
             options.error && options.error(msg)
         }
 
@@ -2066,29 +2103,25 @@ module.exports = ajax;
  * Created by JackieWu on 16/1/2.
  */
 var ua = navigator.userAgent;
-var dateChange = function ($, container,cb) {
+var dateChange = function ($, container, cb) {
     var setStarInterVal;
     var time = '';
-    if(ua.indexOf('Android') > -1 && ua.toLowerCase().match(/MicroMessenger/i) == "micromessenger"){
-        container.off('click').on('click', function () {
+    if (ua.indexOf('Android') > -1 && ua.toLowerCase().match(/MicroMessenger/i) == "micromessenger") {
+        container.on('click', function () {
             var _this = $(this);
             setStarInterVal = setInterval(function () {
-                if(time.toString() !== container.val().toString()){
-                    if(time.toString() ===  container.val().toString() && time !== ''){
-                        time = container.val();
-                        cb && cb(time,_this);
-                        clearInterval(setStarInterVal);
-                    }
+                if (_this.val() !== time) {
+                    time = _this.val();
+                    cb && cb(time, _this);
+                    setStarInterVal && clearInterval(setStarInterVal);
                 }
-            },1);
+            }, 1);
         });
-    }else{
-        container.off('blur').on('blur', function () {
+    } else {
+        container.on('blur', function () {
             var _this = $(this);
-            time = container.val();
-            cb && cb(time,_this);
+            cb && cb(container.val(), _this);
         })
-
     }
 };
 module.exports = dateChange;
@@ -2467,7 +2500,7 @@ exports.compile = function(template){
 },{}],9:[function(require,module,exports){
 module.exports='<div class="box-01 box"><a href="answer.html?user_id=@{it.user_id}&amp;order_type=1&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">首次来访</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=2&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">再次来访</a></div><div class="box-02 box"><a href="search.html?user_id=@{it.user_id}&amp;order_type=3&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">意向金</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=4&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">定金</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=5&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">签约</a><a href="search.html?user_id=@{it.user_id}&amp;order_type=6&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}">付款</a></div>';
 },{}],10:[function(require,module,exports){
-module.exports='<?js if(it.length > 0){ ?><div class="wait"><?js it.forEach(function(item,k){ ?><div class="box"><div class="wait-title"><div class="title-bg"><span>@{item.order_type_name}</span></div></div><?js item.list.forEach(function(listItem, i){ ?><div class="wait-list J_wait-list"><div class="list-box"><div class="list-left"><i class="list-icon-01"></i><span>客户姓名</span></div><div class="list-right"><span>@{listItem.customer_name}</span></div></div><div class="list-box"><div class="list-left"><i class="list-icon-02"></i><span>当前级别</span></div><div class="list-right"><span>@{listItem.level}级客户</span><!-- 后端接口无法直接的更改等级 所以暂时注释掉--><!--a(href="#")--><!--    i.right-icon-3--></div></div><div class="list-box"><div class="list-left"><i class="list-icon-03"></i><span>最新接触</span></div><div class="list-right"><span>@{listItem.lasttime}</span></div></div><div class="list-box"><div class="list-left"><i class="list-icon-04"></i><span>邀约来访</span></div><div class="list-right J_customer-mobile"><a><i class="right-icon-1"></i></a><a><i class="right-icon-2"></i></a></div></div><div class="list-box"><div class="list-left"><i class="list-icon-05"></i><span>计划时间</span></div><div class="list-right J_customer-date-input"><span>@{listItem.diff_days}天</span><label for="input-@{k}-@{i}"><input type="date" id="input-@{k}-@{i}"/><i class="right-icon-3"></i></label></div></div></div><?js }); ?></div><?js }); ?></div><?js } ?>';
+module.exports='<?js if(it.length > 0){ ?><div class="wait"><?js it.forEach(function(item,k){ ?><div class="box"><div class="wait-title"><div class="title-bg"><span>@{item.order_type_name}</span></div></div><?js item.list.forEach(function(listItem, i){ ?><div class="wait-list J_wait-list"><div class="list-box"><div class="list-left"><i class="list-icon-01"></i><span>客户姓名</span></div><div class="list-right"><span>@{listItem.customer_name}</span></div></div><div class="list-box"><div class="list-left"><i class="list-icon-02"></i><span>当前级别</span></div><div class="list-right"><span>@{listItem.level}级客户</span><!-- 后端接口无法直接的更改等级 所以暂时注释掉--><!--a(href="#")--><!--    i.right-icon-3--></div></div><div class="list-box"><div class="list-left"><i class="list-icon-03"></i><span>最新接触</span></div><div class="list-right"><span>@{listItem.lasttime}</span></div></div><div class="list-box"><div class="list-left"><i class="list-icon-04"></i><span>邀约来访</span></div><div class="list-right J_customer-mobile"><a><i class="right-icon-1"></i></a><a><i class="right-icon-2"></i></a></div></div><div class="list-box"><div class="list-left"><i class="list-icon-05"></i><span>倒计时</span></div><div class="list-right J_customer-date-input"><span>@{listItem.diff_days}天</span><label for="input-@{k}-@{i}"><input type="date" id="input-@{k}-@{i}"/><i class="right-icon-3"></i></label></div></div></div><?js }); ?></div><?js }); ?></div><?js } ?>';
 },{}],11:[function(require,module,exports){
 module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtnTrue === undefined ? \'hide\' : \'\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
 },{}]},{},[3])

@@ -4803,6 +4803,8 @@ var searchIntention = require('./tpl/search-intention.html'); //意向金
 var searchPayment = require('./tpl/search-payment.html'); //付款
 var searchSign = require('./tpl/search-sign.html'); //签约
 
+var dateChange = require('./lib/date-change');
+var setTime;
 var query = {
     $searchBtn: $('.J_search-btn'),
     $searchInput: $('.J_search-input'),
@@ -4813,12 +4815,17 @@ var query = {
     $starTime: $('.J_time-star'),
     $endTime: $('.J_time-end'),
     $idStartTime: $('#start-time'),
-    $idEndTime: $('#end-time')
+    $idEndTime: $('#end-time'),
+    $loading: $('.J_loading')
 };
 var url = new Url();
 var tplRender = tpl.render;
+var pageIndex = 1;
 
-var ua = navigator.userAgent;
+var customer_order_id = [];
+var customer_id = [];
+var customer_name = [];
+var customer_mobile = [];
 
 var setStarInterVal, setEndInterVal;
 //初始化moment
@@ -4831,6 +4838,27 @@ moment.locale('en', {
     }
 });
 var order_type = url.parameter('order_type'); //2再次来访 3付意向金 4付定金 5签约 6待付款 7确认付款 20为客户查询
+var orderTitle = '再次来访';
+if (order_type == 2) {
+    orderTitle = '再次来访'
+} else if (order_type == 3) {
+    orderTitle = '付意向金'
+} else if (order_type == 4) {
+    orderTitle = '付定金'
+} else if (order_type == 5) {
+    orderTitle = '签约'
+} else if (order_type == 6) {
+    orderTitle = '待付款'
+} else if (order_type == 7) {
+    orderTitle = '确认付款'
+} else if (order_type == 20) {
+    orderTitle = '客户查询'
+} else if (order_type == 1) {
+    orderTitle = '首次来访'
+}
+
+document.title = orderTitle;
+
 var customer = function (data) {
     ajax({
         $: $,
@@ -4879,7 +4907,7 @@ var intention = function (data) {
         planTime: $('#btn-time')
     };
 
-    q.planTime.val(moment().add(3,'d').format('YYYY-MM-DD'));
+    q.planTime.val(moment().add(3, 'd').format('YYYY-MM-DD'));
 
     $('.J_cancel').on('click', function () {
         customer({
@@ -4906,10 +4934,19 @@ var intention = function (data) {
             });
             return
         }
+        if(order_type == 4){
+            if (q.houseNumber.val() === '' && q.houseFloor.val() === '' && q.houseRoom.val() === '') {
+                new Mbox($, {
+                    tips: '购房房号不能为空'
+                });
+                return
+            }
+        }
         data.order_type = q.drop.find('span').attr('data-value');
         data.house_area = q.area.val();
         data.real_name = q.name.val();
         data.real_mobile = q.tel.val();
+        data.customer_mobile = q.tel.val();
         data.house_number = q.houseNumber.val();
         data.house_floor = q.houseFloor.val();
         data.house_room = q.houseRoom.val();
@@ -5027,12 +5064,7 @@ var sign = function (data) {
             });
             return
         }
-        if (q.price.val() === '') {
-            new Mbox($, {
-                tips: '购房总价不能为空'
-            });
-            return
-        }
+
         data.order_type = order_type;
         data.house_area = q.area.val();
         data.real_name = q.name.val();
@@ -5046,34 +5078,80 @@ var sign = function (data) {
         customer(data)
     })
 };
-var searchResult = function () {
+var searchResult = function (time) {
+    var obj = {
+        user_id: url.parameter('user_id'),
+        order_type: url.parameter('order_type'),
+        p: pageIndex
+    };
+    if (time) {
+        obj.date1 = query.$starTime.attr('data-star');
+        obj.date2 = query.$endTime.attr('data-end')
+    } else {
+        obj.search_key = query.$searchInput.val()
+    }
+
     ajax({
         $: $,
         url: 'search_customer',
-        data: {
-            user_id: url.parameter('user_id'),
-            search_key: query.$searchInput.val(),
-            order_type: url.parameter('order_type'),
-            date1: query.$starTime.attr('data-star'),
-            date2: query.$endTime.attr('data-end')
-        },
+        data: obj,
         success: function (msg) {
-            query.$contentBox.html(tplRender(searchList, {
-                msg: msg.data.customer_info_list
-            }));
-            $('.J_search-list').on('click', function () {
-                if (order_type == 2) {//2再次来访
-                    again(msg.data.customer_info_list[$(this).index()])
-                } else if (order_type == 3 || order_type == 4) {//3付意向金 4付定金
-                    intention(msg.data.customer_info_list[$(this).index()])
-                } else if (order_type == 5) {// 5签约
-                    sign(msg.data.customer_info_list[$(this).index()])
-                } else if (order_type == 6) {// 7付款
-                    payment(msg.data.customer_info_list[$(this).index()])
-                } else if (order_type == 20) {
-                    location.href = 'time-line.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_id=' + msg.data.customer_info_list[$(this).index()].customer_id + '&order_type=' + msg.data.customer_info_list[$(this).index()].order_type + '&diff_days=' + msg.data.customer_info_list[$(this).index()].diff_days + '&customer_order_id=' + msg.data.customer_info_list[$(this).index()].customer_order_id
-                }
-            })
+            query.$loading.addClass('hide');
+            if (msg.data.customer_info_list.length === 0 && customer_order_id.length === 0) {
+                query.$contentBox.html('');
+                new Mbox($, {
+                    tips: '当前没有符合造作条件的客户,可以在客户查询功能里确认要操作客户的状态'
+                });
+            } else {
+                query.$contentBox.append(tplRender(searchList, {
+                    msg: msg.data.customer_info_list,
+                    user_id: url.parameter('user_id'),
+                    house_id: url.parameter('house_id'),
+                    house_name: url.parameter('house_name'),
+                    order_type: url.parameter('order_type')
+                }));
+                msg.data.customer_info_list.forEach(function (item, i) {
+                    //保存id
+                    customer_order_id.push(item.customer_order_id);
+                    customer_id.push(item.customer_id);
+                    customer_name.push(item.customer_name);
+                    customer_mobile.push(item.customer_mobile);
+                });
+                $('.J_customer-mobile').find('a').on('click', function () {
+                    var $this = $(this);
+                    if (customer_mobile[$this.parents('.J_search-result-list').index()] != '' && customer_mobile[$this.parents('.J_search-result-list').index()] != 0 && customer_mobile[$this.parents('.J_search-result-list').index()] != null && !~customer_mobile[$this.parents('.J_search-result-list').index()].indexOf('*')) {
+                        if ($this.hasClass('J_search-tel')) {
+                            location.href = 'tel:' + customer_mobile[$this.parents('.J_search-result-list').index()]
+                        } else {
+                            location.href = 'sms:' + customer_mobile[$this.parents('.J_search-result-list').index()]
+                        }
+                    } else {
+                        new Mbox($, {
+                            tips: '补全信息后才可使用',
+                            leftBtn: '去补全',
+                            rightBtnTrue: true,
+                            callback: function () {
+                                location.href = 'fill-in.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_id=' + customer_id[$this.parents('.J_search-result-list').index()]
+                            }
+                        });
+                    }
+                });
+
+                $('.J_search-list').on('click', function () {
+                    if (order_type == 2) {//2再次来访
+                        again(msg.data.customer_info_list[$(this).index()])
+                    } else if (order_type == 3 || order_type == 4) {//3付意向金 4付定金
+                        intention(msg.data.customer_info_list[$(this).index()])
+                    } else if (order_type == 5) {// 5签约
+                        sign(msg.data.customer_info_list[$(this).index()])
+                    } else if (order_type == 6) {// 7付款
+                        payment(msg.data.customer_info_list[$(this).index()])
+                    } else if (order_type == 20) {
+                        location.href = 'time-line.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_id=' + msg.data.customer_info_list[$(this).index()].customer_id + '&order_type=' + msg.data.customer_info_list[$(this).index()].order_type + '&diff_days=' + msg.data.customer_info_list[$(this).index()].diff_days + '&customer_order_id=' + msg.data.customer_info_list[$(this).index()].customer_order_id
+                    }
+                })
+            }
+
         },
         error: function (msg) {
             new Mbox($, {
@@ -5083,51 +5161,48 @@ var searchResult = function () {
 
     });
 };
-query.$searchBtn.on('click', function () {
-    searchResult()
+//设置时间 (因为微信安卓不兼容input date change事件所以用setInterval 来实时获取时间)
+
+dateChange($, query.$idStartTime, function (time) {
+    query.$starTime.find('span').html(time);
+    query.$starTime.attr('data-star', time);
+    query.$endTime.attr('data-end', time);
 });
 
-//设置时间 (因为微信安卓不兼容input date change事件所以用setInterval 来实时获取时间)
-if (ua.indexOf('Android') > -1 && ua.toLowerCase().match(/MicroMessenger/i) == "micromessenger") {
-    query.$idStartTime.on('click', function () {
-        setStarInterVal = setInterval(function () {
-            if (query.$starTime.find('span').html().toString() !== query.$idStartTime.val().toString()) {
-                query.$starTime.find('span').html(query.$idStartTime.val());
-                if (query.$starTime.find('span').html().toString() === query.$idStartTime.val().toString() && query.$starTime.find('span').html() !== '') {
-                    query.$idStartTime.val(query.$starTime.find('span').html());
-                    query.$starTime.attr('data-star', query.$idStartTime.val());
-                    clearInterval(setStarInterVal);
-                }
-            }
-        }, 1);
-    });
-    query.$idEndTime.on('click', function () {
-        setStarInterVal = setInterval(function () {
-            if (query.$endTime.find('span').html().toString() !== query.$idEndTime.val().toString()) {
-                query.$endTime.find('span').html(query.$idEndTime.val());
-                if (query.$endTime.find('span').html().toString() === query.$idEndTime.val().toString() && query.$endTime.find('span').html() !== '') {
-                    query.$idEndTime.val(query.$endTime.find('span').html());
-                    query.$endTime.attr('data-end', query.$idEndTime.val());
-                    clearInterval(setStarInterVal);
-                }
-            }
-        }, 1);
-    });
-} else {
-    query.$idStartTime.on('change', function () {
-        query.$starTime.find('span').html(query.$idStartTime.val());
-        query.$starTime.attr('data-star', query.$idStartTime.val());
-    });
-    query.$idEndTime.on('change', function () {
-        query.$endTime.find('span').html(query.$idEndTime.val());
-        query.$endTime.attr('data-end', query.$idEndTime.val());
-    });
-}
+dateChange($, query.$idEndTime, function (time) {
+    query.$endTime.find('span').html(time);
+    query.$starTime.attr('data-star', time);
+    query.$endTime.attr('data-end', time);
+});
 
 query.$dateBtnSearch.on('click', function () {
-    setEndInterVal && clearInterval(setEndInterVal);
-    setStarInterVal && clearInterval(setStarInterVal);
-    searchResult()
+    query.$searchDateBox.addClass('hide');
+    query.$starTime.find('span').html('选择起始日期');
+    query.$endTime.find('span').html('选择截止日期');
+    query.$starTime.attr('data-star', '');
+    query.$endTime.attr('data-end', '');
+    pageIndex = 1;
+    customer_order_id = [];
+    customer_id = [];
+    customer_name = [];
+    customer_mobile = [];
+    query.$contentBox.html('');
+    searchResult(1);
+});
+
+query.$searchBtn.on('click', function () {
+    query.$searchDateBox.addClass('hide');
+    query.$starTime.find('span').html('选择起始日期');
+    query.$endTime.find('span').html('选择截止日期');
+    query.$starTime.attr('data-star', '');
+    query.$endTime.attr('data-end', '');
+    pageIndex = 1;
+    customer_order_id = [];
+    customer_id = [];
+    customer_name = [];
+    customer_mobile = [];
+    query.$contentBox.html('');
+    searchResult();
 });
 
 if (order_type == 20) {
@@ -5146,36 +5221,52 @@ if (url.parameter('deal')) {
     query.$searchInput.val(url.parameter('deal'));
     searchResult()
 }
-},{"./common/moment":1,"./common/zepto":2,"./lib/Mbox":4,"./lib/ajax":5,"./lib/drop":6,"./lib/get-url":7,"./lib/tpl":8,"./tpl/search-down.html":10,"./tpl/search-intention.html":11,"./tpl/search-list.html":12,"./tpl/search-payment.html":13,"./tpl/search-sign.html":14}],4:[function(require,module,exports){
+$(window).on('scroll', function () {
+    if ($(window).scrollTop() + $(window).height() > $('body').height() - 5 && query.$loading.hasClass('hide')) {
+        setTime = setTimeout(function () {
+            pageIndex += 1;
+            searchResult();
+            setTime && clearTimeout(setTime);
+        }, 2000);
+        query.$loading.removeClass('hide')
+    }
+});
+
+},{"./common/moment":1,"./common/zepto":2,"./lib/Mbox":4,"./lib/ajax":5,"./lib/date-change":6,"./lib/drop":7,"./lib/get-url":8,"./lib/tpl":9,"./tpl/search-down.html":11,"./tpl/search-intention.html":12,"./tpl/search-list.html":13,"./tpl/search-payment.html":14,"./tpl/search-sign.html":15}],4:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/20/15.
  */
 var tpl = require('./tpl');
 var mboxHtml = require('../tpl/mbox.html.js');
 var Mbox = function ($, options) {
-    $('body').append(tpl.render(mboxHtml, {
-        tips: options.tips,
-        leftBtn: options.leftBtn,
-        rightBtn: options.rightBtn,
-        rightBtnTrue: options.rightBtnTrue
-    }));
-    var mboxBg = $('.J_mbox-bg');
-    var mbox = $('.J_mbox');
-    var boxBtn = $('.J_m-box-btn');
-    mboxBg.removeClass('hide');
-    mbox.css('top', ($(window).height() - mbox.height()) / 2);
-    boxBtn.find('span').eq(0).on('click', function () {
-        options.callback && options.callback();
-        mboxBg.addClass('hide').remove()
-    });
-    boxBtn.find('span').eq(1).on('click', function () {
-        mboxBg.addClass('hide').remove()
-    });
+    if(!options.firstMbox){
+        options.firstMbox = true;
+        $('body').append(tpl.render(mboxHtml, {
+            tips: options.tips,
+            leftBtn: options.leftBtn,
+            rightBtn: options.rightBtn,
+            rightBtnTrue: options.rightBtnTrue
+        }));
+        var mboxBg = $('.J_mbox-bg');
+        var mbox = $('.J_mbox');
+        var boxBtn = $('.J_m-box-btn');
+        mboxBg.removeClass('hide');
+        mbox.css('top', ($(window).height() - mbox.height()) / 2);
+        boxBtn.find('span').eq(0).on('click', function () {
+            options.callback && options.callback();
+            options.firstMbox = false;
+            mboxBg.remove()
+        });
+        boxBtn.find('span').eq(1).on('click', function () {
+            options.firstMbox = false;
+            mboxBg.remove()
+        });
+    }
 
 };
 module.exports = Mbox;
 
-},{"../tpl/mbox.html.js":9,"./tpl":8}],5:[function(require,module,exports){
+},{"../tpl/mbox.html.js":10,"./tpl":9}],5:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
  */
@@ -5204,7 +5295,10 @@ var ajax = function (options) {
         customer_order_action: '/h5_app/interface_supervisit/customer_order_action',//更新客户状态，再次来访，下意向金，下定，签约，付款
         search_customer: '/h5_app/interface_supervisit/search_customer', //搜索查询
         get_customer_dynamic_state: '/h5_app/interface_supervisit/get_customer_dynamic_state', //成交助手
-        update_task_time: '/h5_app/interface_supervisit/update_task_time' //更新用户时间线
+        check_customer_mobile: '/h5_app/interface_supervisit/check_customer_mobile', //查看这个人是否填写过真正的手机号
+        update_task_time: '/h5_app/interface_supervisit/update_task_time', //更新用户时间线
+        update_customer_notes: '/h5_app/interface_supervisit/update_customer_notes', //更新用户备注信息
+        get_customer_dynamic_status: '/h5_app/interface_supervisit/get_customer_dynamic_status' //用户时间线
     };
     // 'http://Laifangdan.searchchinahouse.com'
     options.$.ajax({
@@ -5223,6 +5317,7 @@ var ajax = function (options) {
         },
         error: function (msg) {
             if(typeof msg === 'string') msg = JSON.parse(msg);
+            msg = msg || '未知错误';
             options.error && options.error(msg)
         }
 
@@ -5232,6 +5327,34 @@ var ajax = function (options) {
 module.exports = ajax;
 
 },{"./Mbox":4}],6:[function(require,module,exports){
+/**
+ * Created by JackieWu on 16/1/2.
+ */
+var ua = navigator.userAgent;
+var dateChange = function ($, container, cb) {
+    var setStarInterVal;
+    var time = '';
+    if (ua.indexOf('Android') > -1 && ua.toLowerCase().match(/MicroMessenger/i) == "micromessenger") {
+        container.on('click', function () {
+            var _this = $(this);
+            setStarInterVal = setInterval(function () {
+                if (_this.val() !== time) {
+                    time = _this.val();
+                    cb && cb(time, _this);
+                    setStarInterVal && clearInterval(setStarInterVal);
+                }
+            }, 1);
+        });
+    } else {
+        container.on('blur', function () {
+            var _this = $(this);
+            cb && cb(container.val(), _this);
+        })
+    }
+};
+module.exports = dateChange;
+
+},{}],7:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/24/15.
  */
@@ -5254,7 +5377,7 @@ var Drop = function($,callback){
     })
 };
 module.exports = Drop;
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
  */
@@ -5473,7 +5596,7 @@ p.set = function (prop, value) {
     return this;
 };
 module.exports = Url;
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 function compile(template){
     var
 
@@ -5625,16 +5748,16 @@ exports.compile = function(template){
     return compile(template);
 };
 
-},{}],9:[function(require,module,exports){
-module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtnTrue === undefined ? \'hide\' : \'\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
 },{}],10:[function(require,module,exports){
-module.exports='<?js var value = \'付意向金\'; ?><?js if(it.data.order_type == 1){value = \'首次来访\';}else if(it.data.order_type == 2){value=\'再次来访\';}else if(it.data.order_type == 3){value=\'付意向金\';}else if(it.data.order_type == 4){value=\'付定金\';}else if(it.data.order_type == 5){value=\'签约\';}else if(it.data.order_type == 6){value=\'待付款\';}else if(it.data.order_type == 7){value=\'确认付款\';} ?><div class="search-intention"><div class="intention-list"><div class="inten-name"><i class="s-i-icon-1"></i><span>项目名称</span></div><div class="inten-input"><input type="text" value="@{it.house_name}" disabled="disabled" class="J_inten-project"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-7"></i><span>购房房号</span></div><div class="inten-input house-number"><input type="text" value="@{it.data.house_number}" class="J_inten-number input-center"/><div class="separated">栋</div><input type="text" value="@{it.data.house_floor}" class="J_inten-floor input-center"/><div class="separated">层</div><input type="text" value="@{it.data.house_room}" class="J_inten-room input-center"/><div class="separated">号</div></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-2"></i><span>建筑面积</span></div><div class="inten-input"><input type="text" placeholder="请输入" value="@{it.data.house_area}" class="J_inten-area"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-3"></i><span>客户姓名</span></div><div class="inten-input"><input type="text" placeholder="请输入" value="@{it.data.real_name}" class="J_inten-name"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-4"></i><span>联系电话</span></div><div class="inten-input"><input type="tel" placeholder="请输入" value="@{it.data.real_mobile}" class="J_inten-phone"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-5"></i><span>下一步进度</span></div><div class="inten-cont"><div class="border J_drop"><i></i><span data-value="@{it.data.order_type}">@{value}</span></div><div class="drop J_drop-show hide"><span data-value="2">再次来访</span><span data-value="3">付意向金</span><span data-value="4">付定金</span><span data-value="5">签约</span><span data-value="6">付款</span></div></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-6"></i><span>计划时间</span></div><div class="time-box"><div class="time"><span>@{it.data.diff_days}天</span></div><label class="btn-icon"><input id="btn-time" type="date"/></label></div></div></div><div class="search-inten-btn"><span class="J_cancel">退订</span><span class="J_submit">提交</span></div><div class="search-tips">注：退订后将被降为D级客户</div>';
+module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtnTrue === undefined ? \'hide\' : \'\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
 },{}],11:[function(require,module,exports){
-module.exports='<?js var value = \'付意向金\'; ?><?js if(it.data.order_type == 1){value = \'首次来访\';}else if(it.data.order_type == 2){value=\'再次来访\';}else if(it.data.order_type == 3){value=\'付意向金\';}else if(it.data.order_type == 4){value=\'付定金\';}else if(it.data.order_type == 5){value=\'签约\';}else if(it.data.order_type == 6){value=\'待付款\';}else if(it.data.order_type == 7){value=\'确认付款\';} ?><div class="search-intention"><div class="intention-list"><div class="inten-name"><i class="s-i-icon-1"></i><span>项目名称</span></div><div class="inten-input"><input type="text" value="@{it.house_name}" disabled="disabled" class="J_inten-project"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-2"></i><span>建筑面积</span></div><div class="inten-input"><input type="text" placeholder="请输入" value="@{it.data.house_area}" class="J_inten-area"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-3"></i><span>客户姓名</span></div><div class="inten-input"><input type="text" placeholder="请输入" value="@{it.data.real_name}" class="J_inten-name"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-4"></i><span>联系电话</span></div><div class="inten-input"><input type="tel" placeholder="请输入" value="@{it.data.real_mobile}" maxlength="11" class="J_inten-phone"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-5"></i><span>下一步进度</span></div><div class="inten-cont"><div class="border J_drop"><i></i><span data-value="@{it.data.order_type}">@{value}</span></div><div class="drop J_drop-show hide"><span data-value="2">再次来访</span><span data-value="3">付意向金</span><span data-value="4">付定金</span><span data-value="5">签约</span><span data-value="6">付款</span></div></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-6"></i><span>计划时间</span></div><div class="time-box"><div class="time"><span>@{it.data.diff_days}天</span></div><label class="btn-icon"><input id="btn-time" type="date"/></label></div></div></div><div class="search-inten-btn"><span class="J_cancel">退订</span><span class="J_submit">提交</span></div><div class="search-tips">注：退订后将被降为D级客户</div>';
+module.exports='<?js var value = \'\'; ?><!--这里order_type 的value 是+1的--><?js if(it.data.order_type == 1){value = \'再次来访\';}else if(it.data.order_type == 2){value=\'付意向金\';}else if(it.data.order_type == 3){value=\'付定金\';}else if(it.data.order_type == 4){value=\'签约\';}else if(it.data.order_type == 5){value=\'待付款\';}else if(it.data.order_type == 6){value=\'确认付款\';}else if(it.data.order_type == 7){value=\'完成\';} ?><div class="search-intention"><div class="intention-list"><div class="inten-name"><i class="s-i-icon-1"></i><span>项目名称</span></div><div class="inten-input"><input type="text" value="@{it.house_name}" disabled="disabled" class="J_inten-project"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-7"></i><span>购房房号</span></div><div class="inten-input house-number"><input type="text" value="@{it.data.house_number}" class="J_inten-number input-center"/><div class="separated">栋</div><input type="text" value="@{it.data.house_floor}" class="J_inten-floor input-center"/><div class="separated">层</div><input type="text" value="@{it.data.house_room}" class="J_inten-room input-center"/><div class="separated">号</div></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-2"></i><span>建筑面积</span></div><div class="inten-input"><input type="text" placeholder="请输入" value="@{it.data.house_area}" class="J_inten-area"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-3"></i><span>客户姓名</span></div><div class="inten-input"><input type="text" placeholder="请输入" value="@{it.data.customer_name}" class="J_inten-name"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-4"></i><span>联系电话</span></div><div class="inten-input"><input type="tel" placeholder="请输入" value="@{it.data.real_mobile}" class="J_inten-phone"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-5"></i><span>下一步进度</span></div><div class="inten-cont"><div class="border J_drop"><i></i><span data-value="@{it.data.order_type}">@{value}</span></div><div class="drop J_drop-show hide"><span data-value="2">再次来访</span><span data-value="3">付意向金</span><span data-value="4">付定金</span><span data-value="5">签约</span><span data-value="6">付款</span></div></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-6"></i><span>计划时间</span></div><div class="time-box"><div class="time"><span>@{it.data.diff_days}天</span></div><label class="btn-icon"><input id="btn-time" type="date"/></label></div></div></div><div class="search-inten-btn"><span class="J_cancel">退订</span><span class="J_submit">提交</span></div><div class="search-tips">注：退订后将被降为D级客户</div>';
 },{}],12:[function(require,module,exports){
-module.exports='<?js it.msg.forEach(function(item,i){ ?><div class="search-result-list J_search-list"><div class="s-list-icon"></div><div class="search-list"><i class="s-icon-1"></i><div class="s-title">客户姓名</div><div class="s-cont">@{item.customer_name}</div></div><div class="search-list"><i class="s-icon-2"></i><div class="s-title">当前级别</div><div class="s-cont"><div class="border"><i></i>@{item.customer_level}级客户</div></div></div><div class="search-list"><i class="s-icon-3"></i><div class="s-title">最新接触</div><div class="s-cont">@{item.lasttime}</div></div><div class="search-list"><i class="s-icon-4"></i><div class="s-title">快速联系</div><div class="s-cont"><a href="sms:@{item.real_mobile}" class="s-icon-5"></a><a href="tel:@{item.real_mobile}" class="s-icon-6"></a></div></div></div><?js }); ?>';
+module.exports='<?js var order_type = \'\',next_order_type = \'\',area = \'\'; ?><?js var href = \'javascript:;\'; ?><?js if(it.data.order_type == 1){ ?><?js     order_type= \'邀约来访\'; ?><?js     next_order_type= \'再次来访\'; ?><?js  }else if(it.data.order_type == 2){ ?><?js     order_type= \'再次来访\'; ?><?js     next_order_type= \'付意向金\'; ?><?js  }else if(it.data.order_type == 3){ ?><?js     order_type= \'付意向金\';?><?js     next_order_type= \'付定金\'; ?><?js  }else if(it.data.order_type == 4){ ?><?js      order_type= \'付定金\'; ?><?js     next_order_type= \'签约\'; ?><?js  }else if(it.data.order_type == 5){ ?><?js      order_type= \'签约\'; ?><?js     next_order_type= \'待付款\'; ?><?js  }else if(it.data.order_type == 6){ ?><?js      order_type= \'待付款\'; ?><?js     next_order_type= \'确认付款\'; ?><?js  }else if(it.data.order_type == 7){ ?><?js      order_type= \'确认付款\'; ?><?js     next_order_type= \'完成\'; ?><?js  } ?><?js if(it.data.house_area != 0){area = it.data.house_area} ?><div class="search-intention"><div class="intention-list"><div class="inten-name"><i class="s-i-icon-1"></i><span>项目名称</span></div><div class="inten-input"><input type="text" value="@{it.house_name}" disabled="disabled" class="J_inten-project"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-2"></i><span>建筑面积</span></div><div class="inten-input"><input type="text" placeholder="请输入" value="@{area}" class="J_inten-area"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-3"></i><span>客户姓名</span></div><div class="inten-input"><input type="text" placeholder="请输入" value="@{it.data.customer_name}" class="J_inten-name"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-4"></i><span>联系电话</span></div><div class="inten-input"><input type="tel" placeholder="请输入" value="@{it.data.customer_mobile}" maxlength="11" class="J_inten-phone"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-5"></i><span>下一步进度</span></div><div class="inten-cont"><div class="border J_drop"><i></i><span data-value="@{it.data.order_type}">@{next_order_type}</span></div><div class="drop J_drop-show hide"><span data-value="2">再次来访</span><span data-value="3">付意向金</span><span data-value="4">付定金</span><span data-value="5">签约</span><span data-value="6">付款</span></div></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-6"></i><span>计划时间</span></div><div class="time-box"><div class="time"><span>@{it.data.diff_days}天</span></div><label class="btn-icon"><input id="btn-time" type="date"/></label></div></div></div><div class="search-inten-btn"><span class="J_cancel">退订</span><span class="J_submit">提交</span></div><div class="search-tips">注：退订后将被降为D级客户</div>';
 },{}],13:[function(require,module,exports){
-module.exports='<?js var drop = (it.drop === 0 ? \'分期付款\': \'一次性\'); var value = (it.drop === 0 ? \'2\': \'1\'); ?><?js if(!it.p){ ?><div class="J_payment"><div class="deal-box J_deal-box"><div class="deal-list"><div class="pay border-bottom"><div class="p-title">付款方式</div><div class="p-cont"><div class="border J_drop"><i></i><span data-value="@{value}">@{drop}</span></div><div class="drop J_drop-show hide"><span data-value="1">一次性</span><span data-value="2">分期付款</span></div></div><div class="p-cont-btn J-cont-btn"></div></div></div><div class="deal-list"><div class="pay"><div class="p-title">付款金额</div><div class="p-cont"><div class="p-money"><i>￥</i><input type="tel" value="20000" class="J_money-input"/></div></div></div></div><div class="deal-list"><div class="pay border-bottom"><div class="p-title">付款时间</div><div class="p-cont"><div class="p-time"><input type="date" class="J_money-time"/><i></i></div></div></div></div></div></div><div class="deal-btn J_deal-btn">提交</div><?js } else { ?><div class="deal-box J_deal-box"><div class="deal-list"><div class="pay"><div class="p-title">付款金额</div><div class="p-cont"><div class="p-money"><i>￥</i><input type="tel" value="20000" class="J_money-input"/></div></div></div></div><div class="deal-list"><div class="pay border-bottom"><div class="p-title">付款时间</div><div class="p-cont"><div class="p-time"><input type="date" class="J_money-time"/><i></i></div></div></div></div></div><?js } ?>';
+module.exports='<?js it.msg.forEach(function(item,i){ ?><div class="search-result-list J_search-result-list"><div class="J_search-list"><div class="s-list-icon"></div><div class="search-list"><i class="s-icon-1"></i><div class="s-title">客户姓名</div><div class="s-cont">@{item.customer_name}</div></div><div class="search-list"><i class="s-icon-2"></i><div class="s-title">当前级别</div><div class="s-cont">@{item.customer_level}级客户</div></div><div class="search-list"><i class="s-icon-3"></i><div class="s-title">最新接触</div><div class="s-cont">@{item.lasttime}</div></div></div><div class="search-list"><i class="s-icon-4"></i><div class="s-title">快速联系</div><div class="s-cont J_customer-mobile"><a href="javascript:;" class="s-icon-5 J_search-tel"></a><a href="javascript:;" class="s-icon-6"></a></div></div><?js if(it.order_type == 20){ ?><div class="search-list"><i class="s-icon-7"></i><div class="s-title">动态追踪</div><div class="s-dynamic"><a href="./tracking.html?user_id=@{it.user_id}&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}&amp;customer_id=@{item.customer_id}">点击查看详情</a></div></div><?js } ?><div class="search-list"><i class="s-icon-8"></i><div class="s-title">客户备注</div><div class="s-dynamic"><a href="./notes.html?user_id=@{it.user_id}&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}&amp;notes=@{item.notes}&amp;customer_id=@{item.customer_id}">@{item.notes}</a></div></div></div><?js }); ?>';
 },{}],14:[function(require,module,exports){
+module.exports='<?js var drop = (it.drop === 0 ? \'分期付款\': \'一次性\'); var value = (it.drop === 0 ? \'2\': \'1\'); ?><?js if(!it.p){ ?><div class="J_payment"><div class="deal-box J_deal-box"><div class="deal-list"><div class="pay border-bottom"><div class="p-title">付款方式</div><div class="p-cont"><div class="border J_drop"><i></i><span data-value="@{value}">@{drop}</span></div><div class="drop J_drop-show hide"><span data-value="1">一次性</span><span data-value="2">分期付款</span></div></div><div class="p-cont-btn J-cont-btn"></div></div></div><div class="deal-list"><div class="pay"><div class="p-title">付款金额</div><div class="p-cont"><div class="p-money"><i>￥</i><input type="tel" value="20000" class="J_money-input"/></div></div></div></div><div class="deal-list"><div class="pay border-bottom"><div class="p-title">付款时间</div><div class="p-cont"><div class="p-time"><input type="date" class="J_money-time"/><i></i></div></div></div></div></div></div><div class="deal-btn J_deal-btn">提交</div><?js } else { ?><div class="deal-box J_deal-box"><div class="deal-list"><div class="pay"><div class="p-title">付款金额</div><div class="p-cont"><div class="p-money"><i>￥</i><input type="tel" value="20000" class="J_money-input"/></div></div></div></div><div class="deal-list"><div class="pay border-bottom"><div class="p-title">付款时间</div><div class="p-cont"><div class="p-time"><input type="date" class="J_money-time"/><i></i></div></div></div></div></div><?js } ?>';
+},{}],15:[function(require,module,exports){
 module.exports='<div class="search-intention"><div class="intention-list"><div class="inten-name"><i class="s-i-icon-1"></i><span>项目名称</span></div><div class="inten-input"><input type="text" value="@{it.house_name}" disabled="disabled" class="J_inten-project"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-7"></i><span>购房房号</span></div><div class="inten-input house-number"><input type="text" value="@{it.data.house_number}" class="J_inten-number input-center"/><div class="separated">栋</div><input type="text" value="@{it.data.house_floor}" class="J_inten-floor input-center"/><div class="separated">层</div><input type="text" value="@{it.data.house_room}" class="J_inten-room input-center"/><div class="separated">号</div></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-2"></i><span>建筑面积</span></div><div class="inten-input"><input type="tel" value="@{it.data.house_area}" placeholder="请输入" class="J_inten-area"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-3"></i><span>客户姓名</span></div><div class="inten-input"><input type="text" value="@{it.data.real_name}" placeholder="请输入" class="J_inten-name"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-4"></i><span>联系电话</span></div><div class="inten-input"><input type="tel" value="@{it.data.real_mobile}" placeholder="请输入" class="J_inten-phone"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-9"></i><span>购房总价</span></div><div class="inten-input"><div class="icon-money">￥</div><input type="tel" value="@{it.data.total_price}" placeholder="请输入" class="J_inten-price"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-10"></i><span>购房单价</span></div><div class="inten-input"><div class="icon-money">￥</div><div class="unit J_unit">@{it.data.price}</div></div></div></div><div class="unit-tips">注：输入总价后自动换算单价</div><div class="search-unit-btn J_search-unit-btn J_submit">提交</div>';
 },{}]},{},[3])

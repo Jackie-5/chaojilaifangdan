@@ -1,7 +1,31 @@
 //-Created by JackieWu on 12/23/15.
 //-意向金
-| <?js var value = '付意向金'; ?>
-| <?js if(it.data.order_type == 1){value = '首次来访';}else if(it.data.order_type == 2){value='再次来访';}else if(it.data.order_type == 3){value='付意向金';}else if(it.data.order_type == 4){value='付定金';}else if(it.data.order_type == 5){value='签约';}else if(it.data.order_type == 6){value='待付款';}else if(it.data.order_type == 7){value='确认付款';} ?>
+| <?js var order_type = '',next_order_type = '',area = ''; ?>
+| <?js var href = 'javascript:;'; ?>
+| <?js if(it.data.order_type == 1){ ?>
+| <?js     order_type= '邀约来访'; ?>
+| <?js     next_order_type= '再次来访'; ?>
+| <?js  }else if(it.data.order_type == 2){ ?>
+| <?js     order_type= '再次来访'; ?>
+| <?js     next_order_type= '付意向金'; ?>
+| <?js  }else if(it.data.order_type == 3){ ?>
+| <?js     order_type= '付意向金';?>
+| <?js     next_order_type= '付定金'; ?>
+| <?js  }else if(it.data.order_type == 4){ ?>
+| <?js      order_type= '付定金'; ?>
+| <?js     next_order_type= '签约'; ?>
+| <?js  }else if(it.data.order_type == 5){ ?>
+| <?js      order_type= '签约'; ?>
+| <?js     next_order_type= '待付款'; ?>
+| <?js  }else if(it.data.order_type == 6){ ?>
+| <?js      order_type= '待付款'; ?>
+| <?js     next_order_type= '确认付款'; ?>
+| <?js  }else if(it.data.order_type == 7){ ?>
+| <?js      order_type= '确认付款'; ?>
+| <?js     next_order_type= '完成'; ?>
+| <?js  } ?>
+
+| <?js if(it.data.house_area != 0){area = it.data.house_area} ?>
 .search-intention
     .intention-list
         .inten-name
@@ -14,19 +38,19 @@
             i.s-i-icon-2
             span 建筑面积
         .inten-input
-            input.J_inten-area(type='text', placeholder='请输入',value="@{it.data.house_area}")
+            input.J_inten-area(type='text', placeholder='请输入',value="@{area}")
     .intention-list
         .inten-name
             i.s-i-icon-3
             span 客户姓名
         .inten-input
-            input.J_inten-name(type='text', placeholder='请输入', value="@{it.data.real_name}")
+            input.J_inten-name(type='text', placeholder='请输入', value="@{it.data.customer_name}")
     .intention-list
         .inten-name
             i.s-i-icon-4
             span 联系电话
         .inten-input
-            input.J_inten-phone(type='tel', placeholder='请输入', value="@{it.data.real_mobile}", maxlength="11")
+            input.J_inten-phone(type='tel', placeholder='请输入', value="@{it.data.customer_mobile}", maxlength="11")
     .intention-list
         .inten-name
             i.s-i-icon-5
@@ -34,7 +58,7 @@
         .inten-cont
             .border.J_drop
                 i
-                span(data-value="@{it.data.order_type}") @{value}
+                span(data-value="@{it.data.order_type}") @{next_order_type}
             .drop.J_drop-show.hide
                 span(data-value="2") 再次来访
                 span(data-value="3") 付意向金

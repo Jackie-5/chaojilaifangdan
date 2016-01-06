@@ -1,7 +1,8 @@
 //-Created by JackieWu on 12/23/15.
 //-定金
-| <?js var value = '付意向金'; ?>
-| <?js if(it.data.order_type == 1){value = '首次来访';}else if(it.data.order_type == 2){value='再次来访';}else if(it.data.order_type == 3){value='付意向金';}else if(it.data.order_type == 4){value='付定金';}else if(it.data.order_type == 5){value='签约';}else if(it.data.order_type == 6){value='待付款';}else if(it.data.order_type == 7){value='确认付款';} ?>
+| <?js var value = ''; ?>
+//这里order_type 的value 是+1的
+| <?js if(it.data.order_type == 1){value = '再次来访';}else if(it.data.order_type == 2){value='付意向金';}else if(it.data.order_type == 3){value='付定金';}else if(it.data.order_type == 4){value='签约';}else if(it.data.order_type == 5){value='待付款';}else if(it.data.order_type == 6){value='确认付款';}else if(it.data.order_type == 7){value='完成';} ?>
 .search-intention
     .intention-list
         .inten-name
@@ -31,7 +32,7 @@
             i.s-i-icon-3
             span 客户姓名
         .inten-input
-            input.J_inten-name(type='text', placeholder='请输入',value="@{it.data.real_name}")
+            input.J_inten-name(type='text', placeholder='请输入',value="@{it.data.customer_name}")
     .intention-list
         .inten-name
             i.s-i-icon-4

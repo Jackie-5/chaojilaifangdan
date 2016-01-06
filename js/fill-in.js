@@ -74,9 +74,11 @@ ajax({
     success: function (msg) {
         update(msg.data);
         query.$customer_name.val(msg.data.customer_name);
-        query.$customer_mobile.val(msg.data.customer_mobile);
+        query.$customer_mobile.val(msg.data.customer_mobile).on('focus', function () {
+            $(this).val('')
+        });
         query.$customer_tel.val(msg.data.customer_tel);
-        query.$customer_mobile2.val(msg.data.customer_mobile);
+        query.$customer_mobile2.val(msg.data.customer_mobile2);
         query.$customer_email.val(msg.data.customer_email);
         query.$customer_age.val(msg.data.customer_age);
         query.$customer_birthday.val(msg.data.customer_birthday);
@@ -87,6 +89,7 @@ ajax({
                 }
             }
         })
+
 
     },
     error: function (msg) {

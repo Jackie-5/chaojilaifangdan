@@ -4811,7 +4811,14 @@ ajax({
     },
     success: function (msg) {
         $('.J_time-line-box').html(tplRender(timeLineTpl, {
-            data: msg.data.data_result
+            data: msg.data.data_result,
+            name: msg.data.customer_name,
+            customer_id: url.parameter('customer_id'),
+            user_id: url.parameter('user_id'),
+            house_id: url.parameter('house_id'),
+            house_name: url.parameter('house_name'),
+            order_type: url.parameter('order_type'),
+            customer_order_id: url.parameter('customer_order_id')
         }));
 
         $('.J_time').html(url.parameter('diff_days'));
@@ -4832,17 +4839,22 @@ ajax({
         } else if (url.parameter('order_type') == 7) {
             orderType.html('确认付款');
         }
-        dateChange($,$('#time-date'), function (time) {
+        var timeDate = $('#time-date');
+        timeDate.val(moment().add(3, 'd').format('YYYY-MM-DD'));
+        dateChange($,timeDate, function (time) {
             ajax({
                 $: $,
-                url: 'update_order_type',
+                url: 'update_task_time',
                 data: {
                     customer_order_id: url.parameter('customer_order_id'),
                     task_time: time
                 },
                 success: function (msg) {
                     new Mbox($, {
-                        tips: msg.msg
+                        tips: msg.msg,
+                        callback: function () {
+                            window.location.reload()
+                        }
                     });
                 },
                 error: function (msg) {
@@ -4862,6 +4874,7 @@ ajax({
 
 });
 
+
 },{"./common/moment":1,"./common/zepto":2,"./lib/Mbox":4,"./lib/ajax":5,"./lib/date-change":6,"./lib/get-url":7,"./lib/tpl":8,"./tpl/time-line.html":10}],4:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/20/15.
@@ -4869,24 +4882,29 @@ ajax({
 var tpl = require('./tpl');
 var mboxHtml = require('../tpl/mbox.html.js');
 var Mbox = function ($, options) {
-    $('body').append(tpl.render(mboxHtml, {
-        tips: options.tips,
-        leftBtn: options.leftBtn,
-        rightBtn: options.rightBtn,
-        rightBtnTrue: options.rightBtnTrue
-    }));
-    var mboxBg = $('.J_mbox-bg');
-    var mbox = $('.J_mbox');
-    var boxBtn = $('.J_m-box-btn');
-    mboxBg.removeClass('hide');
-    mbox.css('top', ($(window).height() - mbox.height()) / 2);
-    boxBtn.find('span').eq(0).on('click', function () {
-        options.callback && options.callback();
-        mboxBg.addClass('hide').remove()
-    });
-    boxBtn.find('span').eq(1).on('click', function () {
-        mboxBg.addClass('hide').remove()
-    });
+    if(!options.firstMbox){
+        options.firstMbox = true;
+        $('body').append(tpl.render(mboxHtml, {
+            tips: options.tips,
+            leftBtn: options.leftBtn,
+            rightBtn: options.rightBtn,
+            rightBtnTrue: options.rightBtnTrue
+        }));
+        var mboxBg = $('.J_mbox-bg');
+        var mbox = $('.J_mbox');
+        var boxBtn = $('.J_m-box-btn');
+        mboxBg.removeClass('hide');
+        mbox.css('top', ($(window).height() - mbox.height()) / 2);
+        boxBtn.find('span').eq(0).on('click', function () {
+            options.callback && options.callback();
+            options.firstMbox = false;
+            mboxBg.remove()
+        });
+        boxBtn.find('span').eq(1).on('click', function () {
+            options.firstMbox = false;
+            mboxBg.remove()
+        });
+    }
 
 };
 module.exports = Mbox;
@@ -4920,7 +4938,10 @@ var ajax = function (options) {
         customer_order_action: '/h5_app/interface_supervisit/customer_order_action',//更新客户状态，再次来访，下意向金，下定，签约，付款
         search_customer: '/h5_app/interface_supervisit/search_customer', //搜索查询
         get_customer_dynamic_state: '/h5_app/interface_supervisit/get_customer_dynamic_state', //成交助手
-        update_task_time: '/h5_app/interface_supervisit/update_task_time' //更新用户时间线
+        check_customer_mobile: '/h5_app/interface_supervisit/check_customer_mobile', //查看这个人是否填写过真正的手机号
+        update_task_time: '/h5_app/interface_supervisit/update_task_time', //更新用户时间线
+        update_customer_notes: '/h5_app/interface_supervisit/update_customer_notes', //更新用户备注信息
+        get_customer_dynamic_status: '/h5_app/interface_supervisit/get_customer_dynamic_status' //用户时间线
     };
     // 'http://Laifangdan.searchchinahouse.com'
     options.$.ajax({
@@ -4939,6 +4960,7 @@ var ajax = function (options) {
         },
         error: function (msg) {
             if(typeof msg === 'string') msg = JSON.parse(msg);
+            msg = msg || '未知错误';
             options.error && options.error(msg)
         }
 
@@ -4952,29 +4974,25 @@ module.exports = ajax;
  * Created by JackieWu on 16/1/2.
  */
 var ua = navigator.userAgent;
-var dateChange = function ($, container,cb) {
+var dateChange = function ($, container, cb) {
     var setStarInterVal;
     var time = '';
-    if(ua.indexOf('Android') > -1 && ua.toLowerCase().match(/MicroMessenger/i) == "micromessenger"){
-        container.off('click').on('click', function () {
+    if (ua.indexOf('Android') > -1 && ua.toLowerCase().match(/MicroMessenger/i) == "micromessenger") {
+        container.on('click', function () {
             var _this = $(this);
             setStarInterVal = setInterval(function () {
-                if(time.toString() !== container.val().toString()){
-                    if(time.toString() ===  container.val().toString() && time !== ''){
-                        time = container.val();
-                        cb && cb(time,_this);
-                        clearInterval(setStarInterVal);
-                    }
+                if (_this.val() !== time) {
+                    time = _this.val();
+                    cb && cb(time, _this);
+                    setStarInterVal && clearInterval(setStarInterVal);
                 }
-            },1);
+            }, 1);
         });
-    }else{
-        container.off('blur').on('blur', function () {
+    } else {
+        container.on('blur', function () {
             var _this = $(this);
-            time = container.val();
-            cb && cb(time,_this);
+            cb && cb(container.val(), _this);
         })
-
     }
 };
 module.exports = dateChange;
@@ -5353,5 +5371,5 @@ exports.compile = function(template){
 },{}],9:[function(require,module,exports){
 module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtnTrue === undefined ? \'hide\' : \'\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
 },{}],10:[function(require,module,exports){
-module.exports='<?js it.data.forEach(function(item,i){ ?><div class="year-box"><div class="time-year-left"><div class="time-year"></div></div><div class="time-year-right"><div class="time-year-icon"></div><div class="year-cont">@{item.year}</div></div></div><?js item.detail.forEach(function(detail,k){ ?><div class="date-box"><div class="time-date-left"><span class="day">@{detail.day}</span><span>/</span><span>@{detail.month}</span></div><div class="time-date-right"><div class="time-background"></div><div class="time-date-icon"><div class="time-d-i"></div></div><div class="time-date-cont">@{detail.order_type_action}</div></div></div><?js }); ?><?js }); ?>';
+module.exports='<div class="time-name"><span>姓名:</span><span>@{it.name}</span><a href="fill-in.html?user_id=@{it.user_id}&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}&amp;customer_id=@{it.customer_id}&amp;order_type=@{it.order_type}&amp;customer_order_id=@{it.customer_order_id}}" class="btn-icon"></a></div><?js it.data.forEach(function(item,i){ ?><div class="year-box"><div class="time-year-left"><div class="time-year"></div></div><div class="time-year-right"><div class="time-year-icon"></div><div class="year-cont">@{item.year}</div></div></div><?js item.detail.forEach(function(detail,k){ ?><div class="date-box"><div class="time-date-left"><span class="day">@{detail.day}</span><span>/</span><span>@{detail.month}</span></div><div class="time-date-right"><div class="time-background"></div><div class="time-date-icon"><div class="time-d-i"></div></div><div class="time-date-cont">@{detail.order_type_action}</div></div></div><?js }); ?><?js }); ?>';
 },{}]},{},[3])

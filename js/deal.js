@@ -9,6 +9,11 @@ var Mbox = require('./lib/Mbox');
 var tpl = require('./lib/tpl');
 var dealSearchList = require('./tpl/deal-search-list.html');
 var setTime;
+var customer_order_id = [];
+var customer_id = [];
+var customer_name = [];
+var order_type = [];
+var customer_mobile = [];
 
 var url = new Url();
 var tplRender = tpl.render;
@@ -34,44 +39,57 @@ var levelAjax = function (level, page) {
         success: function (msg) {
             //loading
             query.$loading.addClass('hide');
-            index += 1;
-            if(msg.data.customer_info_list.length > 0){
+            if (msg.data.customer_info_list.length > 0) {
                 query.$dealBox.append(tplRender(dealSearchList, {
                     msg: msg.data.customer_info_list,
                     user_id: url.parameter('user_id'),
                     house_name: url.parameter('house_name'),
-                    house_id: url.parameter('house_id')
+                    house_id: url.parameter('house_id'),
+                    index: index
                 }));
-                var mobile = $('.J_mobile');
                 msg.data.customer_info_list.forEach(function (item, i) {
-                    if (item.real_mobile == '' || item.real_mobile == null || item.real_mobile == 0) {
-                        mobile.eq(i).find('a').off('click').on('click', function () {
-                            new Mbox($, {
-                                tips: '补全信息后才可使用',
-                                leftBtn: '去补全',
-                                rightBtnTrue: true,
-                                callback: function () {
-                                    location.href = 'fill-in.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_id=' + item.customer_id
-                                }
-                            });
-                        });
-                    } else {
-                        mobile.eq(i).find('a').eq(0).attr('href', 'tel:' + item.real_mobile);
-                        mobile.eq(i).find('a').eq(1).attr('href', 'sms:' + item.real_mobile)
-                    }
-                    if (item.order_type != 1 && item.order_type != 7) {
-                        $('.J_font-cont').attr('href', './search.html?user_id=' + url.parameter('user_id') + '&house_name=' + url.parameter('house_name') + '&house_id=' + url.parameter('house_id') + '&deal=' + item.customer_name + '&order_type=' + item.order_type)
+                    //保存id
+                    customer_order_id.push(item.customer_order_id);
+                    customer_id.push(item.customer_id);
+                    customer_name.push(item.customer_name);
+                    order_type.push(item.order_type);
+                    customer_mobile.push(item.customer_mobile);
+                });
+                $('.J_font-cont').on('click', function () {
+                    if(order_type[$(this).parents('.J_deal-box').index()] != 1 && order_type[$(this).parents('.J_deal-box').index()] != 7){
+                        location.href = './search.html?user_id=' + url.parameter('user_id') + '&house_name=' + url.parameter('house_name') + '&house_id=' + url.parameter('house_id') + '&deal=' + customer_name[$(this).parents('.J_deal-box').index()] + '&order_type=' + order_type[$(this).parents('.J_deal-box').index()]
                     }
                 });
-                dateChange($, $('.J_date-time-input'), function (time,_this) {
+                $('.J_mobile').find('a').on('click', function () {
+                    var $this = $(this);
+                    if (customer_mobile[$this.parents('.J_deal-box').index()] != '' && customer_mobile[$this.parents('.J_deal-box').index()] != 0 && customer_mobile[$this.parents('.J_deal-box').index()] != null && !~customer_mobile[$this.parents('.J_deal-box').index()].indexOf('*')) {
+                        if ($this.hasClass('J_search-tel')) {
+                            location.href = 'tel:' + customer_mobile[$this.parents('.J_deal-box').index()]
+                        } else {
+                            location.href = 'sms:' + customer_mobile[$this.parents('.J_deal-box').index()]
+                        }
+                    } else {
+                        new Mbox($, {
+                            tips: '补全信息后才可使用',
+                            leftBtn: '去补全',
+                            rightBtnTrue: true,
+                            callback: function () {
+                                location.href = 'fill-in.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_id=' + customer_id[$this.parents('.J_deal-box').index()]
+                            }
+                        });
+                    }
+                });
+
+                dateChange($, $('.J_date-time-input'), function (time, _this) {
                     ajax({
                         $: $,
-                        url: 'update_task_time',
+                        url: 'update_order_type',
                         data: {
-                            customer_order_id: msg.data.customer_info_list[_this.parents('.J_deal-box').attr('data-value')].customer_order_id,
+                            customer_order_id: customer_order_id[_this.parents('.J_deal-box').index()],
                             task_time: time
                         },
                         success: function (msg) {
+                            _this.parents('.J_deal-box').find('.J_diff_days').html(msg.diff_days);
                             new Mbox($, {
                                 tips: msg.msg
                             });
@@ -84,6 +102,7 @@ var levelAjax = function (level, page) {
                     });
                 })
             }
+            index += 1;
         },
         error: function (msg) {
             new Mbox($, {
@@ -94,11 +113,11 @@ var levelAjax = function (level, page) {
 };
 levelAjax(url.parameter('deal_index'), index);
 $(window).on('scroll', function () {
-    if($(window).scrollTop() + $(window).height() > $('body').height() - 5 && query.$loading.hasClass('hide')){
-        setTime = setTimeout(function(){
+    if ($(window).scrollTop() + $(window).height() > $('body').height() - 5 && query.$loading.hasClass('hide')) {
+        setTime = setTimeout(function () {
             levelAjax(url.parameter('deal_index'), index);
             setTime && clearTimeout(setTime);
-        },2000);
+        }, 2000);
         query.$loading.removeClass('hide')
     }
 });

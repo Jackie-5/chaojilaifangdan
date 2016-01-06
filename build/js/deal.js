@@ -1599,6 +1599,11 @@ var Mbox = require('./lib/Mbox');
 var tpl = require('./lib/tpl');
 var dealSearchList = require('./tpl/deal-search-list.html');
 var setTime;
+var customer_order_id = [];
+var customer_id = [];
+var customer_name = [];
+var order_type = [];
+var customer_mobile = [];
 
 var url = new Url();
 var tplRender = tpl.render;
@@ -1624,44 +1629,57 @@ var levelAjax = function (level, page) {
         success: function (msg) {
             //loading
             query.$loading.addClass('hide');
-            index += 1;
-            if(msg.data.customer_info_list.length > 0){
+            if (msg.data.customer_info_list.length > 0) {
                 query.$dealBox.append(tplRender(dealSearchList, {
                     msg: msg.data.customer_info_list,
                     user_id: url.parameter('user_id'),
                     house_name: url.parameter('house_name'),
-                    house_id: url.parameter('house_id')
+                    house_id: url.parameter('house_id'),
+                    index: index
                 }));
-                var mobile = $('.J_mobile');
                 msg.data.customer_info_list.forEach(function (item, i) {
-                    if (item.real_mobile == '' || item.real_mobile == null || item.real_mobile == 0) {
-                        mobile.eq(i).find('a').off('click').on('click', function () {
-                            new Mbox($, {
-                                tips: '补全信息后才可使用',
-                                leftBtn: '去补全',
-                                rightBtnTrue: true,
-                                callback: function () {
-                                    location.href = 'fill-in.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_id=' + item.customer_id
-                                }
-                            });
-                        });
-                    } else {
-                        mobile.eq(i).find('a').eq(0).attr('href', 'tel:' + item.real_mobile);
-                        mobile.eq(i).find('a').eq(1).attr('href', 'sms:' + item.real_mobile)
-                    }
-                    if (item.order_type != 1 && item.order_type != 7) {
-                        $('.J_font-cont').attr('href', './search.html?user_id=' + url.parameter('user_id') + '&house_name=' + url.parameter('house_name') + '&house_id=' + url.parameter('house_id') + '&deal=' + item.customer_name + '&order_type=' + item.order_type)
+                    //保存id
+                    customer_order_id.push(item.customer_order_id);
+                    customer_id.push(item.customer_id);
+                    customer_name.push(item.customer_name);
+                    order_type.push(item.order_type);
+                    customer_mobile.push(item.customer_mobile);
+                });
+                $('.J_font-cont').on('click', function () {
+                    if(order_type[$(this).parents('.J_deal-box').index()] != 1 && order_type[$(this).parents('.J_deal-box').index()] != 7){
+                        location.href = './search.html?user_id=' + url.parameter('user_id') + '&house_name=' + url.parameter('house_name') + '&house_id=' + url.parameter('house_id') + '&deal=' + customer_name[$(this).parents('.J_deal-box').index()] + '&order_type=' + order_type[$(this).parents('.J_deal-box').index()]
                     }
                 });
-                dateChange($, $('.J_date-time-input'), function (time,_this) {
+                $('.J_mobile').find('a').on('click', function () {
+                    var $this = $(this);
+                    if (customer_mobile[$this.parents('.J_deal-box').index()] != '' && customer_mobile[$this.parents('.J_deal-box').index()] != 0 && customer_mobile[$this.parents('.J_deal-box').index()] != null && !~customer_mobile[$this.parents('.J_deal-box').index()].indexOf('*')) {
+                        if ($this.hasClass('J_search-tel')) {
+                            location.href = 'tel:' + customer_mobile[$this.parents('.J_deal-box').index()]
+                        } else {
+                            location.href = 'sms:' + customer_mobile[$this.parents('.J_deal-box').index()]
+                        }
+                    } else {
+                        new Mbox($, {
+                            tips: '补全信息后才可使用',
+                            leftBtn: '去补全',
+                            rightBtnTrue: true,
+                            callback: function () {
+                                location.href = 'fill-in.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_id=' + customer_id[$this.parents('.J_deal-box').index()]
+                            }
+                        });
+                    }
+                });
+
+                dateChange($, $('.J_date-time-input'), function (time, _this) {
                     ajax({
                         $: $,
-                        url: 'update_task_time',
+                        url: 'update_order_type',
                         data: {
-                            customer_order_id: msg.data.customer_info_list[_this.parents('.J_deal-box').attr('data-value')].customer_order_id,
+                            customer_order_id: customer_order_id[_this.parents('.J_deal-box').index()],
                             task_time: time
                         },
                         success: function (msg) {
+                            _this.parents('.J_deal-box').find('.J_diff_days').html(msg.diff_days);
                             new Mbox($, {
                                 tips: msg.msg
                             });
@@ -1674,6 +1692,7 @@ var levelAjax = function (level, page) {
                     });
                 })
             }
+            index += 1;
         },
         error: function (msg) {
             new Mbox($, {
@@ -1684,11 +1703,11 @@ var levelAjax = function (level, page) {
 };
 levelAjax(url.parameter('deal_index'), index);
 $(window).on('scroll', function () {
-    if($(window).scrollTop() + $(window).height() > $('body').height() - 5 && query.$loading.hasClass('hide')){
-        setTime = setTimeout(function(){
+    if ($(window).scrollTop() + $(window).height() > $('body').height() - 5 && query.$loading.hasClass('hide')) {
+        setTime = setTimeout(function () {
             levelAjax(url.parameter('deal_index'), index);
             setTime && clearTimeout(setTime);
-        },2000);
+        }, 2000);
         query.$loading.removeClass('hide')
     }
 });
@@ -1701,24 +1720,29 @@ $(window).on('scroll', function () {
 var tpl = require('./tpl');
 var mboxHtml = require('../tpl/mbox.html.js');
 var Mbox = function ($, options) {
-    $('body').append(tpl.render(mboxHtml, {
-        tips: options.tips,
-        leftBtn: options.leftBtn,
-        rightBtn: options.rightBtn,
-        rightBtnTrue: options.rightBtnTrue
-    }));
-    var mboxBg = $('.J_mbox-bg');
-    var mbox = $('.J_mbox');
-    var boxBtn = $('.J_m-box-btn');
-    mboxBg.removeClass('hide');
-    mbox.css('top', ($(window).height() - mbox.height()) / 2);
-    boxBtn.find('span').eq(0).on('click', function () {
-        options.callback && options.callback();
-        mboxBg.addClass('hide').remove()
-    });
-    boxBtn.find('span').eq(1).on('click', function () {
-        mboxBg.addClass('hide').remove()
-    });
+    if(!options.firstMbox){
+        options.firstMbox = true;
+        $('body').append(tpl.render(mboxHtml, {
+            tips: options.tips,
+            leftBtn: options.leftBtn,
+            rightBtn: options.rightBtn,
+            rightBtnTrue: options.rightBtnTrue
+        }));
+        var mboxBg = $('.J_mbox-bg');
+        var mbox = $('.J_mbox');
+        var boxBtn = $('.J_m-box-btn');
+        mboxBg.removeClass('hide');
+        mbox.css('top', ($(window).height() - mbox.height()) / 2);
+        boxBtn.find('span').eq(0).on('click', function () {
+            options.callback && options.callback();
+            options.firstMbox = false;
+            mboxBg.remove()
+        });
+        boxBtn.find('span').eq(1).on('click', function () {
+            options.firstMbox = false;
+            mboxBg.remove()
+        });
+    }
 
 };
 module.exports = Mbox;
@@ -1752,7 +1776,10 @@ var ajax = function (options) {
         customer_order_action: '/h5_app/interface_supervisit/customer_order_action',//更新客户状态，再次来访，下意向金，下定，签约，付款
         search_customer: '/h5_app/interface_supervisit/search_customer', //搜索查询
         get_customer_dynamic_state: '/h5_app/interface_supervisit/get_customer_dynamic_state', //成交助手
-        update_task_time: '/h5_app/interface_supervisit/update_task_time' //更新用户时间线
+        check_customer_mobile: '/h5_app/interface_supervisit/check_customer_mobile', //查看这个人是否填写过真正的手机号
+        update_task_time: '/h5_app/interface_supervisit/update_task_time', //更新用户时间线
+        update_customer_notes: '/h5_app/interface_supervisit/update_customer_notes', //更新用户备注信息
+        get_customer_dynamic_status: '/h5_app/interface_supervisit/get_customer_dynamic_status' //用户时间线
     };
     // 'http://Laifangdan.searchchinahouse.com'
     options.$.ajax({
@@ -1771,6 +1798,7 @@ var ajax = function (options) {
         },
         error: function (msg) {
             if(typeof msg === 'string') msg = JSON.parse(msg);
+            msg = msg || '未知错误';
             options.error && options.error(msg)
         }
 
@@ -1784,29 +1812,25 @@ module.exports = ajax;
  * Created by JackieWu on 16/1/2.
  */
 var ua = navigator.userAgent;
-var dateChange = function ($, container,cb) {
+var dateChange = function ($, container, cb) {
     var setStarInterVal;
     var time = '';
-    if(ua.indexOf('Android') > -1 && ua.toLowerCase().match(/MicroMessenger/i) == "micromessenger"){
-        container.off('click').on('click', function () {
+    if (ua.indexOf('Android') > -1 && ua.toLowerCase().match(/MicroMessenger/i) == "micromessenger") {
+        container.on('click', function () {
             var _this = $(this);
             setStarInterVal = setInterval(function () {
-                if(time.toString() !== container.val().toString()){
-                    if(time.toString() ===  container.val().toString() && time !== ''){
-                        time = container.val();
-                        cb && cb(time,_this);
-                        clearInterval(setStarInterVal);
-                    }
+                if (_this.val() !== time) {
+                    time = _this.val();
+                    cb && cb(time, _this);
+                    setStarInterVal && clearInterval(setStarInterVal);
                 }
-            },1);
+            }, 1);
         });
-    }else{
-        container.off('blur').on('blur', function () {
+    } else {
+        container.on('blur', function () {
             var _this = $(this);
-            time = container.val();
-            cb && cb(time,_this);
+            cb && cb(container.val(), _this);
         })
-
     }
 };
 module.exports = dateChange;
@@ -2183,7 +2207,7 @@ exports.compile = function(template){
 };
 
 },{}],8:[function(require,module,exports){
-module.exports='<?js it.msg.forEach(function(item,i){ ?><?js var order_type = \'付意向金\'; var href=\'\'; ?><?js if(item.order_type == 1){order_type= \'邀约来访\';}else if(item.order_type == 2){order_type= \'再次来访\';}else if(item.order_type == 3){order_type= \'付意向金\';}else if(item.order_type == 4){order_type= \'付定金\';}else if(item.order_type == 5){order_type= \'签约\';}else if(item.order_type == 6){order_type= \'待付款\';}else if(item.order_type == 7){order_type= \'确认付款\';} ?><div data-value="@{i}" class="deal-box J_deal-box"><div class="search-result-list"><div class="search-list"><i class="s-icon-1"></i><div class="s-title">客户姓名</div><div class="s-cont">@{item.customer_name}</div></div><div class="search-list"><i class="s-icon-2"></i><div class="s-title">当前级别</div><div class="s-cont"><div class="border"><i></i>@{item.customer_level}级客户</div></div></div><div class="search-list"><i class="s-icon-3"></i><div class="s-title">最新接触</div><div class="s-cont">@{item.lasttime}</div></div><div class="search-list"><i class="s-icon-4"></i><div class="s-title">快速联系</div><div class="s-cont J_mobile"><a href="javascript:;" class="s-icon-5"></a><a href="javascript:;" class="s-icon-6"></a></div></div></div><div class="deal-state"><div class="search-list"><i class="s-i-icon-5"></i><div class="s-title">下一步行动</div><a class="s-cont font-color J_font-cont">@{order_type}</a></div><div class="search-list"><i class="s-i-icon-6"></i><div class="s-title">计划时间</div><div class="s-cont"><span>@{item.diff_days}天</span></div><label class="time-icon"><input type="date" id="date-time" class="J_date-time-input"/></label></div></div></div><?js }); ?>';
+module.exports='<?js it.msg.forEach(function(item,i){ ?><?js var order_type = \'付意向金\'; ?><?js if(item.order_type == 1){order_type= \'邀约来访\';}else if(item.order_type == 2){order_type= \'再次来访\';}else if(item.order_type == 3){order_type= \'付意向金\';}else if(item.order_type == 4){order_type= \'付定金\';}else if(item.order_type == 5){order_type= \'签约\';}else if(item.order_type == 6){order_type= \'待付款\';}else if(item.order_type == 7){order_type= \'确认付款\';} ?><div class="deal-box J_deal-box"><div class="search-result-list"><div class="search-list"><i class="s-icon-1"></i><div class="s-title">客户姓名</div><div class="s-cont">@{item.customer_name}</div></div><div class="search-list"><i class="s-icon-2"></i><div class="s-title">当前级别</div><div class="s-cont">@{item.customer_level}级客户<!--.border--><!--    i--><!--    | @{item.customer_level}级客户--></div></div><div class="search-list"><i class="s-icon-3"></i><div class="s-title">最新接触</div><div class="s-cont">@{item.lasttime}</div></div><div class="search-list"><i class="s-icon-4"></i><div class="s-title">快速联系</div><div class="s-cont J_mobile"><a href="javascript:;" class="s-icon-5 J_search-tel"></a><a href="javascript:;" class="s-icon-6 J_search-sms"></a></div></div></div><div class="deal-state"><div class="search-list"><i class="s-i-icon-5"></i><div class="s-title">下一步行动</div><a class="s-cont font-color J_font-cont">@{order_type}</a></div><div class="search-list"><i class="s-i-icon-6"></i><div class="s-title">计划时间</div><div class="s-cont"><span class="J_diff_days">@{item.diff_days}</span><span>天</span></div><label class="time-icon"><input type="date" id="date-time" class="J_date-time-input"/></label></div></div></div><?js }); ?>';
 },{}],9:[function(require,module,exports){
 module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtnTrue === undefined ? \'hide\' : \'\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
 },{}]},{},[2])

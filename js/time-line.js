@@ -22,7 +22,14 @@ ajax({
     },
     success: function (msg) {
         $('.J_time-line-box').html(tplRender(timeLineTpl, {
-            data: msg.data.data_result
+            data: msg.data.data_result,
+            name: msg.data.customer_name,
+            customer_id: url.parameter('customer_id'),
+            user_id: url.parameter('user_id'),
+            house_id: url.parameter('house_id'),
+            house_name: url.parameter('house_name'),
+            order_type: url.parameter('order_type'),
+            customer_order_id: url.parameter('customer_order_id')
         }));
 
         $('.J_time').html(url.parameter('diff_days'));
@@ -43,17 +50,22 @@ ajax({
         } else if (url.parameter('order_type') == 7) {
             orderType.html('确认付款');
         }
-        dateChange($,$('#time-date'), function (time) {
+        var timeDate = $('#time-date');
+        timeDate.val(moment().add(3, 'd').format('YYYY-MM-DD'));
+        dateChange($,timeDate, function (time) {
             ajax({
                 $: $,
-                url: 'update_order_type',
+                url: 'update_task_time',
                 data: {
                     customer_order_id: url.parameter('customer_order_id'),
                     task_time: time
                 },
                 success: function (msg) {
                     new Mbox($, {
-                        tips: msg.msg
+                        tips: msg.msg,
+                        callback: function () {
+                            window.location.reload()
+                        }
                     });
                 },
                 error: function (msg) {
@@ -72,3 +84,4 @@ ajax({
     }
 
 });
+
