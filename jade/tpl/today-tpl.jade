@@ -4,7 +4,7 @@
     | <?js it.data.forEach(function(item,k){ ?>
     .box
         | <?js item.list.forEach(function(listItem, i){ ?>
-        | <?js var order_type = '',next_order_type = ''; ?>
+        | <?js var order_type = '',next_order_type = '',day=''; ?>
         | <?js var href = 'javascript:;'; ?>
         | <?js if(listItem.order_type == 1){ ?>
         | <?js     order_type= '邀约来访'; ?>
@@ -33,6 +33,13 @@
         | <?js } else { ?>
         | <?js href = 'javascript:;'; ?>
         | <?js } ?>
+        | <?js if(!!~listItem.diff_days.toString().indexOf('-')){ ?>
+        | <?js     day = '过期'+listItem.diff_days.toString().split('-')[1]+'天' ?>
+        | <?js  }else if(listItem.diff_days === 0){ ?>
+        | <?js     day = '今日' ?>
+        | <?js  }else { ?>
+        | <?js     day = '还剩'+listItem.diff_days+'天' ?>
+        | <?js  } ?>
         .wait-list.J_wait-list
             .list-box
                 .list-left
@@ -70,9 +77,9 @@
             .list-box
                 .list-left
                     i.list-icon-06
-                    span 计划时间
+                    span 倒计时
                 .list-right.J_customer-date-input
-                    span @{listItem.diff_days}天
+                    span @{day}
                     label(for="input-@{k}-@{i}")
                         input(type="date", id="input-@{k}-@{i}")
                         i.right-icon-3

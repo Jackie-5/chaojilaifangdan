@@ -115,10 +115,35 @@ var intention = function (data) {
         houseFloor: $('.J_inten-floor'),
         houseRoom: $('.J_inten-room'),
         drop: $('.J_drop'),
-        planTime: $('#btn-time')
+        planTime: $('#btn-time'),
+        diffDays: $('.J_diff-days')
     };
 
     q.planTime.val(moment().add(3, 'd').format('YYYY-MM-DD'));
+
+    dateChange($,q.planTime, function (time) {
+        ajax({
+            $: $,
+            url: 'update_task_time',
+            data: {
+                customer_order_id: data.customer_order_id,
+                task_time: time
+            },
+            success: function (msg) {
+                q.diffDays.html(msg.diff_days);
+                new Mbox($, {
+                    tips: msg.msg
+                });
+            },
+            error: function (msg) {
+                new Mbox($, {
+                    tips: msg.msg
+                });
+            }
+
+        });
+    });
+
 
     $('.J_cancel').on('click', function () {
         customer({

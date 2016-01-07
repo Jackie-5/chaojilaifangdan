@@ -7,10 +7,17 @@ var Url = require('./lib/get-url');
 var Mbox = require('./lib/Mbox');
 var url = new Url();
 
+var textarea = $('.J_text-textarea');
 if(url.parameter('notes') !== '点击添加备注'){
-    $('.J_text-textarea').html(url.parameter('notes'));
+    textarea.html(url.parameter('notes'));
 }
-$('.J_btn').on('click', function () {
+$('.J_btn').on('touchend', function () {
+    if(textarea.val().length > 60){
+        new Mbox($, {
+            tips: '备注不能超过60字'
+        });
+        return
+    }
     ajax({
         $: $,
         url: 'update_customer_notes',

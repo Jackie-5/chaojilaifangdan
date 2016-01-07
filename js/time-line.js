@@ -21,6 +21,7 @@ ajax({
         house_id: url.parameter('house_id')
     },
     success: function (msg) {
+        var diff_days = '';
         $('.J_time-line-box').html(tplRender(timeLineTpl, {
             data: msg.data.data_result,
             name: msg.data.customer_name,
@@ -31,8 +32,14 @@ ajax({
             order_type: url.parameter('order_type'),
             customer_order_id: url.parameter('customer_order_id')
         }));
-
-        $('.J_time').html(url.parameter('diff_days'));
+        if (!!~url.parameter('diff_days').indexOf('-')) {
+            diff_days = '过期' + url.parameter('diff_days').split('-')[1] + '天'
+        } else if (url.parameter('diff_days') == 0) {
+            diff_days = '今天'
+        } else {
+            diff_days = '还剩' + url.parameter('diff_days') + '天'
+        }
+        $('.J_time').html(diff_days);
 
         var orderType = $('.J_order-type');
         if (url.parameter('order_type') == 1) {
@@ -52,7 +59,7 @@ ajax({
         }
         var timeDate = $('#time-date');
         timeDate.val(moment().add(3, 'd').format('YYYY-MM-DD'));
-        dateChange($,timeDate, function (time) {
+        dateChange($, timeDate, function (time) {
             ajax({
                 $: $,
                 url: 'update_task_time',

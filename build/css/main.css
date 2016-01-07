@@ -57,6 +57,10 @@ textarea[readonly],
 input[readonly] {
   -webkit-tap-highlight-color: transparent;
 }
+input[disabled],
+input:disabled {
+  color: #333;
+}
 textarea,
 input {
   resize: none;
@@ -819,6 +823,7 @@ input[type=number]::-webkit-outer-spin-button {
   position: absolute;
   left: 0;
   top: 0;
+  opacity: 0;
 }
 .index-box .wait .box .wait-list .list-box .list-right label i,
 .index-box .wait .box .wait-list .list-box .list-right a i {
@@ -1356,16 +1361,12 @@ input[type=number]::-webkit-outer-spin-button {
   left: 0;
   overflow-y: auto;
   background: #fff;
-  border-top: 1px solid #cdcdcd;
-  border-left: 1px solid #cdcdcd;
-  border-right: 1px solid #cdcdcd;
   z-index: 999;
 }
 .search-content-box .deal-box .deal-list .pay .p-cont .drop span {
   display: block;
   height: 30px;
   text-indent: 1rem;
-  border-bottom: 1px solid #cdcdcd;
   line-height: 30px;
 }
 .search-content-box .deal-box .deal-list .pay .p-cont .p-money,
@@ -1634,7 +1635,8 @@ input[type=number]::-webkit-outer-spin-button {
   float: left;
   margin-right: 4px;
 }
-.search-content-box .search-intention .intention-list .inten-input input {
+.search-content-box .search-intention .intention-list .inten-input input,
+.search-content-box .search-intention .intention-list .inten-input .project {
   width: 80%;
   height: 45px;
   line-height: 45px;
@@ -1697,9 +1699,6 @@ input[type=number]::-webkit-outer-spin-button {
   height: 80px;
   overflow-y: auto;
   background: #fff;
-  border-top: 1px solid #cdcdcd;
-  border-left: 1px solid #cdcdcd;
-  border-right: 1px solid #cdcdcd;
   z-index: 999;
 }
 .search-content-box .search-intention .intention-list .inten-cont .drop span {
@@ -1910,11 +1909,12 @@ input[type=number]::-webkit-outer-spin-button {
   margin-left: 10px;
   color: #666;
   float: left;
+  width: 65px;
 }
 .deal-content .deal-box .search-result-list .search-list .s-cont,
 .deal-content .deal-box .deal-state .search-list .s-cont {
   color: #999;
-  margin-left: 20px;
+  margin-left: 10px;
   float: left;
 }
 .deal-content .deal-box .search-result-list .search-list .s-cont .border,
@@ -2373,11 +2373,12 @@ input[type=number]::-webkit-outer-spin-button {
 .text-textarea {
   margin: 0 auto;
   width: 90%;
-  height: 100px;
+  height: 150px;
   border: 1px solid #ccc;
   border-radius: 5px;
   margin-top: 20px;
   margin-bottom: 20px;
+  position: relative;
 }
 .text-textarea textarea {
   padding: 3% 3%;
@@ -2386,7 +2387,14 @@ input[type=number]::-webkit-outer-spin-button {
   border-radius: 5px;
   font-size: 0.8rem;
   width: 94%;
-  height: 80%;
+  height: 75%;
+}
+.text-textarea .tips {
+  position: absolute;
+  font-size: 0.8rem;
+  color: #999;
+  bottom: 5px;
+  right: 5px;
 }
 .ontes-btn {
   background: #25a9ff;

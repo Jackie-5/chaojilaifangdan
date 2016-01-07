@@ -89,7 +89,15 @@ var levelAjax = function (level, page) {
                             task_time: time
                         },
                         success: function (msg) {
-                            _this.parents('.J_deal-box').find('.J_diff_days').html(msg.diff_days);
+                            var diff_days = '' ;
+                            if (!!~msg.diff_days.toString().indexOf('-')) {
+                                diff_days = '过期' + msg.diff_days.toString().split('-')[1] + '天'
+                            } else if (msg.diff_days.toString() == 0) {
+                                diff_days = '今天'
+                            } else {
+                                diff_days = '还剩' + msg.diff_days.toString() + '天'
+                            }
+                            _this.parents('.J_deal-box').find('.J_diff_days').html(diff_days);
                             new Mbox($, {
                                 tips: msg.msg
                             });
