@@ -1969,9 +1969,9 @@ function compress(img) {
     }
     //进行最小压缩
     var ndata = canvas.toDataURL('image/jpeg', 0.1);
-    alert('压缩前：' + initSize);
-    alert('压缩后：' + ndata.length);
-    alert('压缩率：' + ~~(100 * (initSize - ndata.length) / initSize) + "%");
+    //alert('压缩前：' + initSize);
+    //alert('压缩后：' + ndata.length);
+    //alert('压缩率：' + ~~(100 * (initSize - ndata.length) / initSize) + "%");
     tCanvas.width = tCanvas.height = canvas.width = canvas.height = 0;
     return ndata;
 }
