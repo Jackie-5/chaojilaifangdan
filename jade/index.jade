@@ -14,7 +14,7 @@ html
                             .time 今天
                             .day.J_index-day
                             .time-icon
-                        .time-calendar
+                        .time-calendar.J_today-click
                             .calendar-box.J_calendar
 
                             .calendar-tips.J_calendar-tips
@@ -23,6 +23,7 @@ html
                     .my-photo
                         .photo-box
                             label(for="photo").is-photo
+                                .load.J_photo-load.hide 上传中...
                                 input(type="file" id="photo")
                                 .camera
                                 img.J_photo(src='./images/login-photo.jpg')
@@ -30,20 +31,20 @@ html
                 .title.bg-01.J_index-title-01
                     .top.bg-01
                     i.left-icon-01
-                    .right-title 新增来电来访
+                    .right-title 新增来访
                 .new-content.J_link-box
 
                 .title.bg-02.J_search
                     .top.bg-02
                     i.left-icon-02
-                    .right-title 查询客户
+                    .right-title 客户查询
                 .title.bg-03.J_deal
                     .top.bg-03
                     i.left-icon-03
                     .right-title 成交助手
-                .title.bg-04
+                .title.bg-04.J_purchasing
                     .top.bg-04
                     i.left-icon-04
-                    .right-title 今日待办
+                    .right-title 限购查询
                 .J_wait-box
             script(src="./js/index.js")

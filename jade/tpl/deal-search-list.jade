@@ -1,8 +1,15 @@
 //-Created by JackieWu on 12/25/15.
 | <?js it.msg.forEach(function(item,i){ ?>
-| <?js var order_type = '付意向金'; var href=''; ?>
+| <?js var order_type = '付意向金',day =''; ?>
 | <?js if(item.order_type == 1){order_type= '邀约来访';}else if(item.order_type == 2){order_type= '再次来访';}else if(item.order_type == 3){order_type= '付意向金';}else if(item.order_type == 4){order_type= '付定金';}else if(item.order_type == 5){order_type= '签约';}else if(item.order_type == 6){order_type= '待付款';}else if(item.order_type == 7){order_type= '确认付款';} ?>
-.deal-box.J_deal-box(data-value="@{i}")
+| <?js if(!!~item.diff_days.toString().indexOf('-')){ ?>
+| <?js     day = '过期'+item.diff_days.toString().split('-')[1]+'天' ?>
+| <?js  }else if(item.diff_days === 0){ ?>
+| <?js     day = '今日' ?>
+| <?js  }else { ?>
+| <?js     day = '还剩'+item.diff_days+'天' ?>
+| <?js  } ?>
+.deal-box.J_deal-box
     .search-result-list
         .search-list
             i.s-icon-1
@@ -11,10 +18,10 @@
         .search-list
             i.s-icon-2
             .s-title 当前级别
-            .s-cont
-                .border
-                    i
-                    | @{item.customer_level}级客户
+            .s-cont @{item.customer_level}级客户
+                //.border
+                //    i
+                //    | @{item.customer_level}级客户
         .search-list
             i.s-icon-3
             .s-title 最新接触
@@ -23,8 +30,8 @@
             i.s-icon-4
             .s-title 快速联系
             .s-cont.J_mobile
-                a(href="javascript:;").s-icon-5
-                a(href="javascript:;").s-icon-6
+                a(href="javascript:;").s-icon-5.J_search-tel
+                a(href="javascript:;").s-icon-6.J_search-sms
     .deal-state
         .search-list
             i.s-i-icon-5
@@ -32,9 +39,9 @@
             a.s-cont.font-color.J_font-cont @{order_type}
         .search-list
             i.s-i-icon-6
-            .s-title 计划时间
+            .s-title 倒计时
             .s-cont
-                span @{item.diff_days}天
+                span.J_diff_days @{day}
             label.time-icon
-                input.J_date-time-input(type="date",id="date-time")
+                input.J_date-time-input(type="date")
 | <?js }); ?>

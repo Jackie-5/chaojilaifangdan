@@ -1,43 +1,56 @@
 //-Created by JackieWu on 12/23/15.
 //-定金
-| <?js var value = '付意向金'; ?>
-| <?js if(it.data.order_type == 1){value = '首次来访';}else if(it.data.order_type == 2){value='再次来访';}else if(it.data.order_type == 3){value='付意向金';}else if(it.data.order_type == 4){value='付定金';}else if(it.data.order_type == 5){value='签约';}else if(it.data.order_type == 6){value='待付款';}else if(it.data.order_type == 7){value='确认付款';} ?>
+| <?js var value = '',day='',area= '',house_room = '',house_floor ='',house_number=''; ?>
+//这里order_type 的value 是+1的
+| <?js if(it.data.order_type == 1){value = '再次来访';}else if(it.data.order_type == 2){value='付意向金';}else if(it.data.order_type == 3){value='付定金';}else if(it.data.order_type == 4){value='签约';}else if(it.data.order_type == 5){value='待付款';}else if(it.data.order_type == 6){value='确认付款';}else if(it.data.order_type == 7){value='完成';} ?>
+| <?js if(!!~it.data.diff_days.toString().indexOf('-')){ ?>
+| <?js     day = '过期'+it.data.diff_days.toString().split('-')[1]+'天' ?>
+| <?js  }else if(it.data.diff_days === 0){ ?>
+| <?js     day = '今日' ?>
+| <?js  }else { ?>
+| <?js     day = '还剩'+it.data.diff_days+'天' ?>
+| <?js  } ?>
+
+| <?js if(it.data.house_area != 0){area = it.data.house_area} ?>
+| <?js if(it.data.house_number != 0){house_number = it.data.house_area} ?>
+| <?js if(it.data.house_floor != 0){house_floor = it.data.house_area} ?>
+| <?js if(it.data.house_room != 0){house_room = it.data.house_area} ?>
 .search-intention
     .intention-list
         .inten-name
             i.s-i-icon-1
             span 项目名称
         .inten-input
-            input.J_inten-project(type='text',value="@{it.house_name}",disabled)
+            .project.J_inten-project @{it.house_name}
     .intention-list
         .inten-name
             i.s-i-icon-7
             span 购房房号
         .inten-input.house-number
-            input.J_inten-number.input-center(type='text',value="@{it.data.house_number}")
+            input.J_inten-number.input-center(type='text',value="@{house_number}")
             .separated 栋
-            input.J_inten-floor.input-center(type='text',value="@{it.data.house_floor}")
+            input.J_inten-floor.input-center(type='text',value="@{house_floor}")
             .separated 层
-            input.J_inten-room.input-center(type='text',value="@{it.data.house_room}")
+            input.J_inten-room.input-center(type='text',value="@{house_room}")
             .separated 号
     .intention-list
         .inten-name
             i.s-i-icon-2
             span 建筑面积
         .inten-input
-            input.J_inten-area(type='text', placeholder='请输入',value="@{it.data.house_area}")
+            input.J_inten-area(type='text',value="@{area}")
     .intention-list
         .inten-name
             i.s-i-icon-3
             span 客户姓名
         .inten-input
-            input.J_inten-name(type='text', placeholder='请输入',value="@{it.data.real_name}")
+            input.J_inten-name(type='text',value="@{it.data.customer_name}")
     .intention-list
         .inten-name
             i.s-i-icon-4
             span 联系电话
         .inten-input
-            input.J_inten-phone(type='tel', placeholder='请输入',value="@{it.data.real_mobile}")
+            input.J_inten-phone(type='tel',value="@{it.data.customer_mobile}")
     .intention-list
         .inten-name
             i.s-i-icon-5
@@ -56,10 +69,10 @@
     .intention-list
         .inten-name
             i.s-i-icon-6
-            span 计划时间
+            span 倒计时
         .time-box
             .time
-                span @{it.data.diff_days}天
+                span.J_diff-days @{day}
             label.btn-icon
                 input#btn-time(type="date")
 .search-inten-btn

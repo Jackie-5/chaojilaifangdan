@@ -1,5 +1,6 @@
 //-Created by JackieWu on 12/22/15.
 | <?js if(it.length > 0){ ?>
+| <?js var day=''; ?>
 .wait
     | <?js it.forEach(function(item,k){ ?>
     .box
@@ -7,6 +8,13 @@
             .title-bg
                 span @{item.order_type_name}
         | <?js item.list.forEach(function(listItem, i){ ?>
+        | <?js if(!!~listItem.diff_days.toString().indexOf('-')){ ?>
+        | <?js     day = '过期'+listItem.diff_days.toString().split('-')[1]+'天' ?>
+        | <?js  }else if(listItem.diff_days === 0){ ?>
+        | <?js     day = '今日' ?>
+        | <?js  }else { ?>
+        | <?js     day = '还剩'+listItem.diff_days+'天' ?>
+        | <?js  } ?>
         .wait-list.J_wait-list
             .list-box
                 .list-left
@@ -41,9 +49,9 @@
             .list-box
                 .list-left
                     i.list-icon-05
-                    span 计划时间
+                    span 倒计时
                 .list-right.J_customer-date-input
-                    span @{listItem.diff_days}天
+                    span @{day}
                     label(for="input-@{k}-@{i}")
                         input(type="date", id="input-@{k}-@{i}")
                         i.right-icon-3

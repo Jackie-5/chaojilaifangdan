@@ -1,27 +1,37 @@
 //-Created by JackieWu on 12/23/15. 搜索结果
 //-搜索结果
 | <?js it.msg.forEach(function(item,i){ ?>
-.search-result-list.J_search-list
-    .s-list-icon
-    .search-list
-        i.s-icon-1
-        .s-title 客户姓名
-        .s-cont @{item.customer_name}
-    .search-list
-        i.s-icon-2
-        .s-title 当前级别
-        .s-cont
-            .border
-                i
-                | @{item.customer_level}级客户
-    .search-list
-        i.s-icon-3
-        .s-title 最新接触
-        .s-cont @{item.lasttime}
+.search-result-list.J_search-result-list
+    .J_search-list
+        .s-list-icon
+        .search-list
+            i.s-icon-1
+            .s-title 客户姓名
+            .s-cont @{item.customer_name}
+        .search-list
+            i.s-icon-2
+            .s-title 当前级别
+            .s-cont @{item.customer_level}级客户
+        .search-list
+            i.s-icon-3
+            .s-title 最新接触
+            .s-cont @{item.lasttime}
     .search-list
         i.s-icon-4
         .s-title 快速联系
-        .s-cont
-            a(href="sms:@{item.real_mobile}").s-icon-5
-            a(href="tel:@{item.real_mobile}").s-icon-6
+        .s-cont.J_customer-mobile
+            a(href="javascript:;").s-icon-5.J_search-tel
+            a(href="javascript:;").s-icon-6
+    | <?js if(it.order_type == 20){ ?>
+    .search-list
+        i.s-icon-7
+        .s-title 动态追踪
+        .s-dynamic
+            a(href="./tracking.html?user_id=@{it.user_id}&house_id=@{it.house_id}&house_name=@{it.house_name}&customer_id=@{item.customer_id}") 点击查看详情
+    | <?js } ?>
+    .search-list
+        i.s-icon-8
+        .s-title 客户备注
+        .s-dynamic
+            a(href="./notes.html?user_id=@{it.user_id}&house_id=@{it.house_id}&house_name=@{it.house_name}&notes=@{item.notes}&customer_id=@{item.customer_id}") @{item.notes}
 | <?js }); ?>

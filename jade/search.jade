@@ -3,7 +3,7 @@ doctype html
 html
     head
         include ./common/head
-        title 超级来访单 注册
+        title
         body(style="background:#ececec")
             .search-body
                 .search-box
@@ -17,7 +17,10 @@ html
                             .search-date-btn.J_search-date-btn 手机名字都忘了-试试来访日期搜索吧
                     //查询后放到里面的内容
                     .search-content-box.J_search-content-box
-
+                    .loading-box.hide.J_loading
+                        .cont
+                            .loader
+                            .loading 正在加载...
                     .search-date.J_search-date-box.hide
                         .s-date-btn.J_date-btn 查询
                         .s-date-box.J_select-date

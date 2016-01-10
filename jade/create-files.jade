@@ -4,7 +4,7 @@ html
     head
         include ./common/head
         title 超级来访单首页
-        body
+        body(style="background:#ececec")
             .create-files-box
                 .files-title
                     | 当前客户为
@@ -20,7 +20,7 @@ html
                     .input
                         i.create-files-icon-3
                         .tel-box
-                            input.J_create-tel-1(type="tel",placeholder="前四位", maxlength="4")
+                            input.J_create-tel-1.cont-right(type="tel",placeholder="前四位", maxlength="4")
                             span ****
                             input.J_create-tel-2(type="tel",placeholder="后四位",maxlength="4")
                     .tips 注:清分别输入手机号的前四位和后四位

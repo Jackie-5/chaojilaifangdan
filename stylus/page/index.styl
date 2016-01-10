@@ -113,6 +113,19 @@
                     top 30px
                     left 50%
                     margin-left -40px
+                    .load
+                        width 100%
+                        height 100%
+                        background rgba(0,0,0,.8)
+                        position absolute
+                        top 0
+                        left 0
+                        z-index 88
+                        line-height 80px
+                        text-align center
+                        color #fff
+                        border-radius 100%
+                        font-size 1rem
                     input
                         position absolute
                         top 0
@@ -129,6 +142,7 @@
                         border-radius 100%
                         border 1px solid #fff
                         background url(../i/index-icon-camera.png) 2px 1px no-repeat rgba(255,255,255,.5)
+                        z-index 99
                     img
                         width 100%
                         height 100%
@@ -194,17 +208,17 @@
             background url(../i/index-icon-04.png)
             background-size 100%
     .bg-01
-        background #4f60b2
+        background #b153cb
     .bg-02
-        background #ff8f1d
+        background #3473d8
     .bg-03
-        background #ba5fd0
+        background #76c020
     .bg-04
-        background #7bc920
+        background #ff901d
 
     .new-content
-        background #c9dce9
-        border 1px solid #4f60b2
+        background #4d5f70
+        border 1px solid #4d5f70
         border-radius 5px
         height 110px
         margin-top -10px
@@ -236,7 +250,6 @@
             a
                 height 30px
                 line-height 30px
-
     .wait
         border 1px solid #7bc920
         background #d2eab7
@@ -279,7 +292,7 @@
                     font-size .8rem
                     .list-left
                         background #e5cfa9
-                        width 30%
+                        width 35%
                         float left
                         i
                             width 20px
@@ -289,7 +302,7 @@
                             margin-top 9px
                             margin-left 7px
                         span
-                            margin-left 2px
+                            margin-left 5px
                             float left
                         .list-icon-01
                             background url(../i/index-list-icon-1.png)
@@ -312,7 +325,7 @@
                     .list-right
                         margin-left 3%
                         float left
-                        width 65%
+                        width 60%
                         overflow hidden
                         text-overflow ellipsis
                         white-space normal
@@ -340,6 +353,7 @@
                                 position absolute
                                 left 0
                                 top 0
+                                opacity 0
                             i
                                 display block
                                 width 22px
@@ -354,3 +368,21 @@
                             .right-icon-2
                                 background url(../i/index-right-icon-2.png)
                                 background-size 100%
+                        .link-a
+                            width auto
+                            color #fff
+                            height auto
+                            border 0
+                            margin-left 0
+                            margin-top 0
+                            padding-top 0
+                            line-height 38px
+    .today-box
+        border 0
+        margin-top 0
+        padding 0
+        border-radius 0
+        background transparent
+.box-today
+    overflow hidden
+    margin-top 0
