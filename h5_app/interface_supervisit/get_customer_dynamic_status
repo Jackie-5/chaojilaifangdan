@@ -1,0 +1,35 @@
+{
+  "result": 1,
+  "msg": "获取成功",
+  "customer_name": "卢长彤",
+  "data": [
+    {
+      "year": "2015",
+      "results": [
+        {
+          "house_id": "1634",
+          "rtime": "1449148744",
+          "order_type": "首次来访",
+          "house_name": "华丽家族汇景天地",
+          "month": "01",
+          "day": "01",
+          "log_note": "首次来访华丽家族汇景天地"
+        }
+      ]
+    },
+    {
+      "year": "2016",
+      "results": [
+        {
+          "house_id": "1634",
+          "rtime": "1452154635",
+          "order_type": "签约",
+          "house_name": "华丽家族汇景天地",
+          "month": "01",
+          "day": "01",
+          "log_note": "签约华丽家族汇景天地"
+        }
+      ]
+    }
+  ]
+}

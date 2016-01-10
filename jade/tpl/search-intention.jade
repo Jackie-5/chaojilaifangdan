@@ -3,7 +3,7 @@
 | <?js var order_type = '',next_order_type = '',area = '',day=''; ?>
 | <?js var href = 'javascript:;'; ?>
 | <?js if(it.data.order_type == 1){ ?>
-| <?js     order_type= '邀约来访'; ?>
+| <?js     order_type= '首次来访'; ?>
 | <?js     next_order_type= '再次来访'; ?>
 | <?js  }else if(it.data.order_type == 2){ ?>
 | <?js     order_type= '再次来访'; ?>
@@ -22,18 +22,10 @@
 | <?js     next_order_type= '确认付款'; ?>
 | <?js  }else if(it.data.order_type == 7){ ?>
 | <?js      order_type= '确认付款'; ?>
-| <?js     next_order_type= '完成'; ?>
+| <?js     next_order_type= '待交房'; ?>
 | <?js  } ?>
 
 | <?js if(it.data.house_area != 0){area = it.data.house_area} ?>
-
-| <?js if(!!~it.data.diff_days.toString().indexOf('-')){ ?>
-| <?js     day = '过期'+it.data.diff_days.toString().split('-')[1]+'天' ?>
-| <?js  }else if(it.data.diff_days === 0){ ?>
-| <?js     day = '今日' ?>
-| <?js  }else { ?>
-| <?js     day = '还剩'+it.data.diff_days+'天' ?>
-| <?js  } ?>
 
 .search-intention
     .intention-list
@@ -81,7 +73,7 @@
             span 倒计时
         .time-box
             .time
-                span.J_diff-days @{day}
+                span.J_diff-days @{it.data.diff_days}
             label.btn-icon
                 input#btn-time(type="date")
 

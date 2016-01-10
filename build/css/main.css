@@ -1437,7 +1437,6 @@ input[type=number]::-webkit-outer-spin-button {
   margin-top: 10px;
 }
 .search-content-box .search-result-list {
-  width: 100%;
   border-top: 1px solid #e0e0e0;
   border-bottom: 1px solid #e0e0e0;
   padding: 9px 0;

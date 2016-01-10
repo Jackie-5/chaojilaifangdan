@@ -9,7 +9,6 @@ var answerHtml = require('./tpl/answer-tpl.html');
 var Url = require('./lib/get-url');
 var url = new Url();
 var tplRender = tpl.render;
-var BACK = -1;
 var query = {
     $answerBox: $('.J_answer-box'),
     $answerBtn: $('.J_answer-btn')
@@ -59,7 +58,7 @@ var submit = function (date) {
                 new Mbox($, {
                     tips: msg.msg,
                     callback: function () {
-                        history.back(BACK)
+                        location.href = document.referrer
                     }
                 });
             },

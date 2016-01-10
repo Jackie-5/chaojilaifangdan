@@ -10,7 +10,7 @@
     .time-year-right
         .time-year-icon
         .year-cont @{item.year}
-| <?js item.detail.forEach(function(detail,k){ ?>
+| <?js item.results.forEach(function(detail,k){ ?>
 .date-box
     .time-date-left
         span.day @{detail.day}
@@ -20,6 +20,6 @@
         .time-background
         .time-date-icon
             .time-d-i
-        .time-date-cont @{detail.order_type_action}
+        .time-date-cont @{detail.log_note}
 | <?js }); ?>
 | <?js }); ?>

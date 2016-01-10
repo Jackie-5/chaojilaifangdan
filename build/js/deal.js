@@ -1679,15 +1679,7 @@ var levelAjax = function (level, page) {
                             task_time: time
                         },
                         success: function (msg) {
-                            var diff_days = '' ;
-                            if (!!~msg.diff_days.toString().indexOf('-')) {
-                                diff_days = '过期' + msg.diff_days.toString().split('-')[1] + '天'
-                            } else if (msg.diff_days.toString() == 0) {
-                                diff_days = '今天'
-                            } else {
-                                diff_days = '还剩' + msg.diff_days.toString() + '天'
-                            }
-                            _this.parents('.J_deal-box').find('.J_diff_days').html(diff_days);
+                            _this.parents('.J_deal-box').find('.J_diff_days').html(msg.diff_days);
                             new Mbox($, {
                                 tips: msg.msg
                             });
@@ -1787,7 +1779,8 @@ var ajax = function (options) {
         check_customer_mobile: '/h5_app/interface_supervisit/check_customer_mobile', //查看这个人是否填写过真正的手机号
         update_task_time: '/h5_app/interface_supervisit/update_task_time', //更新用户时间线
         update_customer_notes: '/h5_app/interface_supervisit/update_customer_notes', //更新用户备注信息
-        get_customer_dynamic_status: '/h5_app/interface_supervisit/get_customer_dynamic_status' //用户时间线
+        customer_log_list: '/h5_app/interface_supervisit/customer_log_list', //用户时间线
+        get_customer_dynamic_status: '/h5_app/interface_supervisit/get_customer_dynamic_status' //动态追踪
     };
     // 'http://Laifangdan.searchchinahouse.com'
     options.$.ajax({
@@ -2215,7 +2208,7 @@ exports.compile = function(template){
 };
 
 },{}],8:[function(require,module,exports){
-module.exports='<?js it.msg.forEach(function(item,i){ ?><?js var order_type = \'付意向金\',day =\'\'; ?><?js if(item.order_type == 1){order_type= \'邀约来访\';}else if(item.order_type == 2){order_type= \'再次来访\';}else if(item.order_type == 3){order_type= \'付意向金\';}else if(item.order_type == 4){order_type= \'付定金\';}else if(item.order_type == 5){order_type= \'签约\';}else if(item.order_type == 6){order_type= \'待付款\';}else if(item.order_type == 7){order_type= \'确认付款\';} ?><?js if(!!~item.diff_days.toString().indexOf(\'-\')){ ?><?js     day = \'过期\'+item.diff_days.toString().split(\'-\')[1]+\'天\' ?><?js  }else if(item.diff_days === 0){ ?><?js     day = \'今日\' ?><?js  }else { ?><?js     day = \'还剩\'+item.diff_days+\'天\' ?><?js  } ?><div class="deal-box J_deal-box"><div class="search-result-list"><div class="search-list"><i class="s-icon-1"></i><div class="s-title">客户姓名</div><div class="s-cont">@{item.customer_name}</div></div><div class="search-list"><i class="s-icon-2"></i><div class="s-title">当前级别</div><div class="s-cont">@{item.customer_level}级客户<!--.border--><!--    i--><!--    | @{item.customer_level}级客户--></div></div><div class="search-list"><i class="s-icon-3"></i><div class="s-title">最新接触</div><div class="s-cont">@{item.lasttime}</div></div><div class="search-list"><i class="s-icon-4"></i><div class="s-title">快速联系</div><div class="s-cont J_mobile"><a href="javascript:;" class="s-icon-5 J_search-tel"></a><a href="javascript:;" class="s-icon-6 J_search-sms"></a></div></div></div><div class="deal-state"><div class="search-list"><i class="s-i-icon-5"></i><div class="s-title">下一步行动</div><a class="s-cont font-color J_font-cont">@{order_type}</a></div><div class="search-list"><i class="s-i-icon-6"></i><div class="s-title">倒计时</div><div class="s-cont"><span class="J_diff_days">@{day}</span></div><label class="time-icon"><input type="date" class="J_date-time-input"/></label></div></div></div><?js }); ?>';
+module.exports='<?js it.msg.forEach(function(item,i){ ?><?js var order_type = \'付意向金\',day =\'\'; ?><?js if(item.order_type == 1){order_type= \'首次来访\';}else if(item.order_type == 2){order_type= \'再次来访\';}else if(item.order_type == 3){order_type= \'付意向金\';}else if(item.order_type == 4){order_type= \'付定金\';}else if(item.order_type == 5){order_type= \'签约\';}else if(item.order_type == 6){order_type= \'待付款\';}else if(item.order_type == 7){order_type= \'确认付款\';} ?><div class="deal-box J_deal-box"><div class="search-result-list"><div class="search-list"><i class="s-icon-1"></i><div class="s-title">客户姓名</div><div class="s-cont">@{item.customer_name}</div></div><div class="search-list"><i class="s-icon-2"></i><div class="s-title">当前级别</div><div class="s-cont">@{item.customer_level}级客户<!--.border--><!--    i--><!--    | @{item.customer_level}级客户--></div></div><div class="search-list"><i class="s-icon-3"></i><div class="s-title">最新接触</div><div class="s-cont">@{item.lasttime}</div></div><div class="search-list"><i class="s-icon-4"></i><div class="s-title">快速联系</div><div class="s-cont J_mobile"><a href="javascript:;" class="s-icon-5 J_search-tel"></a><a href="javascript:;" class="s-icon-6 J_search-sms"></a></div></div></div><div class="deal-state"><div class="search-list"><i class="s-i-icon-5"></i><div class="s-title">下一步行动</div><a class="s-cont font-color J_font-cont">@{order_type}</a></div><div class="search-list"><i class="s-i-icon-6"></i><div class="s-title">倒计时</div><div class="s-cont"><span class="J_diff_days">@{item.diff_days}</span></div><label class="time-icon"><input type="date" class="J_date-time-input"/></label></div></div></div><?js }); ?>';
 },{}],9:[function(require,module,exports){
 module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtnTrue === undefined ? \'hide\' : \'\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
 },{}]},{},[2])

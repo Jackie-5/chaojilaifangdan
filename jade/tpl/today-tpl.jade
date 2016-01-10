@@ -7,7 +7,7 @@
         | <?js var order_type = '',next_order_type = '',day=''; ?>
         | <?js var href = 'javascript:;'; ?>
         | <?js if(listItem.order_type == 1){ ?>
-        | <?js     order_type= '邀约来访'; ?>
+        | <?js     order_type= '首次来访'; ?>
         | <?js     next_order_type= '再次来访'; ?>
         | <?js  }else if(listItem.order_type == 2){ ?>
         | <?js     order_type= '再次来访'; ?>
@@ -26,20 +26,13 @@
         | <?js     next_order_type= '确认付款'; ?>
         | <?js  }else if(listItem.order_type == 7){ ?>
         | <?js      order_type= '确认付款'; ?>
-        | <?js     next_order_type= '完成'; ?>
+        | <?js     next_order_type= '待交房'; ?>
         | <?js  } ?>
         | <?js if((JSON.parse(listItem.order_type) + 1) != 1 && (listItem.order_type < 8)){ ?>
         | <?js     href= './search.html?user_id='+ it.user_id +'&house_name='+ it.house_name +'&house_id='+ it.house_id +'&deal='+ listItem.customer_name +'&order_type='+ (JSON.parse(listItem.order_type) + 1) +''; ?>
         | <?js } else { ?>
         | <?js href = 'javascript:;'; ?>
         | <?js } ?>
-        | <?js if(!!~listItem.diff_days.toString().indexOf('-')){ ?>
-        | <?js     day = '过期'+listItem.diff_days.toString().split('-')[1]+'天' ?>
-        | <?js  }else if(listItem.diff_days === 0){ ?>
-        | <?js     day = '今日' ?>
-        | <?js  }else { ?>
-        | <?js     day = '还剩'+listItem.diff_days+'天' ?>
-        | <?js  } ?>
         .wait-list.J_wait-list
             .list-box
                 .list-left
@@ -79,7 +72,7 @@
                     i.list-icon-06
                     span 倒计时
                 .list-right.J_customer-date-input
-                    span @{day}
+                    span @{listItem.diff_days}
                     label(for="input-@{k}-@{i}")
                         input(type="date", id="input-@{k}-@{i}")
                         i.right-icon-3

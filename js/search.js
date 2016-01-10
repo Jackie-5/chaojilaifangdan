@@ -38,7 +38,8 @@ var customer_id = [];
 var customer_name = [];
 var customer_mobile = [];
 
-var setStarInterVal, setEndInterVal;
+var WIN = $(window);
+
 //初始化moment
 moment.locale('en', {
     relativeTime: {
@@ -49,7 +50,7 @@ moment.locale('en', {
     }
 });
 var order_type = url.parameter('order_type'); //2再次来访 3付意向金 4付定金 5签约 6待付款 7确认付款 20为客户查询
-var orderTitle = '再次来访';
+var orderTitle = '首次来访';
 if (order_type == 2) {
     orderTitle = '再次来访'
 } else if (order_type == 3) {
@@ -183,6 +184,7 @@ var intention = function (data) {
         data.real_name = q.name.val();
         data.real_mobile = q.tel.val();
         data.customer_mobile = q.tel.val();
+        data.customer_name = q.name.val();
         data.house_number = q.houseNumber.val();
         data.house_floor = q.houseFloor.val();
         data.house_room = q.houseRoom.val();
@@ -374,6 +376,9 @@ var searchResult = function (time) {
                 });
 
                 $('.J_search-list').on('click', function () {
+                    WIN.off('scroll');
+                    setTime && clearTimeout(setTime);
+                    query.$loading.addClass('hide');
                     if (order_type == 2) {//2再次来访
                         again(msg.data.customer_info_list[$(this).index()])
                     } else if (order_type == 3 || order_type == 4) {//3付意向金 4付定金
@@ -412,6 +417,8 @@ dateChange($, query.$idEndTime, function (time) {
 });
 
 query.$dateBtnSearch.on('click', function () {
+    windowScroll();
+    searchResult(1);
     query.$searchDateBox.addClass('hide');
     query.$starTime.find('span').html('选择起始日期');
     query.$endTime.find('span').html('选择截止日期');
@@ -423,10 +430,11 @@ query.$dateBtnSearch.on('click', function () {
     customer_name = [];
     customer_mobile = [];
     query.$contentBox.html('');
-    searchResult(1);
 });
 
 query.$searchBtn.on('click', function () {
+    windowScroll();
+    searchResult();
     query.$searchDateBox.addClass('hide');
     query.$starTime.find('span').html('选择起始日期');
     query.$endTime.find('span').html('选择截止日期');
@@ -438,7 +446,6 @@ query.$searchBtn.on('click', function () {
     customer_name = [];
     customer_mobile = [];
     query.$contentBox.html('');
-    searchResult();
 });
 
 if (order_type == 20) {
@@ -457,13 +464,17 @@ if (url.parameter('deal')) {
     query.$searchInput.val(url.parameter('deal'));
     searchResult()
 }
-$(window).on('scroll', function () {
-    if ($(window).scrollTop() + $(window).height() > $('body').height() - 5 && query.$loading.hasClass('hide')) {
-        setTime = setTimeout(function () {
-            pageIndex += 1;
-            searchResult();
-            setTime && clearTimeout(setTime);
-        }, 2000);
-        query.$loading.removeClass('hide')
-    }
-});
+
+var windowScroll = function () {
+    WIN.on('scroll', function () {
+        if ($(window).scrollTop() + $(window).height() > $('body').height() - 5 && query.$loading.hasClass('hide')) {
+            setTime = setTimeout(function () {
+                pageIndex += 1;
+                searchResult();
+                setTime && clearTimeout(setTime);
+            }, 2000);
+            query.$loading.removeClass('hide')
+        }
+    });
+};
+windowScroll();

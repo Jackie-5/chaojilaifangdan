@@ -4926,7 +4926,8 @@ var ajax = function (options) {
         check_customer_mobile: '/h5_app/interface_supervisit/check_customer_mobile', //查看这个人是否填写过真正的手机号
         update_task_time: '/h5_app/interface_supervisit/update_task_time', //更新用户时间线
         update_customer_notes: '/h5_app/interface_supervisit/update_customer_notes', //更新用户备注信息
-        get_customer_dynamic_status: '/h5_app/interface_supervisit/get_customer_dynamic_status' //用户时间线
+        customer_log_list: '/h5_app/interface_supervisit/customer_log_list', //用户时间线
+        get_customer_dynamic_status: '/h5_app/interface_supervisit/get_customer_dynamic_status' //动态追踪
     };
     // 'http://Laifangdan.searchchinahouse.com'
     options.$.ajax({

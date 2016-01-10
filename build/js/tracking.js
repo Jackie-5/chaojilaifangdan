@@ -4896,7 +4896,8 @@ var ajax = function (options) {
         check_customer_mobile: '/h5_app/interface_supervisit/check_customer_mobile', //查看这个人是否填写过真正的手机号
         update_task_time: '/h5_app/interface_supervisit/update_task_time', //更新用户时间线
         update_customer_notes: '/h5_app/interface_supervisit/update_customer_notes', //更新用户备注信息
-        get_customer_dynamic_status: '/h5_app/interface_supervisit/get_customer_dynamic_status' //用户时间线
+        customer_log_list: '/h5_app/interface_supervisit/customer_log_list', //用户时间线
+        get_customer_dynamic_status: '/h5_app/interface_supervisit/get_customer_dynamic_status' //动态追踪
     };
     // 'http://Laifangdan.searchchinahouse.com'
     options.$.ajax({
@@ -5326,5 +5327,5 @@ exports.compile = function(template){
 },{}],9:[function(require,module,exports){
 module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtnTrue === undefined ? \'hide\' : \'\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
 },{}],10:[function(require,module,exports){
-module.exports='<div class="time-name"><span>姓名:</span><span class="over">@{it.name}</span></div><?js it.data.forEach(function(item,i){ ?><div class="year-box"><div class="time-year-left"><div class="time-year"></div></div><div class="time-year-right"><div class="time-year-icon"></div><div class="year-cont">@{item.year}</div></div></div><?js item.results.forEach(function(detail,k){ ?><div class="date-box"><div class="time-date-left"><span class="day">@{detail.day}</span><span>/</span><span>@{detail.month}</span></div><div class="time-date-right"><div class="time-background"></div><div class="time-date-icon"><div class="time-d-i"></div></div><div class="time-date-cont">@{detail.house_name}</div></div></div><?js }); ?><?js }); ?>';
+module.exports='<div class="time-name"><span>姓名:</span><span class="over">@{it.name}</span></div><?js it.data.forEach(function(item,i){ ?><div class="year-box"><div class="time-year-left"><div class="time-year"></div></div><div class="time-year-right"><div class="time-year-icon"></div><div class="year-cont">@{item.year}</div></div></div><?js item.results.forEach(function(detail,k){ ?><div class="date-box"><div class="time-date-left"><span class="day">@{detail.day}</span><span>/</span><span>@{detail.month}</span></div><div class="time-date-right"><div class="time-background"></div><div class="time-date-icon"><div class="time-d-i"></div></div><div class="time-date-cont">@{detail.log_note}</div></div></div><?js }); ?><?js }); ?>';
 },{}]},{},[3])

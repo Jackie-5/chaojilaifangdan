@@ -1,14 +1,7 @@
 //-Created by JackieWu on 12/25/15.
 | <?js it.msg.forEach(function(item,i){ ?>
 | <?js var order_type = '付意向金',day =''; ?>
-| <?js if(item.order_type == 1){order_type= '邀约来访';}else if(item.order_type == 2){order_type= '再次来访';}else if(item.order_type == 3){order_type= '付意向金';}else if(item.order_type == 4){order_type= '付定金';}else if(item.order_type == 5){order_type= '签约';}else if(item.order_type == 6){order_type= '待付款';}else if(item.order_type == 7){order_type= '确认付款';} ?>
-| <?js if(!!~item.diff_days.toString().indexOf('-')){ ?>
-| <?js     day = '过期'+item.diff_days.toString().split('-')[1]+'天' ?>
-| <?js  }else if(item.diff_days === 0){ ?>
-| <?js     day = '今日' ?>
-| <?js  }else { ?>
-| <?js     day = '还剩'+item.diff_days+'天' ?>
-| <?js  } ?>
+| <?js if(item.order_type == 1){order_type= '首次来访';}else if(item.order_type == 2){order_type= '再次来访';}else if(item.order_type == 3){order_type= '付意向金';}else if(item.order_type == 4){order_type= '付定金';}else if(item.order_type == 5){order_type= '签约';}else if(item.order_type == 6){order_type= '待付款';}else if(item.order_type == 7){order_type= '确认付款';} ?>
 .deal-box.J_deal-box
     .search-result-list
         .search-list
@@ -41,7 +34,7 @@
             i.s-i-icon-6
             .s-title 倒计时
             .s-cont
-                span.J_diff_days @{day}
+                span.J_diff_days @{item.diff_days}
             label.time-icon
                 input.J_date-time-input(type="date")
 | <?js }); ?>

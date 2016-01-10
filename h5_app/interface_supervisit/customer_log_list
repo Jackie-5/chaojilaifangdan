@@ -1,0 +1,65 @@
+{
+  "result": 1,
+  "msg": "更新成功",
+  "customer_name": "卢长彤",
+  "data": [
+    {
+      "year": "2015",
+      "results": [
+        {
+          "visit_count": "1",
+          "customer_level": "D",
+          "rtime": "1449148744",
+          "log_note": "第1次来访成为C+级客户",
+          "month": "12",
+          "day": "03"
+        }
+      ]
+    },
+    {
+      "year": "2016",
+      "results": [
+        {
+          "visit_count": "2",
+          "customer_level": "B+",
+          "rtime": "1452148467",
+          "log_note": "第2次来访成为B+级客户",
+          "month": "01",
+          "day": "07"
+        },
+        {
+          "visit_count": "3",
+          "customer_level": "B+",
+          "rtime": "1452149518",
+          "log_note": "第3次来访成为B+级客户",
+          "month": "01",
+          "day": "07"
+        },
+        {
+          "visit_count": "4",
+          "customer_level": "A",
+          "rtime": "1452150853",
+          "log_note": "第4次来访成为A级客户",
+          "month": "01",
+          "day": "07"
+        },
+        {
+          "visit_count": "5",
+          "customer_level": "A+",
+          "rtime": "1452154635",
+          "log_note": "第5次来访成为A级客户",
+          "month": "01",
+          "day": "07"
+        },
+        {
+          "visit_count": "6",
+          "customer_level": "A+",
+          "rtime": "1452155316",
+          "log_note": "第6次来访成为A+级客户",
+          "month": "01",
+          "day": "07"
+        }
+      ]
+    }
+  ]
+}

@@ -52,7 +52,7 @@ var update = function(data){
                 new Mbox($, {
                     tips: msg.msg,
                     callback: function () {
-                        history.back(-1)
+                        location.href = document.referrer
                     }
                 });
             },

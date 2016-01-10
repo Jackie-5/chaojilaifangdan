@@ -4804,16 +4804,15 @@ var tplRender = tpl.render;
 
 ajax({
     $: $,
-    url: 'get_customer_dynamic_state',
+    url: 'customer_log_list',
     data: {
         customer_id: url.parameter('customer_id'),
         house_id: url.parameter('house_id')
     },
     success: function (msg) {
-        var diff_days = '';
         $('.J_time-line-box').html(tplRender(timeLineTpl, {
-            data: msg.data.data_result,
-            name: msg.data.customer_name,
+            data: msg.data,
+            name: msg.customer_name,
             customer_id: url.parameter('customer_id'),
             user_id: url.parameter('user_id'),
             house_id: url.parameter('house_id'),
@@ -4821,18 +4820,11 @@ ajax({
             order_type: url.parameter('order_type'),
             customer_order_id: url.parameter('customer_order_id')
         }));
-        if (!!~url.parameter('diff_days').indexOf('-')) {
-            diff_days = '过期' + url.parameter('diff_days').split('-')[1] + '天'
-        } else if (url.parameter('diff_days') == 0) {
-            diff_days = '今天'
-        } else {
-            diff_days = '还剩' + url.parameter('diff_days') + '天'
-        }
-        $('.J_time').html(diff_days);
+        $('.J_time').html(url.parameter('diff_days'));
 
         var orderType = $('.J_order-type');
         if (url.parameter('order_type') == 1) {
-            orderType.html('邀约来访');
+            orderType.html('首次来访');
         } else if (url.parameter('order_type') == 2) {
             orderType.html('再次来访');
         } else if (url.parameter('order_type') == 3) {
@@ -4948,7 +4940,8 @@ var ajax = function (options) {
         check_customer_mobile: '/h5_app/interface_supervisit/check_customer_mobile', //查看这个人是否填写过真正的手机号
         update_task_time: '/h5_app/interface_supervisit/update_task_time', //更新用户时间线
         update_customer_notes: '/h5_app/interface_supervisit/update_customer_notes', //更新用户备注信息
-        get_customer_dynamic_status: '/h5_app/interface_supervisit/get_customer_dynamic_status' //用户时间线
+        customer_log_list: '/h5_app/interface_supervisit/customer_log_list', //用户时间线
+        get_customer_dynamic_status: '/h5_app/interface_supervisit/get_customer_dynamic_status' //动态追踪
     };
     // 'http://Laifangdan.searchchinahouse.com'
     options.$.ajax({
@@ -5378,5 +5371,5 @@ exports.compile = function(template){
 },{}],9:[function(require,module,exports){
 module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtnTrue === undefined ? \'hide\' : \'\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
 },{}],10:[function(require,module,exports){
-module.exports='<div class="time-name"><span>姓名:</span><span>@{it.name}</span><a href="fill-in.html?user_id=@{it.user_id}&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}&amp;customer_id=@{it.customer_id}&amp;order_type=@{it.order_type}&amp;customer_order_id=@{it.customer_order_id}}" class="btn-icon"></a></div><?js it.data.forEach(function(item,i){ ?><div class="year-box"><div class="time-year-left"><div class="time-year"></div></div><div class="time-year-right"><div class="time-year-icon"></div><div class="year-cont">@{item.year}</div></div></div><?js item.detail.forEach(function(detail,k){ ?><div class="date-box"><div class="time-date-left"><span class="day">@{detail.day}</span><span>/</span><span>@{detail.month}</span></div><div class="time-date-right"><div class="time-background"></div><div class="time-date-icon"><div class="time-d-i"></div></div><div class="time-date-cont">@{detail.order_type_action}</div></div></div><?js }); ?><?js }); ?>';
+module.exports='<div class="time-name"><span>姓名:</span><span>@{it.name}</span><a href="fill-in.html?user_id=@{it.user_id}&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}&amp;customer_id=@{it.customer_id}&amp;order_type=@{it.order_type}&amp;customer_order_id=@{it.customer_order_id}}" class="btn-icon"></a></div><?js it.data.forEach(function(item,i){ ?><div class="year-box"><div class="time-year-left"><div class="time-year"></div></div><div class="time-year-right"><div class="time-year-icon"></div><div class="year-cont">@{item.year}</div></div></div><?js item.results.forEach(function(detail,k){ ?><div class="date-box"><div class="time-date-left"><span class="day">@{detail.day}</span><span>/</span><span>@{detail.month}</span></div><div class="time-date-right"><div class="time-background"></div><div class="time-date-icon"><div class="time-d-i"></div></div><div class="time-date-cont">@{detail.log_note}</div></div></div><?js }); ?><?js }); ?>';
 },{}]},{},[3])

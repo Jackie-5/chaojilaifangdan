@@ -15,16 +15,15 @@ var tplRender = tpl.render;
 
 ajax({
     $: $,
-    url: 'get_customer_dynamic_state',
+    url: 'customer_log_list',
     data: {
         customer_id: url.parameter('customer_id'),
         house_id: url.parameter('house_id')
     },
     success: function (msg) {
-        var diff_days = '';
         $('.J_time-line-box').html(tplRender(timeLineTpl, {
-            data: msg.data.data_result,
-            name: msg.data.customer_name,
+            data: msg.data,
+            name: msg.customer_name,
             customer_id: url.parameter('customer_id'),
             user_id: url.parameter('user_id'),
             house_id: url.parameter('house_id'),
@@ -32,18 +31,11 @@ ajax({
             order_type: url.parameter('order_type'),
             customer_order_id: url.parameter('customer_order_id')
         }));
-        if (!!~url.parameter('diff_days').indexOf('-')) {
-            diff_days = '过期' + url.parameter('diff_days').split('-')[1] + '天'
-        } else if (url.parameter('diff_days') == 0) {
-            diff_days = '今天'
-        } else {
-            diff_days = '还剩' + url.parameter('diff_days') + '天'
-        }
-        $('.J_time').html(diff_days);
+        $('.J_time').html(url.parameter('diff_days'));
 
         var orderType = $('.J_order-type');
         if (url.parameter('order_type') == 1) {
-            orderType.html('邀约来访');
+            orderType.html('首次来访');
         } else if (url.parameter('order_type') == 2) {
             orderType.html('再次来访');
         } else if (url.parameter('order_type') == 3) {

@@ -2,15 +2,7 @@
 //-定金
 | <?js var value = '',day='',area= '',house_room = '',house_floor ='',house_number=''; ?>
 //这里order_type 的value 是+1的
-| <?js if(it.data.order_type == 1){value = '再次来访';}else if(it.data.order_type == 2){value='付意向金';}else if(it.data.order_type == 3){value='付定金';}else if(it.data.order_type == 4){value='签约';}else if(it.data.order_type == 5){value='待付款';}else if(it.data.order_type == 6){value='确认付款';}else if(it.data.order_type == 7){value='完成';} ?>
-| <?js if(!!~it.data.diff_days.toString().indexOf('-')){ ?>
-| <?js     day = '过期'+it.data.diff_days.toString().split('-')[1]+'天' ?>
-| <?js  }else if(it.data.diff_days === 0){ ?>
-| <?js     day = '今日' ?>
-| <?js  }else { ?>
-| <?js     day = '还剩'+it.data.diff_days+'天' ?>
-| <?js  } ?>
-
+| <?js if(it.data.order_type == 1){value = '再次来访';}else if(it.data.order_type == 2){value='付意向金';}else if(it.data.order_type == 3){value='付定金';}else if(it.data.order_type == 4){value='签约';}else if(it.data.order_type == 5){value='待付款';}else if(it.data.order_type == 6){value='确认付款';}else if(it.data.order_type == 7){value='待交房';} ?>
 | <?js if(it.data.house_area != 0){area = it.data.house_area} ?>
 | <?js if(it.data.house_number != 0){house_number = it.data.house_area} ?>
 | <?js if(it.data.house_floor != 0){house_floor = it.data.house_area} ?>
@@ -72,7 +64,7 @@
             span 倒计时
         .time-box
             .time
-                span.J_diff-days @{day}
+                span.J_diff-days @{it.data.diff_days}
             label.btn-icon
                 input#btn-time(type="date")
 .search-inten-btn

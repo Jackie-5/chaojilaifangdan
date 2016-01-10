@@ -30,7 +30,7 @@ $('.J_btn').on('touchend', function () {
             new Mbox($, {
                 tips: msg.msg,
                 callback: function () {
-                    history.back(-1)
+                    location.href = document.referrer
                 }
             });
         },
