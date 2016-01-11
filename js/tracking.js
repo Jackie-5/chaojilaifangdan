@@ -15,10 +15,11 @@ var tplRender = tpl.render;
 
 ajax({
     $: $,
-    url: 'get_customer_dynamic_status',
+    url: 'get_customer_dynamic_state',
     data: {
         customer_id: url.parameter('customer_id'),
-        house_id: url.parameter('house_id')
+        house_id: url.parameter('house_id'),
+        customer_mobile: url.parameter('customer_mobile')
     },
     success: function (msg) {
         $('.J_time-line-box').html(tplRender(trackingTpl, {
