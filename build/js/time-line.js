@@ -4823,24 +4823,24 @@ ajax({
         $('.J_time').html(url.parameter('diff_days'));
 
         var orderType = $('.J_order-type');
-        if (url.parameter('order_type') == 1) {
+        if (url.parameter('next_order_type') == 1) {
             orderType.html('首次来访');
-        } else if (url.parameter('order_type') == 2) {
+        } else if (url.parameter('next_order_type') == 2) {
             orderType.html('再次来访');
-        } else if (url.parameter('order_type') == 3) {
+        } else if (url.parameter('next_order_type') == 3) {
             orderType.html('付意向金');
-        } else if (url.parameter('order_type') == 4) {
+        } else if (url.parameter('next_order_type') == 4) {
             orderType.html('付定金');
-        } else if (url.parameter('order_type') == 5) {
+        } else if (url.parameter('next_order_type') == 5) {
             orderType.html('签约');
-        } else if (url.parameter('order_type') == 6) {
+        } else if (url.parameter('next_order_type') == 6) {
             orderType.html('待付款');
-        } else if (url.parameter('order_type') == 7) {
+        } else if (url.parameter('next_order_type') == 7) {
             orderType.html('确认付款');
         }
         var timeDate = $('#time-date');
         timeDate.val(moment().add(3, 'd').format('YYYY-MM-DD'));
-        dateChange($, timeDate, function (time) {
+        dateChange($, timeDate, function (time,_this) {
             ajax({
                 $: $,
                 url: 'update_task_time',
@@ -4849,6 +4849,7 @@ ajax({
                     task_time: time
                 },
                 success: function (msg) {
+                    _this.parents('.J_time-bottom').find('span').html(msg.diff_days);
                     new Mbox($, {
                         tips: msg.msg,
                         callback: function () {

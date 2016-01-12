@@ -4,27 +4,21 @@
 | <?js var href = 'javascript:;'; ?>
 | <?js if(it.data.order_type == 1){ ?>
 | <?js     order_type= '首次来访'; ?>
-| <?js     next_order_type= '再次来访'; ?>
 | <?js  }else if(it.data.order_type == 2){ ?>
 | <?js     order_type= '再次来访'; ?>
-| <?js     next_order_type= '付意向金'; ?>
 | <?js  }else if(it.data.order_type == 3){ ?>
 | <?js     order_type= '付意向金';?>
-| <?js     next_order_type= '付定金'; ?>
 | <?js  }else if(it.data.order_type == 4){ ?>
 | <?js      order_type= '付定金'; ?>
-| <?js     next_order_type= '签约'; ?>
 | <?js  }else if(it.data.order_type == 5){ ?>
 | <?js      order_type= '签约'; ?>
-| <?js     next_order_type= '待付款'; ?>
 | <?js  }else if(it.data.order_type == 6){ ?>
 | <?js      order_type= '待付款'; ?>
-| <?js     next_order_type= '确认付款'; ?>
 | <?js  }else if(it.data.order_type == 7){ ?>
 | <?js      order_type= '确认付款'; ?>
-| <?js     next_order_type= '待交房'; ?>
 | <?js  } ?>
 
+| <?js if(it.data.next_order_type == 1){next_order_type = '首次来访';}else if(it.data.next_order_type == 2){next_order_type='再次来访';}else if(it.data.next_order_type == 3){next_order_type='付意向金';}else if(it.data.next_order_type == 4){next_order_type='付定金';}else if(it.data.next_order_type == 5){next_order_type='签约';}else if(it.data.next_order_type == 6){next_order_type='待付款';}else if(it.data.next_order_type == 7){next_order_type='确认付款';} ?>
 | <?js if(it.data.house_area != 0){area = it.data.house_area} ?>
 
 .search-intention
@@ -59,7 +53,7 @@
         .inten-cont
             .border.J_drop
                 i
-                span(data-value="@{it.data.order_type}") @{next_order_type}
+                span(data-value="@{it.data.next_order_type}") @{next_order_type}
             .drop.J_drop-show.hide
                 span(data-value="2") 再次来访
                 span(data-value="3") 付意向金

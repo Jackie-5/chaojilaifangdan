@@ -7,6 +7,7 @@ var tpl = require('./lib/tpl');
 var ajax = require('./lib/ajax');
 var answerHtml = require('./tpl/answer-tpl.html');
 var Url = require('./lib/get-url');
+var cookie = require('./lib/cookie');
 var url = new Url();
 var tplRender = tpl.render;
 var query = {
@@ -70,30 +71,39 @@ var submit = function (date) {
         });
     }
 };
-ajax({
-    $: $,
-    url: 'get_question',
-    data: questionData,
-    success: function (msg) {
-        query.$answerBox.html(tplRender(answerHtml, msg.data));
-        msg.data.forEach(function (item) {
-            if (item.answer) {
-                $('.J_q-a').find('input').each(function () {
-                    if ($(this).val() == item.answer) {
-                        $(this).attr('checked', 'checked')
-                    }
-                });
-            }
-        });
+var getQustion = function () {
+    ajax({
+        $: $,
+        url: 'get_question',
+        data: questionData,
+        success: function (msg) {
+            query.$answerBox.html(tplRender(answerHtml, msg.data));
+            msg.data.forEach(function (item) {
+                if (item.answer) {
+                    $('.J_q-a').find('input').each(function () {
+                        if ($(this).val() == item.answer) {
+                            $(this).attr('checked', 'checked')
+                        }
+                    });
+                }
+            });
 
-        query.$answerBtn.on('click', function () {
-            submit(msg.data)
-        });
-    },
-    error: function (msg) {
-        new Mbox($, {
-            tips: msg.msg
-        });
-    }
+            query.$answerBtn.on('click', function () {
+                submit(msg.data)
+            });
+        },
+        error: function (msg) {
+            new Mbox($, {
+                tips: msg.msg
+            });
+        }
+    });
+};
 
-});
+if (url.parameter('user_id') && url.parameter('house_id') && url.parameter('house_name')) {
+    getQustion()
+} else if (cookie.getCookie('user_id') && cookie.getCookie('house_id') && cookie.getCookie('house_name')) {
+    getQustion()
+}else {
+    location.href = './login.html'
+}

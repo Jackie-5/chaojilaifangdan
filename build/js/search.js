@@ -4802,6 +4802,7 @@ var searchDown = require('./tpl/search-down.html'); //定金
 var searchIntention = require('./tpl/search-intention.html'); //意向金
 var searchPayment = require('./tpl/search-payment.html'); //付款
 var searchSign = require('./tpl/search-sign.html'); //签约
+var cookie = require('./lib/cookie');
 
 var dateChange = require('./lib/date-change');
 var setTime;
@@ -4858,72 +4859,338 @@ if (order_type == 2) {
     orderTitle = '首次来访'
 }
 
+var user_id;
+var house_id;
+var house_name;
+
 document.title = orderTitle;
 
-var customer = function (data) {
-    ajax({
-        $: $,
-        url: 'customer_order_action',
-        data: data,
-        success: function (msg) {
-            new Mbox($, {
-                tips: msg.msg,
-                callback: function () {
-                    location.href = 'index.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
-                }
-            });
-        },
-        error: function (msg) {
-            new Mbox($, {
-                tips: msg.msg
-            });
-        }
-    });
-};
-var again = function (data) {
-    location.href = 'answer.html?user_id=' + url.parameter('user_id') + '&customer_id=' + data.customer_id + '&again=1';
-};
+var searchBox = function () {
 
-var intention = function (data) {
-    if (order_type == 3) {
-        query.$contentBox.html(tplRender(searchIntention, {
-            data: data,
-            house_name: url.parameter('house_name')
-        }));
-    } else {
-        query.$contentBox.html(tplRender(searchDown, {
-            data: data,
-            house_name: url.parameter('house_name')
-        }));
-    }
-    new Drop($);
-    var q = {
-        area: $('.J_inten-area'),
-        name: $('.J_inten-name'),
-        tel: $('.J_inten-phone'),
-        houseNumber: $('.J_inten-number'),
-        houseFloor: $('.J_inten-floor'),
-        houseRoom: $('.J_inten-room'),
-        drop: $('.J_drop'),
-        planTime: $('#btn-time'),
-        diffDays: $('.J_diff-days')
-    };
-
-    q.planTime.val(moment().add(3, 'd').format('YYYY-MM-DD'));
-
-    dateChange($,q.planTime, function (time) {
+    var customer = function (data) {
         ajax({
             $: $,
-            url: 'update_task_time',
-            data: {
-                customer_order_id: data.customer_order_id,
-                task_time: time
-            },
+            url: 'customer_order_action',
+            data: data,
             success: function (msg) {
-                q.diffDays.html(msg.diff_days);
+                new Mbox($, {
+                    tips: msg.msg,
+                    callback: function () {
+                        location.href = 'index.html?user_id=' + user_id + '&house_id=' + house_id + '&house_name=' + house_name
+                    }
+                });
+            },
+            error: function (msg) {
                 new Mbox($, {
                     tips: msg.msg
                 });
+            }
+        });
+    };
+    var again = function (data) {
+        location.href = 'answer.html?user_id=' + user_id + '&customer_id=' + data.customer_id + '&again=1';
+    };
+
+    var intention = function (data) {
+        if (order_type == 3) {
+            query.$contentBox.html(tplRender(searchIntention, {
+                data: data,
+                house_name: url.parameter('house_name')
+            }));
+        } else {
+            query.$contentBox.html(tplRender(searchDown, {
+                data: data,
+                house_name: url.parameter('house_name')
+            }));
+        }
+        new Drop($);
+        var q = {
+            area: $('.J_inten-area'),
+            name: $('.J_inten-name'),
+            tel: $('.J_inten-phone'),
+            houseNumber: $('.J_inten-number'),
+            houseFloor: $('.J_inten-floor'),
+            houseRoom: $('.J_inten-room'),
+            drop: $('.J_drop'),
+            planTime: $('#btn-time'),
+            diffDays: $('.J_diff-days')
+        };
+
+        q.planTime.val(moment().add(3, 'd').format('YYYY-MM-DD'));
+
+        dateChange($,q.planTime, function (time) {
+            ajax({
+                $: $,
+                url: 'update_task_time',
+                data: {
+                    customer_order_id: data.customer_order_id,
+                    task_time: time
+                },
+                success: function (msg) {
+                    q.diffDays.html(msg.diff_days);
+                    new Mbox($, {
+                        tips: msg.msg
+                    });
+                },
+                error: function (msg) {
+                    new Mbox($, {
+                        tips: msg.msg
+                    });
+                }
+
+            });
+        });
+
+
+        $('.J_cancel').on('click', function () {
+            customer({
+                order_type: -1,
+                customer_id: data.customer_id
+            });
+        });
+        $('.J_submit').on('click', function () {
+            if (q.area.val() === '') {
+                new Mbox($, {
+                    tips: '建筑面积不能为空'
+                });
+                return
+            }
+            if (q.name.val() === '') {
+                new Mbox($, {
+                    tips: '姓名不能为空'
+                });
+                return
+            }
+            if (q.tel.val() === '' || !/0?(13|14|15|17|18)[0-9]{9}/.test(q.tel.val()) || q.tel.val().length !== 11) {
+                new Mbox($, {
+                    tips: '请输入正确的手机号'
+                });
+                return
+            }
+            if(order_type == 4){
+                if (q.houseNumber.val() === '' && q.houseFloor.val() === '' && q.houseRoom.val() === '') {
+                    new Mbox($, {
+                        tips: '购房房号不能为空'
+                    });
+                    return
+                }
+            }
+            data.order_type = q.drop.find('span').attr('data-value');
+            data.house_area = q.area.val();
+            data.real_name = q.name.val();
+            data.real_mobile = q.tel.val();
+            data.customer_mobile = q.tel.val();
+            data.customer_name = q.name.val();
+            data.house_number = q.houseNumber.val();
+            data.house_floor = q.houseFloor.val();
+            data.house_room = q.houseRoom.val();
+            data.task_time = q.planTime.val();
+            customer(data)
+        })
+    };
+
+    var payment = function (data, drop) {
+        var pIndex = 0;
+        query.$contentBox.html(tplRender(searchPayment, {
+            p: 0,
+            index: pIndex,
+            drop: drop || 0
+        }));
+        var q = {
+            contBtn: $('.J-cont-btn'),
+            payBox: $('.J_payment'),
+            dealBtn: $('.J_deal-btn')
+        };
+        var addTime = function () {
+            $('.J_deal-box').find('.J_money-time').each(function () {
+                $(this).val(moment().format('YYYY-MM-DD'))
+            });
+        };
+        drop === 1 && q.contBtn.addClass('hide');
+        new Drop($, function (index) {
+            if (index === 0) {
+                q.contBtn.addClass('hide');
+                payment(data, 1);
+                pIndex = 0
+            } else {
+                q.contBtn.removeClass('hide')
+            }
+        });
+        q.contBtn.off('click').on('click', function () {
+            if (pIndex < 2) {
+                pIndex++;
+                q.payBox.append(tplRender(searchPayment, {
+                    p: 1,
+                    index: pIndex
+                }));
+                addTime();
+            }
+        });
+        addTime();
+        q.dealBtn.off('click').on('click', function () {
+            var payMoney = [];
+            var payDate = [];
+            var dealBox = $('.J_deal-box');
+            data.order_type = order_type;
+            data.pay_type = $('.J_drop').attr('data-value');
+            dealBox.find('.J_money-input').each(function () {
+                payMoney.push($(this).val())
+            });
+            dealBox.find('.J_money-time').each(function () {
+                payDate.push($(this).val())
+            });
+            if (payDate.length > 1 && payMoney.length > 1) {
+                data.pay_money = payMoney.join(',');
+                data.pay_date = payDate.join(',');
+            } else {
+                data.pay_money = payMoney[0];
+                data.pay_date = payDate[0]
+            }
+
+            customer(data)
+        })
+
+    };
+//签约
+    var sign = function (data) {
+        query.$contentBox.html(tplRender(searchSign, {
+            data: data,
+            house_name: url.parameter('house_name')
+        }));
+        var q = {
+            area: $('.J_inten-area'), //面积
+            name: $('.J_inten-name'),
+            tel: $('.J_inten-phone'),
+            price: $('.J_inten-price'), //总价
+            unit: $('.J_unit'), //单价
+            houseNumber: $('.J_inten-number'),
+            houseFloor: $('.J_inten-floor'),
+            houseRoom: $('.J_inten-room')
+        };
+        var calculate = function () {
+            var area, price;
+            area = typeof parseInt(q.area.val()) === "number" ? parseInt(q.area.val()) : 0;
+            price = typeof parseInt(q.price.val()) === "number" ? parseInt(q.price.val()) : 0;
+            q.unit.html(price / area)
+        };
+        q.area.on('keyup', function () {
+            calculate()
+        });
+        q.price.on('keyup', function () {
+            calculate()
+        });
+        $('.J_submit').on('click', function () {
+            if (q.area.val() === '') {
+                new Mbox($, {
+                    tips: '建筑面积不能为空'
+                });
+                return
+            }
+            if (q.name.val() === '') {
+                new Mbox($, {
+                    tips: '姓名不能为空'
+                });
+                return
+            }
+            if (q.tel.val() === '' || !/0?(13|14|15|17|18)[0-9]{9}/.test(q.tel.val()) || q.tel.val().length !== 11) {
+                new Mbox($, {
+                    tips: '请输入正确的手机号'
+                });
+                return
+            }
+
+            data.order_type = order_type;
+            data.house_area = q.area.val();
+            data.real_name = q.name.val();
+            data.real_mobile = q.tel.val();
+            data.house_number = q.houseNumber.val();
+            data.house_floor = q.houseFloor.val();
+            data.house_room = q.houseRoom.val();
+            data.total_price = q.price.val();
+            data.price = q.unit.html();
+            //下一步进度没有
+            customer(data)
+        })
+    };
+    var searchResult = function (time) {
+        var obj = {
+            user_id: user_id,
+            p: pageIndex
+        };
+        if(order_type != 20){
+            obj.order_type = order_type
+        }
+        if (time) {
+            obj.date1 = query.$starTime.attr('data-star');
+            obj.date2 = query.$endTime.attr('data-end')
+        } else {
+            obj.search_key = query.$searchInput.val()
+        }
+
+        ajax({
+            $: $,
+            url: 'search_customer',
+            data: obj,
+            success: function (msg) {
+                query.$loading.addClass('hide');
+                if (msg.data.customer_info_list.length === 0 && customer_order_id.length === 0) {
+                    query.$contentBox.html('');
+                    new Mbox($, {
+                        tips: '当前没有符合造作条件的客户,可以在客户查询功能里确认要操作客户的状态'
+                    });
+                } else {
+                    query.$contentBox.append(tplRender(searchList, {
+                        msg: msg.data.customer_info_list,
+                        user_id: user_id,
+                        house_id: house_id,
+                        house_name: house_name,
+                        order_type: order_type
+                    }));
+                    msg.data.customer_info_list.forEach(function (item, i) {
+                        //保存id
+                        customer_order_id.push(item.customer_order_id);
+                        customer_id.push(item.customer_id);
+                        customer_name.push(item.customer_name);
+                        customer_mobile.push(item.customer_mobile);
+                    });
+                    $('.J_customer-mobile').find('a').on('click', function () {
+                        var $this = $(this);
+                        if (customer_mobile[$this.parents('.J_search-result-list').index()] != '' && customer_mobile[$this.parents('.J_search-result-list').index()] != 0 && customer_mobile[$this.parents('.J_search-result-list').index()] != null && !~customer_mobile[$this.parents('.J_search-result-list').index()].indexOf('*')) {
+                            if ($this.hasClass('J_search-tel')) {
+                                location.href = 'tel:' + customer_mobile[$this.parents('.J_search-result-list').index()]
+                            } else {
+                                location.href = 'sms:' + customer_mobile[$this.parents('.J_search-result-list').index()]
+                            }
+                        } else {
+                            new Mbox($, {
+                                tips: '补全信息后才可使用',
+                                leftBtn: '去补全',
+                                rightBtnTrue: true,
+                                callback: function () {
+                                    location.href = 'fill-in.html?user_id=' + user_id + '&house_id=' + house_id + '&house_name=' + house_name + '&customer_id=' + customer_id[$this.parents('.J_search-result-list').index()]
+                                }
+                            });
+                        }
+                    });
+
+                    $('.J_search-list').on('click', function () {
+                        WIN.off('scroll');
+                        setTime && clearTimeout(setTime);
+                        query.$loading.addClass('hide');
+                        if (order_type == 2) {//2再次来访
+                            again(msg.data.customer_info_list[$(this).index()])
+                        } else if (order_type == 3 || order_type == 4) {//3付意向金 4付定金
+                            intention(msg.data.customer_info_list[$(this).index()])
+                        } else if (order_type == 5) {// 5签约
+                            sign(msg.data.customer_info_list[$(this).index()])
+                        } else if (order_type == 6) {// 7付款
+                            payment(msg.data.customer_info_list[$(this).index()])
+                        } else if (order_type == 20) {
+                            location.href = 'time-line.html?user_id=' + user_id + '&house_id=' + house_id + '&house_name=' + house_name + '&customer_id=' + msg.data.customer_info_list[$(this).index()].customer_id + '&next_order_type=' + msg.data.customer_info_list[$(this).index()].next_order_type + '&diff_days=' + msg.data.customer_info_list[$(this).index()].diff_days + '&customer_order_id=' + msg.data.customer_info_list[$(this).index()].customer_order_id
+                        }
+                    })
+                }
+
             },
             error: function (msg) {
                 new Mbox($, {
@@ -4932,342 +5199,100 @@ var intention = function (data) {
             }
 
         });
-    });
-
-
-    $('.J_cancel').on('click', function () {
-        customer({
-            order_type: -1,
-            customer_id: data.customer_id
-        });
-    });
-    $('.J_submit').on('click', function () {
-        if (q.area.val() === '') {
-            new Mbox($, {
-                tips: '建筑面积不能为空'
-            });
-            return
-        }
-        if (q.name.val() === '') {
-            new Mbox($, {
-                tips: '姓名不能为空'
-            });
-            return
-        }
-        if (q.tel.val() === '' || !/0?(13|14|15|17|18)[0-9]{9}/.test(q.tel.val()) || q.tel.val().length !== 11) {
-            new Mbox($, {
-                tips: '请输入正确的手机号'
-            });
-            return
-        }
-        if(order_type == 4){
-            if (q.houseNumber.val() === '' && q.houseFloor.val() === '' && q.houseRoom.val() === '') {
-                new Mbox($, {
-                    tips: '购房房号不能为空'
-                });
-                return
-            }
-        }
-        data.order_type = q.drop.find('span').attr('data-value');
-        data.house_area = q.area.val();
-        data.real_name = q.name.val();
-        data.real_mobile = q.tel.val();
-        data.customer_mobile = q.tel.val();
-        data.customer_name = q.name.val();
-        data.house_number = q.houseNumber.val();
-        data.house_floor = q.houseFloor.val();
-        data.house_room = q.houseRoom.val();
-        data.task_time = q.planTime.val();
-        customer(data)
-    })
-};
-
-var payment = function (data, drop) {
-    var pIndex = 0;
-    query.$contentBox.html(tplRender(searchPayment, {
-        p: 0,
-        index: pIndex,
-        drop: drop || 0
-    }));
-    var q = {
-        contBtn: $('.J-cont-btn'),
-        payBox: $('.J_payment'),
-        dealBtn: $('.J_deal-btn')
     };
-    var addTime = function () {
-        $('.J_deal-box').find('.J_money-time').each(function () {
-            $(this).val(moment().format('YYYY-MM-DD'))
-        });
-    };
-    drop === 1 && q.contBtn.addClass('hide');
-    new Drop($, function (index) {
-        if (index === 0) {
-            q.contBtn.addClass('hide');
-            payment(data, 1);
-            pIndex = 0
-        } else {
-            q.contBtn.removeClass('hide')
-        }
-    });
-    q.contBtn.off('click').on('click', function () {
-        if (pIndex < 2) {
-            pIndex++;
-            q.payBox.append(tplRender(searchPayment, {
-                p: 1,
-                index: pIndex
-            }));
-            addTime();
-        }
-    });
-    addTime();
-    q.dealBtn.off('click').on('click', function () {
-        var payMoney = [];
-        var payDate = [];
-        var dealBox = $('.J_deal-box');
-        data.order_type = order_type;
-        data.pay_type = $('.J_drop').attr('data-value');
-        dealBox.find('.J_money-input').each(function () {
-            payMoney.push($(this).val())
-        });
-        dealBox.find('.J_money-time').each(function () {
-            payDate.push($(this).val())
-        });
-        if (payDate.length > 1 && payMoney.length > 1) {
-            data.pay_money = payMoney.join(',');
-            data.pay_date = payDate.join(',');
-        } else {
-            data.pay_money = payMoney[0];
-            data.pay_date = payDate[0]
-        }
-
-        customer(data)
-    })
-
-};
-//签约
-var sign = function (data) {
-    query.$contentBox.html(tplRender(searchSign, {
-        data: data,
-        house_name: url.parameter('house_name')
-    }));
-    var q = {
-        area: $('.J_inten-area'), //面积
-        name: $('.J_inten-name'),
-        tel: $('.J_inten-phone'),
-        price: $('.J_inten-price'), //总价
-        unit: $('.J_unit'), //单价
-        houseNumber: $('.J_inten-number'),
-        houseFloor: $('.J_inten-floor'),
-        houseRoom: $('.J_inten-room')
-    };
-    var calculate = function () {
-        var area, price;
-        area = typeof parseInt(q.area.val()) === "number" ? parseInt(q.area.val()) : 0;
-        price = typeof parseInt(q.price.val()) === "number" ? parseInt(q.price.val()) : 0;
-        q.unit.html(price / area)
-    };
-    q.area.on('keyup', function () {
-        calculate()
-    });
-    q.price.on('keyup', function () {
-        calculate()
-    });
-    $('.J_submit').on('click', function () {
-        if (q.area.val() === '') {
-            new Mbox($, {
-                tips: '建筑面积不能为空'
-            });
-            return
-        }
-        if (q.name.val() === '') {
-            new Mbox($, {
-                tips: '姓名不能为空'
-            });
-            return
-        }
-        if (q.tel.val() === '' || !/0?(13|14|15|17|18)[0-9]{9}/.test(q.tel.val()) || q.tel.val().length !== 11) {
-            new Mbox($, {
-                tips: '请输入正确的手机号'
-            });
-            return
-        }
-
-        data.order_type = order_type;
-        data.house_area = q.area.val();
-        data.real_name = q.name.val();
-        data.real_mobile = q.tel.val();
-        data.house_number = q.houseNumber.val();
-        data.house_floor = q.houseFloor.val();
-        data.house_room = q.houseRoom.val();
-        data.total_price = q.price.val();
-        data.price = q.unit.html();
-        //下一步进度没有
-        customer(data)
-    })
-};
-var searchResult = function (time) {
-    var obj = {
-        user_id: url.parameter('user_id'),
-        order_type: url.parameter('order_type'),
-        p: pageIndex
-    };
-    if (time) {
-        obj.date1 = query.$starTime.attr('data-star');
-        obj.date2 = query.$endTime.attr('data-end')
-    } else {
-        obj.search_key = query.$searchInput.val()
-    }
-
-    ajax({
-        $: $,
-        url: 'search_customer',
-        data: obj,
-        success: function (msg) {
-            query.$loading.addClass('hide');
-            if (msg.data.customer_info_list.length === 0 && customer_order_id.length === 0) {
-                query.$contentBox.html('');
-                new Mbox($, {
-                    tips: '当前没有符合造作条件的客户,可以在客户查询功能里确认要操作客户的状态'
-                });
-            } else {
-                query.$contentBox.append(tplRender(searchList, {
-                    msg: msg.data.customer_info_list,
-                    user_id: url.parameter('user_id'),
-                    house_id: url.parameter('house_id'),
-                    house_name: url.parameter('house_name'),
-                    order_type: url.parameter('order_type')
-                }));
-                msg.data.customer_info_list.forEach(function (item, i) {
-                    //保存id
-                    customer_order_id.push(item.customer_order_id);
-                    customer_id.push(item.customer_id);
-                    customer_name.push(item.customer_name);
-                    customer_mobile.push(item.customer_mobile);
-                });
-                $('.J_customer-mobile').find('a').on('click', function () {
-                    var $this = $(this);
-                    if (customer_mobile[$this.parents('.J_search-result-list').index()] != '' && customer_mobile[$this.parents('.J_search-result-list').index()] != 0 && customer_mobile[$this.parents('.J_search-result-list').index()] != null && !~customer_mobile[$this.parents('.J_search-result-list').index()].indexOf('*')) {
-                        if ($this.hasClass('J_search-tel')) {
-                            location.href = 'tel:' + customer_mobile[$this.parents('.J_search-result-list').index()]
-                        } else {
-                            location.href = 'sms:' + customer_mobile[$this.parents('.J_search-result-list').index()]
-                        }
-                    } else {
-                        new Mbox($, {
-                            tips: '补全信息后才可使用',
-                            leftBtn: '去补全',
-                            rightBtnTrue: true,
-                            callback: function () {
-                                location.href = 'fill-in.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_id=' + customer_id[$this.parents('.J_search-result-list').index()]
-                            }
-                        });
-                    }
-                });
-
-                $('.J_search-list').on('click', function () {
-                    WIN.off('scroll');
-                    setTime && clearTimeout(setTime);
-                    query.$loading.addClass('hide');
-                    if (order_type == 2) {//2再次来访
-                        again(msg.data.customer_info_list[$(this).index()])
-                    } else if (order_type == 3 || order_type == 4) {//3付意向金 4付定金
-                        intention(msg.data.customer_info_list[$(this).index()])
-                    } else if (order_type == 5) {// 5签约
-                        sign(msg.data.customer_info_list[$(this).index()])
-                    } else if (order_type == 6) {// 7付款
-                        payment(msg.data.customer_info_list[$(this).index()])
-                    } else if (order_type == 20) {
-                        location.href = 'time-line.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_id=' + msg.data.customer_info_list[$(this).index()].customer_id + '&order_type=' + msg.data.customer_info_list[$(this).index()].order_type + '&diff_days=' + msg.data.customer_info_list[$(this).index()].diff_days + '&customer_order_id=' + msg.data.customer_info_list[$(this).index()].customer_order_id
-                    }
-                })
-            }
-
-        },
-        error: function (msg) {
-            new Mbox($, {
-                tips: msg.msg
-            });
-        }
-
-    });
-};
 //设置时间 (因为微信安卓不兼容input date change事件所以用setInterval 来实时获取时间)
 
-dateChange($, query.$idStartTime, function (time) {
-    query.$starTime.find('span').html(time);
-    query.$starTime.attr('data-star', time);
-    query.$endTime.attr('data-end', time);
-});
+    dateChange($, query.$idStartTime, function (time) {
+        query.$starTime.find('span').html(time);
+        query.$starTime.attr('data-star', time);
+        query.$endTime.attr('data-end', time);
+    });
 
-dateChange($, query.$idEndTime, function (time) {
-    query.$endTime.find('span').html(time);
-    query.$starTime.attr('data-star', time);
-    query.$endTime.attr('data-end', time);
-});
+    dateChange($, query.$idEndTime, function (time) {
+        query.$endTime.find('span').html(time);
+        query.$starTime.attr('data-star', time);
+        query.$endTime.attr('data-end', time);
+    });
 
-query.$dateBtnSearch.on('click', function () {
-    windowScroll();
-    searchResult(1);
-    query.$searchDateBox.addClass('hide');
-    query.$starTime.find('span').html('选择起始日期');
-    query.$endTime.find('span').html('选择截止日期');
-    query.$starTime.attr('data-star', '');
-    query.$endTime.attr('data-end', '');
-    pageIndex = 1;
-    customer_order_id = [];
-    customer_id = [];
-    customer_name = [];
-    customer_mobile = [];
-    query.$contentBox.html('');
-});
+    query.$dateBtnSearch.on('click', function () {
+        windowScroll();
+        searchResult(1);
+        query.$searchDateBox.addClass('hide');
+        query.$starTime.find('span').html('选择起始日期');
+        query.$endTime.find('span').html('选择截止日期');
+        query.$starTime.attr('data-star', '');
+        query.$endTime.attr('data-end', '');
+        pageIndex = 1;
+        customer_order_id = [];
+        customer_id = [];
+        customer_name = [];
+        customer_mobile = [];
+        query.$contentBox.html('');
+    });
 
-query.$searchBtn.on('click', function () {
-    windowScroll();
-    searchResult();
-    query.$searchDateBox.addClass('hide');
-    query.$starTime.find('span').html('选择起始日期');
-    query.$endTime.find('span').html('选择截止日期');
-    query.$starTime.attr('data-star', '');
-    query.$endTime.attr('data-end', '');
-    pageIndex = 1;
-    customer_order_id = [];
-    customer_id = [];
-    customer_name = [];
-    customer_mobile = [];
-    query.$contentBox.html('');
-});
+    query.$searchBtn.on('click', function () {
+        windowScroll();
+        searchResult();
+        query.$searchDateBox.addClass('hide');
+        query.$starTime.find('span').html('选择起始日期');
+        query.$endTime.find('span').html('选择截止日期');
+        query.$starTime.attr('data-star', '');
+        query.$endTime.attr('data-end', '');
+        pageIndex = 1;
+        customer_order_id = [];
+        customer_id = [];
+        customer_name = [];
+        customer_mobile = [];
+        query.$contentBox.html('');
+    });
 
-if (order_type == 20) {
-    searchResult()
-}
-
-query.$dateBtn.on('click', function () {
-    if (query.$searchDateBox.hasClass('hide')) {
-        query.$searchDateBox.removeClass('hide')
-    } else {
-        query.$searchDateBox.addClass('hide')
+    if (order_type == 20) {
+        searchResult()
     }
-});
 
-if (url.parameter('deal')) {
-    query.$searchInput.val(url.parameter('deal'));
-    searchResult()
-}
-
-var windowScroll = function () {
-    WIN.on('scroll', function () {
-        if ($(window).scrollTop() + $(window).height() > $('body').height() - 5 && query.$loading.hasClass('hide')) {
-            setTime = setTimeout(function () {
-                pageIndex += 1;
-                searchResult();
-                setTime && clearTimeout(setTime);
-            }, 2000);
-            query.$loading.removeClass('hide')
+    query.$dateBtn.on('click', function () {
+        if (query.$searchDateBox.hasClass('hide')) {
+            query.$searchDateBox.removeClass('hide')
+        } else {
+            query.$searchDateBox.addClass('hide')
         }
     });
+
+    if (url.parameter('deal')) {
+        query.$searchInput.val(url.parameter('deal'));
+        searchResult()
+    }
+
+    var windowScroll = function () {
+        WIN.on('scroll', function () {
+            if ($(window).scrollTop() + $(window).height() > $('body').height() - 5 && query.$loading.hasClass('hide')) {
+                setTime = setTimeout(function () {
+                    pageIndex += 1;
+                    searchResult();
+                    setTime && clearTimeout(setTime);
+                }, 2000);
+                query.$loading.removeClass('hide')
+            }
+        });
+    };
+    windowScroll();
 };
-windowScroll();
-},{"./common/moment":1,"./common/zepto":2,"./lib/Mbox":4,"./lib/ajax":5,"./lib/date-change":6,"./lib/drop":7,"./lib/get-url":8,"./lib/tpl":9,"./tpl/search-down.html":11,"./tpl/search-intention.html":12,"./tpl/search-list.html":13,"./tpl/search-payment.html":14,"./tpl/search-sign.html":15}],4:[function(require,module,exports){
+
+if (url.parameter('user_id') && url.parameter('house_id') && url.parameter('house_name') && url.parameter('order_type') !== undefined) {
+    user_id = url.parameter('user_id');
+    house_id = url.parameter('user_id');
+    house_name = url.parameter('user_id');
+    searchBox();
+} else if (cookie.getCookie('user_id') && cookie.getCookie('house_id') && cookie.getCookie('house_name') && url.parameter('order_type') !== undefined) {
+    user_id = cookie.getCookie('user_id');
+    house_id = cookie.getCookie('house_id');
+    house_name = cookie.getCookie('house_name');
+    searchBox()
+}else {
+    location.href = './login.html'
+}
+
+},{"./common/moment":1,"./common/zepto":2,"./lib/Mbox":4,"./lib/ajax":5,"./lib/cookie":6,"./lib/date-change":7,"./lib/drop":8,"./lib/get-url":9,"./lib/tpl":10,"./tpl/search-down.html":12,"./tpl/search-intention.html":13,"./tpl/search-list.html":14,"./tpl/search-payment.html":15,"./tpl/search-sign.html":16}],4:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/20/15.
  */
@@ -5301,7 +5326,7 @@ var Mbox = function ($, options) {
 };
 module.exports = Mbox;
 
-},{"../tpl/mbox.html.js":10,"./tpl":9}],5:[function(require,module,exports){
+},{"../tpl/mbox.html.js":11,"./tpl":10}],5:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
  */
@@ -5364,6 +5389,43 @@ module.exports = ajax;
 
 },{"./Mbox":4}],6:[function(require,module,exports){
 /**
+ * Created by JackieWu on 1/12/16.
+ */
+function getCookie(objName){//获取指定名称的cookie的值
+
+    var arrStr = document.cookie.split("; ");
+
+    for(var i = 0;i < arrStr.length;i ++){
+
+        var temp = arrStr[i].split("=");
+
+        if(temp[0] == objName) return unescape(temp[1]);
+
+    }
+
+}
+
+function SetCookie(name,value)//两个参数，一个是cookie的名子，一个是值
+
+{
+
+    var Days = 30; //此 cookie 将被保存 30 天
+
+    var exp = new Date();    //new Date("December 31, 9998");
+
+    exp.setTime(exp.getTime() + Days*24*60*60*1000);
+
+    document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+
+}
+
+module.exports = {
+    SetCookie: SetCookie,
+    getCookie: getCookie
+};
+
+},{}],7:[function(require,module,exports){
+/**
  * Created by JackieWu on 16/1/2.
  */
 var ua = navigator.userAgent;
@@ -5390,7 +5452,7 @@ var dateChange = function ($, container, cb) {
 };
 module.exports = dateChange;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/24/15.
  */
@@ -5413,7 +5475,7 @@ var Drop = function($,callback){
     })
 };
 module.exports = Drop;
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
  */
@@ -5632,7 +5694,7 @@ p.set = function (prop, value) {
     return this;
 };
 module.exports = Url;
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 function compile(template){
     var
 
@@ -5784,16 +5846,16 @@ exports.compile = function(template){
     return compile(template);
 };
 
-},{}],10:[function(require,module,exports){
-module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtnTrue === undefined ? \'hide\' : \'\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
 },{}],11:[function(require,module,exports){
-module.exports='<?js var value = \'\',day=\'\',area= \'\',house_room = \'\',house_floor =\'\',house_number=\'\'; ?><!--这里order_type 的value 是+1的--><?js if(it.data.order_type == 1){value = \'再次来访\';}else if(it.data.order_type == 2){value=\'付意向金\';}else if(it.data.order_type == 3){value=\'付定金\';}else if(it.data.order_type == 4){value=\'签约\';}else if(it.data.order_type == 5){value=\'待付款\';}else if(it.data.order_type == 6){value=\'确认付款\';}else if(it.data.order_type == 7){value=\'待交房\';} ?><?js if(it.data.house_area != 0){area = it.data.house_area} ?><?js if(it.data.house_number != 0){house_number = it.data.house_area} ?><?js if(it.data.house_floor != 0){house_floor = it.data.house_area} ?><?js if(it.data.house_room != 0){house_room = it.data.house_area} ?><div class="search-intention"><div class="intention-list"><div class="inten-name"><i class="s-i-icon-1"></i><span>项目名称</span></div><div class="inten-input"><div class="project J_inten-project">@{it.house_name}</div></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-7"></i><span>购房房号</span></div><div class="inten-input house-number"><input type="text" value="@{house_number}" class="J_inten-number input-center"/><div class="separated">栋</div><input type="text" value="@{house_floor}" class="J_inten-floor input-center"/><div class="separated">层</div><input type="text" value="@{house_room}" class="J_inten-room input-center"/><div class="separated">号</div></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-2"></i><span>建筑面积</span></div><div class="inten-input"><input type="text" value="@{area}" class="J_inten-area"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-3"></i><span>客户姓名</span></div><div class="inten-input"><input type="text" value="@{it.data.customer_name}" class="J_inten-name"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-4"></i><span>联系电话</span></div><div class="inten-input"><input type="tel" value="@{it.data.customer_mobile}" class="J_inten-phone"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-5"></i><span>下一步进度</span></div><div class="inten-cont"><div class="border J_drop"><i></i><span data-value="@{it.data.order_type}">@{value}</span></div><div class="drop J_drop-show hide"><span data-value="2">再次来访</span><span data-value="3">付意向金</span><span data-value="4">付定金</span><span data-value="5">签约</span><span data-value="6">付款</span></div></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-6"></i><span>倒计时</span></div><div class="time-box"><div class="time"><span class="J_diff-days">@{it.data.diff_days}</span></div><label class="btn-icon"><input id="btn-time" type="date"/></label></div></div></div><div class="search-inten-btn"><span class="J_cancel">退订</span><span class="J_submit">提交</span></div><div class="search-tips">注：退订后将被降为D级客户</div>';
+module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtnTrue === undefined ? \'hide\' : \'\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
 },{}],12:[function(require,module,exports){
-module.exports='<?js var order_type = \'\',next_order_type = \'\',area = \'\',day=\'\'; ?><?js var href = \'javascript:;\'; ?><?js if(it.data.order_type == 1){ ?><?js     order_type= \'首次来访\'; ?><?js     next_order_type= \'再次来访\'; ?><?js  }else if(it.data.order_type == 2){ ?><?js     order_type= \'再次来访\'; ?><?js     next_order_type= \'付意向金\'; ?><?js  }else if(it.data.order_type == 3){ ?><?js     order_type= \'付意向金\';?><?js     next_order_type= \'付定金\'; ?><?js  }else if(it.data.order_type == 4){ ?><?js      order_type= \'付定金\'; ?><?js     next_order_type= \'签约\'; ?><?js  }else if(it.data.order_type == 5){ ?><?js      order_type= \'签约\'; ?><?js     next_order_type= \'待付款\'; ?><?js  }else if(it.data.order_type == 6){ ?><?js      order_type= \'待付款\'; ?><?js     next_order_type= \'确认付款\'; ?><?js  }else if(it.data.order_type == 7){ ?><?js      order_type= \'确认付款\'; ?><?js     next_order_type= \'待交房\'; ?><?js  } ?><?js if(it.data.house_area != 0){area = it.data.house_area} ?><div class="search-intention"><div class="intention-list"><div class="inten-name"><i class="s-i-icon-1"></i><span>项目名称</span></div><div class="inten-input"><div class="project J_inten-project">@{it.house_name}</div></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-2"></i><span>建筑面积</span></div><div class="inten-input"><input type="text" value="@{area}" class="J_inten-area"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-3"></i><span>客户姓名</span></div><div class="inten-input"><input type="text" value="@{it.data.customer_name}" class="J_inten-name"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-4"></i><span>联系电话</span></div><div class="inten-input"><input type="tel" value="@{it.data.customer_mobile}" maxlength="11" class="J_inten-phone"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-5"></i><span>下一步进度</span></div><div class="inten-cont"><div class="border J_drop"><i></i><span data-value="@{it.data.order_type}">@{next_order_type}</span></div><div class="drop J_drop-show hide"><span data-value="2">再次来访</span><span data-value="3">付意向金</span><span data-value="4">付定金</span><span data-value="5">签约</span><span data-value="6">付款</span></div></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-6"></i><span>倒计时</span></div><div class="time-box"><div class="time"><span class="J_diff-days">@{it.data.diff_days}</span></div><label class="btn-icon"><input id="btn-time" type="date"/></label></div></div></div><div class="search-inten-btn"><span class="J_cancel">退订</span><span class="J_submit">提交</span></div><div class="search-tips">注：退订后将被降为D级客户</div>';
+module.exports='<?js var value = \'\',day=\'\',area= \'\',house_room = \'\',house_floor =\'\',house_number=\'\'; ?><?js if(it.data.next_order_type == 1){value = \'首次来访\';}else if(it.data.next_order_type == 2){value=\'再次来访\';}else if(it.data.next_order_type == 3){value=\'付意向金\';}else if(it.data.next_order_type == 4){value=\'付定金\';}else if(it.data.next_order_type == 5){value=\'签约\';}else if(it.data.next_order_type == 6){value=\'待付款\';}else if(it.data.next_order_type == 7){value=\'确认付款\';} ?><?js if(it.data.house_area != 0){area = it.data.house_area} ?><?js if(it.data.house_number != 0){house_number = it.data.house_area} ?><?js if(it.data.house_floor != 0){house_floor = it.data.house_area} ?><?js if(it.data.house_room != 0){house_room = it.data.house_area} ?><div class="search-intention"><div class="intention-list"><div class="inten-name"><i class="s-i-icon-1"></i><span>项目名称</span></div><div class="inten-input"><div class="project J_inten-project">@{it.house_name}</div></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-7"></i><span>购房房号</span></div><div class="inten-input house-number"><input type="text" value="@{house_number}" class="J_inten-number input-center"/><div class="separated">栋</div><input type="text" value="@{house_floor}" class="J_inten-floor input-center"/><div class="separated">层</div><input type="text" value="@{house_room}" class="J_inten-room input-center"/><div class="separated">室</div></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-2"></i><span>建筑面积</span></div><div class="inten-input"><input type="text" value="@{area}" class="J_inten-area"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-3"></i><span>客户姓名</span></div><div class="inten-input"><input type="text" value="@{it.data.customer_name}" class="J_inten-name"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-4"></i><span>联系电话</span></div><div class="inten-input"><input type="tel" value="@{it.data.customer_mobile}" class="J_inten-phone"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-5"></i><span>下一步进度</span></div><div class="inten-cont"><div class="border J_drop"><i></i><span data-value="@{it.data.next_order_type}">@{value}</span></div><div class="drop J_drop-show hide"><span data-value="2">再次来访</span><span data-value="3">付意向金</span><span data-value="4">付定金</span><span data-value="5">签约</span><span data-value="6">付款</span></div></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-6"></i><span>倒计时</span></div><div class="time-box"><div class="time"><span class="J_diff-days">@{it.data.diff_days}</span></div><label class="btn-icon"><input id="btn-time" type="date"/></label></div></div></div><div class="search-inten-btn"><span class="J_cancel">退订</span><span class="J_submit">提交</span></div><div class="search-tips">注：退订后将被降为D级客户</div>';
 },{}],13:[function(require,module,exports){
-module.exports='<?js it.msg.forEach(function(item,i){ ?><div class="search-result-list J_search-result-list"><div class="J_search-list"><div class="s-list-icon"></div><div class="search-list"><i class="s-icon-1"></i><div class="s-title">客户姓名</div><div class="s-cont">@{item.customer_name}</div></div><div class="search-list"><i class="s-icon-2"></i><div class="s-title">当前级别</div><div class="s-cont">@{item.customer_level}级客户</div></div><div class="search-list"><i class="s-icon-3"></i><div class="s-title">最新接触</div><div class="s-cont">@{item.lasttime}</div></div></div><div class="search-list"><i class="s-icon-4"></i><div class="s-title">快速联系</div><div class="s-cont J_customer-mobile"><a href="javascript:;" class="s-icon-5 J_search-tel"></a><a href="javascript:;" class="s-icon-6"></a></div></div><?js if(it.order_type == 20){ ?><div class="search-list"><i class="s-icon-7"></i><div class="s-title">动态追踪</div><div class="s-dynamic"><a href="./tracking.html?user_id=@{it.user_id}&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}&amp;customer_id=@{item.customer_id}&amp;customer_mobile=@{item.customer_mobile}">点击查看详情</a></div></div><?js } ?><div class="search-list"><i class="s-icon-8"></i><div class="s-title">客户备注</div><div class="s-dynamic"><a href="./notes.html?user_id=@{it.user_id}&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}&amp;notes=@{item.notes}&amp;customer_id=@{item.customer_id}">@{item.notes}</a></div></div></div><?js }); ?>';
+module.exports='<?js var order_type = \'\',next_order_type = \'\',area = \'\',day=\'\'; ?><?js var href = \'javascript:;\'; ?><?js if(it.data.order_type == 1){ ?><?js     order_type= \'首次来访\'; ?><?js  }else if(it.data.order_type == 2){ ?><?js     order_type= \'再次来访\'; ?><?js  }else if(it.data.order_type == 3){ ?><?js     order_type= \'付意向金\';?><?js  }else if(it.data.order_type == 4){ ?><?js      order_type= \'付定金\'; ?><?js  }else if(it.data.order_type == 5){ ?><?js      order_type= \'签约\'; ?><?js  }else if(it.data.order_type == 6){ ?><?js      order_type= \'待付款\'; ?><?js  }else if(it.data.order_type == 7){ ?><?js      order_type= \'确认付款\'; ?><?js  } ?><?js if(it.data.next_order_type == 1){next_order_type = \'首次来访\';}else if(it.data.next_order_type == 2){next_order_type=\'再次来访\';}else if(it.data.next_order_type == 3){next_order_type=\'付意向金\';}else if(it.data.next_order_type == 4){next_order_type=\'付定金\';}else if(it.data.next_order_type == 5){next_order_type=\'签约\';}else if(it.data.next_order_type == 6){next_order_type=\'待付款\';}else if(it.data.next_order_type == 7){next_order_type=\'确认付款\';} ?><?js if(it.data.house_area != 0){area = it.data.house_area} ?><div class="search-intention"><div class="intention-list"><div class="inten-name"><i class="s-i-icon-1"></i><span>项目名称</span></div><div class="inten-input"><div class="project J_inten-project">@{it.house_name}</div></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-2"></i><span>建筑面积</span></div><div class="inten-input"><input type="text" value="@{area}" class="J_inten-area"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-3"></i><span>客户姓名</span></div><div class="inten-input"><input type="text" value="@{it.data.customer_name}" class="J_inten-name"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-4"></i><span>联系电话</span></div><div class="inten-input"><input type="tel" value="@{it.data.customer_mobile}" maxlength="11" class="J_inten-phone"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-5"></i><span>下一步进度</span></div><div class="inten-cont"><div class="border J_drop"><i></i><span data-value="@{it.data.next_order_type}">@{next_order_type}</span></div><div class="drop J_drop-show hide"><span data-value="2">再次来访</span><span data-value="3">付意向金</span><span data-value="4">付定金</span><span data-value="5">签约</span><span data-value="6">付款</span></div></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-6"></i><span>倒计时</span></div><div class="time-box"><div class="time"><span class="J_diff-days">@{it.data.diff_days}</span></div><label class="btn-icon"><input id="btn-time" type="date"/></label></div></div></div><div class="search-inten-btn"><span class="J_cancel">退订</span><span class="J_submit">提交</span></div><div class="search-tips">注：退订后将被降为D级客户</div>';
 },{}],14:[function(require,module,exports){
-module.exports='<?js var drop = (it.drop === 0 ? \'分期付款\': \'一次性\'); var value = (it.drop === 0 ? \'2\': \'1\'); ?><?js if(!it.p){ ?><div class="J_payment"><div class="deal-box J_deal-box"><div class="deal-list"><div class="pay border-bottom"><div class="p-title">付款方式</div><div class="p-cont"><div class="border J_drop"><i></i><span data-value="@{value}">@{drop}</span></div><div class="drop J_drop-show hide"><span data-value="1">一次性</span><span data-value="2">分期付款</span></div></div><div class="p-cont-btn J-cont-btn"></div></div></div><div class="deal-list"><div class="pay"><div class="p-title">付款金额</div><div class="p-cont"><div class="p-money"><i>￥</i><input type="tel" value="20000" class="J_money-input"/></div></div></div></div><div class="deal-list"><div class="pay border-bottom"><div class="p-title">付款时间</div><div class="p-cont"><div class="p-time"><input type="date" class="J_money-time"/><i></i></div></div></div></div></div></div><div class="deal-btn J_deal-btn">提交</div><?js } else { ?><div class="deal-box J_deal-box"><div class="deal-list"><div class="pay"><div class="p-title">付款金额</div><div class="p-cont"><div class="p-money"><i>￥</i><input type="tel" value="20000" class="J_money-input"/></div></div></div></div><div class="deal-list"><div class="pay border-bottom"><div class="p-title">付款时间</div><div class="p-cont"><div class="p-time"><input type="date" class="J_money-time"/><i></i></div></div></div></div></div><?js } ?>';
+module.exports='<?js it.msg.forEach(function(item,i){ ?><div class="search-result-list J_search-result-list"><div class="J_search-list"><div class="s-list-icon"></div><div class="search-list"><i class="s-icon-1"></i><div class="s-title">客户姓名</div><div class="s-cont">@{item.customer_name}</div></div><div class="search-list"><i class="s-icon-2"></i><div class="s-title">当前级别</div><div class="s-cont">@{item.customer_level}级客户</div></div><div class="search-list"><i class="s-icon-3"></i><div class="s-title">最新接触</div><div class="s-cont">@{item.lasttime}</div></div></div><div class="search-list"><i class="s-icon-4"></i><div class="s-title">快速联系</div><div class="s-cont J_customer-mobile"><a href="javascript:;" class="s-icon-5 J_search-tel"></a><a href="javascript:;" class="s-icon-6"></a></div></div><?js if(it.order_type == 20){ ?><div class="search-list"><i class="s-icon-7"></i><div class="s-title">动态追踪</div><div class="s-dynamic"><a href="./tracking.html?user_id=@{it.user_id}&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}&amp;customer_id=@{item.customer_id}&amp;customer_mobile=@{item.customer_mobile}">点击查看详情</a></div></div><?js } ?><div class="search-list"><i class="s-icon-8"></i><div class="s-title">客户备注</div><div class="s-dynamic"><a href="./notes.html?user_id=@{it.user_id}&amp;house_id=@{it.house_id}&amp;house_name=@{it.house_name}&amp;notes=@{item.notes}&amp;customer_id=@{item.customer_id}">@{item.notes}</a></div></div></div><?js }); ?>';
 },{}],15:[function(require,module,exports){
+module.exports='<?js var drop = (it.drop === 0 ? \'分期付款\': \'一次性\'); var value = (it.drop === 0 ? \'2\': \'1\'); ?><?js if(!it.p){ ?><div class="J_payment"><div class="deal-box J_deal-box"><div class="deal-list"><div class="pay border-bottom"><div class="p-title">付款方式</div><div class="p-cont"><div class="border J_drop"><i></i><span data-value="@{value}">@{drop}</span></div><div class="drop J_drop-show hide"><span data-value="1">一次性</span><span data-value="2">分期付款</span></div></div><div class="p-cont-btn J-cont-btn"></div></div></div><div class="deal-list"><div class="pay"><div class="p-title">付款金额</div><div class="p-cont"><div class="p-money"><i>￥</i><input type="tel" value="20000" class="J_money-input"/></div></div></div></div><div class="deal-list"><div class="pay border-bottom"><div class="p-title">付款时间</div><div class="p-cont"><div class="p-time"><input type="date" class="J_money-time"/><i></i></div></div></div></div></div></div><div class="deal-btn J_deal-btn">提交</div><?js } else { ?><div class="deal-box J_deal-box"><div class="deal-list"><div class="pay"><div class="p-title">付款金额</div><div class="p-cont"><div class="p-money"><i>￥</i><input type="tel" value="20000" class="J_money-input"/></div></div></div></div><div class="deal-list"><div class="pay border-bottom"><div class="p-title">付款时间</div><div class="p-cont"><div class="p-time"><input type="date" class="J_money-time"/><i></i></div></div></div></div></div><?js } ?>';
+},{}],16:[function(require,module,exports){
 module.exports='<?js var area= \'\',house_room = \'\',house_floor =\'\',house_number=\'\'; ?><?js if(it.data.house_area != 0){area = it.data.house_area} ?><?js if(it.data.house_number != 0){house_number = it.data.house_area} ?><?js if(it.data.house_floor != 0){house_floor = it.data.house_area} ?><?js if(it.data.house_room != 0){house_room = it.data.house_area} ?><div class="search-intention"><div class="intention-list"><div class="inten-name"><i class="s-i-icon-1"></i><span>项目名称</span></div><div class="inten-input"><div class="project J_inten-project">@{it.house_name}</div></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-7"></i><span>购房房号</span></div><div class="inten-input house-number"><input type="text" value="@{house_number}" class="J_inten-number input-center"/><div class="separated">栋</div><input type="text" value="@{house_floor}" class="J_inten-floor input-center"/><div class="separated">层</div><input type="text" value="@{house_room}" class="J_inten-room input-center"/><div class="separated">室</div></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-2"></i><span>建筑面积</span></div><div class="inten-input"><input type="tel" value="@{area}" class="J_inten-area"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-3"></i><span>客户姓名</span></div><div class="inten-input"><input type="text" value="@{it.data.customer_name}" class="J_inten-name"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-4"></i><span>联系电话</span></div><div class="inten-input"><input type="tel" value="@{it.data.customer_mobile}" class="J_inten-phone"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-9"></i><span>购房总价</span></div><div class="inten-input"><div class="icon-money">￥</div><input type="tel" value="@{it.data.total_price}" class="J_inten-price"/></div></div><div class="intention-list"><div class="inten-name"><i class="s-i-icon-10"></i><span>购房单价</span></div><div class="inten-input"><div class="icon-money">￥</div><div class="unit J_unit">@{it.data.price}</div></div></div></div><div class="unit-tips">注：输入总价后自动换算单价</div><div class="search-unit-btn J_search-unit-btn J_submit">提交</div>';
 },{}]},{},[3])

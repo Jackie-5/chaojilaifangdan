@@ -1107,6 +1107,35 @@ input[type=number]::-webkit-outer-spin-button {
 .forget-box .input-box .logon-btn:active {
   background: #1d94e1;
 }
+.logon-box .input-box .personal-btn,
+.create-files-box .input-box .personal-btn,
+.forget-box .input-box .personal-btn {
+  height: 44px;
+  line-height: 44px;
+  color: #fff;
+  margin-top: 40px;
+  text-align: center;
+}
+.logon-box .input-box .personal-btn span,
+.create-files-box .input-box .personal-btn span,
+.forget-box .input-box .personal-btn span {
+  display: inline-block;
+  background: #999;
+  width: 47%;
+  border-radius: 5px;
+  text-align: center;
+}
+.logon-box .input-box .personal-btn span:last-child,
+.create-files-box .input-box .personal-btn span:last-child,
+.forget-box .input-box .personal-btn span:last-child {
+  background: #25a9ff;
+  margin-left: 3%;
+}
+.logon-box .input-box .personal-btn span:active,
+.create-files-box .input-box .personal-btn span:active,
+.forget-box .input-box .personal-btn span:active {
+  background: #1d94e1;
+}
 .create-files-box {
   font-size: 0.8rem;
 }

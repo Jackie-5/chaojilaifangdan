@@ -5,7 +5,7 @@ html
     head
         include ./common/head
         title 个人中心
-        body
+        body(style="background:#ececec")
             .logon-box
                 .input-box
                     .input
@@ -22,5 +22,7 @@ html
                         input.J_logon-pwd(type="password",placeholder="请输入密码")
 
 
-                    .logon-btn.J_modify-btn 提交
+                    .personal-btn
+                        span.J_back 退出
+                        span.J_modify-btn 提交
             +scriptSrc(1)

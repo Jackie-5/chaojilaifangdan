@@ -1601,9 +1601,13 @@ var query = {
     $tel: $('.J_logon-tel'),
     $houses: $('.J_logon-houses'),
     $pwd: $('.J_logon-pwd'),
-    $modifyBtn: $('.J_modify-btn')
+    $modifyBtn: $('.J_modify-btn'),
+    $back: $('.J_back')
 };
 
+query.$back.on('click', function () {
+    location.href = './login.html'
+});
 
 ajax({
     $: $,
@@ -1670,6 +1674,7 @@ query.$modifyBtn.on('click', function () {
     });
 
 });
+
 },{"./common/zepto":1,"./lib/Mbox":3,"./lib/ajax":4,"./lib/get-url":5}],3:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/20/15.

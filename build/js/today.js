@@ -1598,28 +1598,28 @@ var Mbox = require('./lib/Mbox');
 var tpl = require('./lib/tpl');
 var indexHtml = require('./tpl/today-tpl.html');
 var changeDate = require('./lib/date-change');
+var cookie = require('./lib/cookie');
 
 var url = new Url();
 var tplRender = tpl.render;
-
 
 var query = {
     $wait: $('.J_wait-box')
 };
 
-var userTaskList = function () {
+var userTaskList = function (user_id, house_id, house_name) {
     ajax({
         $: $,
         url: 'user_task_list',
         data: {
-            user_id: url.parameter('user_id')
+            user_id: user_id
         },
         success: function (msg) {
             query.$wait.html(tplRender(indexHtml, {
                 data: msg.data,
-                user_id: url.parameter('user_id'),
-                house_id: url.parameter('house_id'),
-                house_name: url.parameter('house_name')
+                user_id: user_id,
+                house_id: house_id,
+                house_name: house_name
             }));
             var index = 0;
             var customerMobile = $('.J_customer-mobile');
@@ -1641,7 +1641,7 @@ var userTaskList = function () {
                         customerMobile.eq(index).find('a').eq(1).attr('href', 'sms:' + list.customer_mobile)
                     }
 
-                    changeDate($, $('.J_customer-date-input').eq(index).find('input').off('click'), function (time) {
+                    changeDate($, $('.J_customer-date-input').eq(index).find('input').off('click'), function (time,_this) {
                         ajax({
                             $: $,
                             url: 'update_task_time',
@@ -1650,11 +1650,9 @@ var userTaskList = function () {
                                 task_time: time
                             },
                             success: function (msg) {
+                                _this.parents('.J_customer-date-input').find('span').html(msg.diff_days);
                                 new Mbox($, {
-                                    tips: msg.msg,
-                                    callback: function () {
-                                        userTaskList();
-                                    }
+                                    tips: msg.msg
                                 });
                             },
                             error: function (msg) {
@@ -1677,9 +1675,15 @@ var userTaskList = function () {
     });
 };
 
-userTaskList();
+if (url.parameter('user_id') && url.parameter('house_id') && url.parameter('house_name')) {
+    userTaskList(url.parameter('user_id'), url.parameter('house_id'), url.parameter('house_name'));
+} else if (cookie.getCookie('user_id') && cookie.getCookie('house_id') && cookie.getCookie('house_name')) {
+    userTaskList(cookie.getCookie('user_id'), cookie.getCookie('house_id'), cookie.getCookie('house_name'))
+}else {
+    location.href = './login.html'
+}
 
-},{"./common/zepto":1,"./lib/Mbox":3,"./lib/ajax":4,"./lib/date-change":5,"./lib/get-url":6,"./lib/tpl":7,"./tpl/today-tpl.html":9}],3:[function(require,module,exports){
+},{"./common/zepto":1,"./lib/Mbox":3,"./lib/ajax":4,"./lib/cookie":5,"./lib/date-change":6,"./lib/get-url":7,"./lib/tpl":8,"./tpl/today-tpl.html":10}],3:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/20/15.
  */
@@ -1713,7 +1717,7 @@ var Mbox = function ($, options) {
 };
 module.exports = Mbox;
 
-},{"../tpl/mbox.html.js":8,"./tpl":7}],4:[function(require,module,exports){
+},{"../tpl/mbox.html.js":9,"./tpl":8}],4:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
  */
@@ -1776,6 +1780,43 @@ module.exports = ajax;
 
 },{"./Mbox":3}],5:[function(require,module,exports){
 /**
+ * Created by JackieWu on 1/12/16.
+ */
+function getCookie(objName){//获取指定名称的cookie的值
+
+    var arrStr = document.cookie.split("; ");
+
+    for(var i = 0;i < arrStr.length;i ++){
+
+        var temp = arrStr[i].split("=");
+
+        if(temp[0] == objName) return unescape(temp[1]);
+
+    }
+
+}
+
+function SetCookie(name,value)//两个参数，一个是cookie的名子，一个是值
+
+{
+
+    var Days = 30; //此 cookie 将被保存 30 天
+
+    var exp = new Date();    //new Date("December 31, 9998");
+
+    exp.setTime(exp.getTime() + Days*24*60*60*1000);
+
+    document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+
+}
+
+module.exports = {
+    SetCookie: SetCookie,
+    getCookie: getCookie
+};
+
+},{}],6:[function(require,module,exports){
+/**
  * Created by JackieWu on 16/1/2.
  */
 var ua = navigator.userAgent;
@@ -1802,7 +1843,7 @@ var dateChange = function ($, container, cb) {
 };
 module.exports = dateChange;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
  */
@@ -2021,7 +2062,7 @@ p.set = function (prop, value) {
     return this;
 };
 module.exports = Url;
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 function compile(template){
     var
 
@@ -2173,8 +2214,8 @@ exports.compile = function(template){
     return compile(template);
 };
 
-},{}],8:[function(require,module,exports){
-module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtnTrue === undefined ? \'hide\' : \'\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
 },{}],9:[function(require,module,exports){
+module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtnTrue === undefined ? \'hide\' : \'\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
+},{}],10:[function(require,module,exports){
 module.exports='<?js if(it.data.length > 0){ ?><div class="wait today-box"><?js it.data.forEach(function(item,k){ ?><div class="box"><?js item.list.forEach(function(listItem, i){ ?><?js var order_type = \'\',next_order_type = \'\',day=\'\'; ?><?js var href = \'javascript:;\'; ?><?js if(listItem.order_type == 1){ ?><?js     order_type= \'首次来访\'; ?><?js     next_order_type= \'再次来访\'; ?><?js  }else if(listItem.order_type == 2){ ?><?js     order_type= \'再次来访\'; ?><?js     next_order_type= \'付意向金\'; ?><?js  }else if(listItem.order_type == 3){ ?><?js     order_type= \'付意向金\';?><?js     next_order_type= \'付定金\'; ?><?js  }else if(listItem.order_type == 4){ ?><?js      order_type= \'付定金\'; ?><?js     next_order_type= \'签约\'; ?><?js  }else if(listItem.order_type == 5){ ?><?js      order_type= \'签约\'; ?><?js     next_order_type= \'待付款\'; ?><?js  }else if(listItem.order_type == 6){ ?><?js      order_type= \'待付款\'; ?><?js     next_order_type= \'确认付款\'; ?><?js  }else if(listItem.order_type == 7){ ?><?js      order_type= \'确认付款\'; ?><?js     next_order_type= \'待交房\'; ?><?js  } ?><?js if((JSON.parse(listItem.order_type) + 1) != 1 && (listItem.order_type < 8)){ ?><?js     href= \'./search.html?user_id=\'+ it.user_id +\'&house_name=\'+ it.house_name +\'&house_id=\'+ it.house_id +\'&deal=\'+ listItem.customer_name +\'&order_type=\'+ (JSON.parse(listItem.order_type) + 1) +\'\'; ?><?js } else { ?><?js href = \'javascript:;\'; ?><?js } ?><div class="wait-list J_wait-list"><div class="list-box"><div class="list-left"><i class="list-icon-01"></i><span>客户姓名</span></div><div class="list-right"><span>@{listItem.customer_name}</span></div></div><div class="list-box"><div class="list-left"><i class="list-icon-02"></i><span>当前级别</span></div><div class="list-right"><span>@{listItem.level}级客户</span></div></div><div class="list-box"><div class="list-left"><i class="list-icon-03"></i><span>最新接触</span></div><div class="list-right"><span>@{listItem.lasttime},@{order_type}</span></div></div><div class="list-box"><div class="list-left"><i class="list-icon-04"></i><span>邀约来访</span></div><div class="list-right J_customer-mobile"><a><i class="right-icon-1"></i></a><a><i class="right-icon-2"></i></a></div></div><div class="list-box"><div class="list-left"><i class="list-icon-05"></i><span>下一步行动</span></div><div class="list-right"><a href="@{href}" class="link-a">@{next_order_type}</a></div></div><div class="list-box"><div class="list-left"><i class="list-icon-06"></i><span>倒计时</span></div><div class="list-right J_customer-date-input"><span>@{listItem.diff_days}</span><label for="input-@{k}-@{i}"><input type="date" id="input-@{k}-@{i}"/><i class="right-icon-3"></i></label></div></div></div><?js }); ?></div><?js }); ?></div><?js } ?>';
 },{}]},{},[2])

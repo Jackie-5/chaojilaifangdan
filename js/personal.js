@@ -11,9 +11,13 @@ var query = {
     $tel: $('.J_logon-tel'),
     $houses: $('.J_logon-houses'),
     $pwd: $('.J_logon-pwd'),
-    $modifyBtn: $('.J_modify-btn')
+    $modifyBtn: $('.J_modify-btn'),
+    $back: $('.J_back')
 };
 
+query.$back.on('click', function () {
+    location.href = './login.html'
+});
 
 ajax({
     $: $,

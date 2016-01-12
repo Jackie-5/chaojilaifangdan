@@ -1594,6 +1594,7 @@ module.exports = Zepto;
 var $ = require('./common/zepto');
 var ajax = require('./lib/ajax');
 var Mbox = require('./lib/Mbox');
+var cookie = require('./lib/cookie');
 var query = {
     $tel: $('.J_login-tel'),
     $login: $('.J_login-button'),
@@ -1614,9 +1615,12 @@ query.$login.on('click', function () {
             user_pass: query.$pwd.val()
         },
         success: function (msg) {
+            cookie.SetCookie('user_id', msg.data.user_id);
+            cookie.SetCookie('house_id', msg.data.house_id);
+            cookie.SetCookie('house_name', msg.data.house_name);
             location.href = 'index.html?user_id=' + msg.data.user_id + '&house_id=' + msg.data.house_id + '&house_name=' + msg.data.house_name
         },
-        error: function(msg){
+        error: function (msg) {
             new Mbox($, {
                 tips: msg.msg
             });
@@ -1624,7 +1628,8 @@ query.$login.on('click', function () {
 
     });
 });
-},{"./common/zepto":1,"./lib/Mbox":3,"./lib/ajax":4}],3:[function(require,module,exports){
+
+},{"./common/zepto":1,"./lib/Mbox":3,"./lib/ajax":4,"./lib/cookie":5}],3:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/20/15.
  */
@@ -1658,7 +1663,7 @@ var Mbox = function ($, options) {
 };
 module.exports = Mbox;
 
-},{"../tpl/mbox.html.js":6,"./tpl":5}],4:[function(require,module,exports){
+},{"../tpl/mbox.html.js":7,"./tpl":6}],4:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
  */
@@ -1720,6 +1725,43 @@ var ajax = function (options) {
 module.exports = ajax;
 
 },{"./Mbox":3}],5:[function(require,module,exports){
+/**
+ * Created by JackieWu on 1/12/16.
+ */
+function getCookie(objName){//获取指定名称的cookie的值
+
+    var arrStr = document.cookie.split("; ");
+
+    for(var i = 0;i < arrStr.length;i ++){
+
+        var temp = arrStr[i].split("=");
+
+        if(temp[0] == objName) return unescape(temp[1]);
+
+    }
+
+}
+
+function SetCookie(name,value)//两个参数，一个是cookie的名子，一个是值
+
+{
+
+    var Days = 30; //此 cookie 将被保存 30 天
+
+    var exp = new Date();    //new Date("December 31, 9998");
+
+    exp.setTime(exp.getTime() + Days*24*60*60*1000);
+
+    document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+
+}
+
+module.exports = {
+    SetCookie: SetCookie,
+    getCookie: getCookie
+};
+
+},{}],6:[function(require,module,exports){
 function compile(template){
     var
 
@@ -1871,6 +1913,6 @@ exports.compile = function(template){
     return compile(template);
 };
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtnTrue === undefined ? \'hide\' : \'\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
 },{}]},{},[2])

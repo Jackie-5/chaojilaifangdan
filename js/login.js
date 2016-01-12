@@ -4,6 +4,7 @@
 var $ = require('./common/zepto');
 var ajax = require('./lib/ajax');
 var Mbox = require('./lib/Mbox');
+var cookie = require('./lib/cookie');
 var query = {
     $tel: $('.J_login-tel'),
     $login: $('.J_login-button'),
@@ -24,9 +25,12 @@ query.$login.on('click', function () {
             user_pass: query.$pwd.val()
         },
         success: function (msg) {
+            cookie.SetCookie('user_id', msg.data.user_id);
+            cookie.SetCookie('house_id', msg.data.house_id);
+            cookie.SetCookie('house_name', msg.data.house_name);
             location.href = 'index.html?user_id=' + msg.data.user_id + '&house_id=' + msg.data.house_id + '&house_name=' + msg.data.house_name
         },
-        error: function(msg){
+        error: function (msg) {
             new Mbox($, {
                 tips: msg.msg
             });

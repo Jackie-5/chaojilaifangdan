@@ -8,28 +8,28 @@ var Mbox = require('./lib/Mbox');
 var tpl = require('./lib/tpl');
 var indexHtml = require('./tpl/today-tpl.html');
 var changeDate = require('./lib/date-change');
+var cookie = require('./lib/cookie');
 
 var url = new Url();
 var tplRender = tpl.render;
-
 
 var query = {
     $wait: $('.J_wait-box')
 };
 
-var userTaskList = function () {
+var userTaskList = function (user_id, house_id, house_name) {
     ajax({
         $: $,
         url: 'user_task_list',
         data: {
-            user_id: url.parameter('user_id')
+            user_id: user_id
         },
         success: function (msg) {
             query.$wait.html(tplRender(indexHtml, {
                 data: msg.data,
-                user_id: url.parameter('user_id'),
-                house_id: url.parameter('house_id'),
-                house_name: url.parameter('house_name')
+                user_id: user_id,
+                house_id: house_id,
+                house_name: house_name
             }));
             var index = 0;
             var customerMobile = $('.J_customer-mobile');
@@ -51,7 +51,7 @@ var userTaskList = function () {
                         customerMobile.eq(index).find('a').eq(1).attr('href', 'sms:' + list.customer_mobile)
                     }
 
-                    changeDate($, $('.J_customer-date-input').eq(index).find('input').off('click'), function (time) {
+                    changeDate($, $('.J_customer-date-input').eq(index).find('input').off('click'), function (time,_this) {
                         ajax({
                             $: $,
                             url: 'update_task_time',
@@ -60,11 +60,9 @@ var userTaskList = function () {
                                 task_time: time
                             },
                             success: function (msg) {
+                                _this.parents('.J_customer-date-input').find('span').html(msg.diff_days);
                                 new Mbox($, {
-                                    tips: msg.msg,
-                                    callback: function () {
-                                        userTaskList();
-                                    }
+                                    tips: msg.msg
                                 });
                             },
                             error: function (msg) {
@@ -87,4 +85,10 @@ var userTaskList = function () {
     });
 };
 
-userTaskList();
+if (url.parameter('user_id') && url.parameter('house_id') && url.parameter('house_name')) {
+    userTaskList(url.parameter('user_id'), url.parameter('house_id'), url.parameter('house_name'));
+} else if (cookie.getCookie('user_id') && cookie.getCookie('house_id') && cookie.getCookie('house_name')) {
+    userTaskList(cookie.getCookie('user_id'), cookie.getCookie('house_id'), cookie.getCookie('house_name'))
+}else {
+    location.href = './login.html'
+}

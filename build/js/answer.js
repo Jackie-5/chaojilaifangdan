@@ -1597,6 +1597,7 @@ var tpl = require('./lib/tpl');
 var ajax = require('./lib/ajax');
 var answerHtml = require('./tpl/answer-tpl.html');
 var Url = require('./lib/get-url');
+var cookie = require('./lib/cookie');
 var url = new Url();
 var tplRender = tpl.render;
 var query = {
@@ -1660,35 +1661,44 @@ var submit = function (date) {
         });
     }
 };
-ajax({
-    $: $,
-    url: 'get_question',
-    data: questionData,
-    success: function (msg) {
-        query.$answerBox.html(tplRender(answerHtml, msg.data));
-        msg.data.forEach(function (item) {
-            if (item.answer) {
-                $('.J_q-a').find('input').each(function () {
-                    if ($(this).val() == item.answer) {
-                        $(this).attr('checked', 'checked')
-                    }
-                });
-            }
-        });
+var getQustion = function () {
+    ajax({
+        $: $,
+        url: 'get_question',
+        data: questionData,
+        success: function (msg) {
+            query.$answerBox.html(tplRender(answerHtml, msg.data));
+            msg.data.forEach(function (item) {
+                if (item.answer) {
+                    $('.J_q-a').find('input').each(function () {
+                        if ($(this).val() == item.answer) {
+                            $(this).attr('checked', 'checked')
+                        }
+                    });
+                }
+            });
 
-        query.$answerBtn.on('click', function () {
-            submit(msg.data)
-        });
-    },
-    error: function (msg) {
-        new Mbox($, {
-            tips: msg.msg
-        });
-    }
+            query.$answerBtn.on('click', function () {
+                submit(msg.data)
+            });
+        },
+        error: function (msg) {
+            new Mbox($, {
+                tips: msg.msg
+            });
+        }
+    });
+};
 
-});
+if (url.parameter('user_id') && url.parameter('house_id') && url.parameter('house_name')) {
+    getQustion()
+} else if (cookie.getCookie('user_id') && cookie.getCookie('house_id') && cookie.getCookie('house_name')) {
+    getQustion()
+}else {
+    location.href = './login.html'
+}
 
-},{"./common/zepto":1,"./lib/Mbox":3,"./lib/ajax":4,"./lib/get-url":5,"./lib/tpl":6,"./tpl/answer-tpl.html":7}],3:[function(require,module,exports){
+},{"./common/zepto":1,"./lib/Mbox":3,"./lib/ajax":4,"./lib/cookie":5,"./lib/get-url":6,"./lib/tpl":7,"./tpl/answer-tpl.html":8}],3:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/20/15.
  */
@@ -1722,7 +1732,7 @@ var Mbox = function ($, options) {
 };
 module.exports = Mbox;
 
-},{"../tpl/mbox.html.js":8,"./tpl":6}],4:[function(require,module,exports){
+},{"../tpl/mbox.html.js":9,"./tpl":7}],4:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
  */
@@ -1784,6 +1794,43 @@ var ajax = function (options) {
 module.exports = ajax;
 
 },{"./Mbox":3}],5:[function(require,module,exports){
+/**
+ * Created by JackieWu on 1/12/16.
+ */
+function getCookie(objName){//获取指定名称的cookie的值
+
+    var arrStr = document.cookie.split("; ");
+
+    for(var i = 0;i < arrStr.length;i ++){
+
+        var temp = arrStr[i].split("=");
+
+        if(temp[0] == objName) return unescape(temp[1]);
+
+    }
+
+}
+
+function SetCookie(name,value)//两个参数，一个是cookie的名子，一个是值
+
+{
+
+    var Days = 30; //此 cookie 将被保存 30 天
+
+    var exp = new Date();    //new Date("December 31, 9998");
+
+    exp.setTime(exp.getTime() + Days*24*60*60*1000);
+
+    document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+
+}
+
+module.exports = {
+    SetCookie: SetCookie,
+    getCookie: getCookie
+};
+
+},{}],6:[function(require,module,exports){
 /**
  * Created by JackieWu on 12/22/15.
  */
@@ -2002,7 +2049,7 @@ p.set = function (prop, value) {
     return this;
 };
 module.exports = Url;
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 function compile(template){
     var
 
@@ -2154,8 +2201,8 @@ exports.compile = function(template){
     return compile(template);
 };
 
-},{}],7:[function(require,module,exports){
-module.exports='<?js it.forEach(function(item,i){ ?><div class="question-box J_q-a"><?js i = i + 1; ?><h1>@{i}、@{item.question_title}</h1><?js item.option.forEach(function(itemOpt,k){ ?><div class="input-box J_input-@{item.question_id}"><div class="radio-input"><input type="radio" id="input-@{i}-@{k}" name="r-@{item.question_id}" value="@{itemOpt.option_id}"/></div><label for="input-@{i}-@{k}">@{itemOpt.option_title}</label></div><?js }); ?></div><?js }); ?>';
 },{}],8:[function(require,module,exports){
+module.exports='<?js it.forEach(function(item,i){ ?><div class="question-box J_q-a"><?js i = i + 1; ?><h1>@{i}、@{item.question_title}</h1><?js item.option.forEach(function(itemOpt,k){ ?><div class="input-box J_input-@{item.question_id}"><div class="radio-input"><input type="radio" id="input-@{i}-@{k}" name="r-@{item.question_id}" value="@{itemOpt.option_id}"/></div><label for="input-@{i}-@{k}">@{itemOpt.option_title}</label></div><?js }); ?></div><?js }); ?>';
+},{}],9:[function(require,module,exports){
 module.exports='<?js var leftBtn = it.leftBtn !== undefined ? it.leftBtn : \'确定\'; ?><?js var rightBtn = it.rightBtn !== undefined ? it.rightBtn : \'取消\'; ?><?js var hide = it.rightBtnTrue === undefined ? \'hide\' : \'\'; ?><div class="J_mbox-bg m-box-bg hide"><div class="m-box J_mbox"><div class="m-cont">@{it.tips}</div><div class="m-box-btn J_m-box-btn"><span>@{leftBtn}</span><span class="@{hide}"> @{rightBtn}</span></div></div></div>';
 },{}]},{},[2])
