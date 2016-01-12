@@ -385,19 +385,20 @@ var searchBox = function () {
                     });
 
                     $('.J_search-list').on('click', function () {
+                        var _thisIndex = $(this).parent().index();
                         WIN.off('scroll');
                         setTime && clearTimeout(setTime);
                         query.$loading.addClass('hide');
                         if (order_type == 2) {//2再次来访
-                            again(msg.data.customer_info_list[$(this).index()])
+                            again(msg.data.customer_info_list[_thisIndex])
                         } else if (order_type == 3 || order_type == 4) {//3付意向金 4付定金
-                            intention(msg.data.customer_info_list[$(this).index()])
+                            intention(msg.data.customer_info_list[_thisIndex])
                         } else if (order_type == 5) {// 5签约
-                            sign(msg.data.customer_info_list[$(this).index()])
+                            sign(msg.data.customer_info_list[_thisIndex])
                         } else if (order_type == 6) {// 7付款
-                            payment(msg.data.customer_info_list[$(this).index()])
+                            payment(msg.data.customer_info_list[_thisIndex])
                         } else if (order_type == 20) {
-                            location.href = 'time-line.html?user_id=' + user_id + '&house_id=' + house_id + '&house_name=' + house_name + '&customer_id=' + msg.data.customer_info_list[$(this).index()].customer_id + '&next_order_type=' + msg.data.customer_info_list[$(this).index()].next_order_type + '&diff_days=' + msg.data.customer_info_list[$(this).index()].diff_days + '&customer_order_id=' + msg.data.customer_info_list[$(this).index()].customer_order_id
+                            location.href = 'time-line.html?user_id=' + user_id + '&house_id=' + house_id + '&house_name=' + house_name + '&customer_id=' + msg.data.customer_info_list[_thisIndex].customer_id + '&next_order_type=' + msg.data.customer_info_list[_thisIndex].next_order_type + '&diff_days=' + msg.data.customer_info_list[_thisIndex].diff_days + '&customer_order_id=' + msg.data.customer_info_list[_thisIndex].customer_order_id
                         }
                     })
                 }
