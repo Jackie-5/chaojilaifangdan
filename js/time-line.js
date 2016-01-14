@@ -60,12 +60,9 @@ ajax({
                     task_time: time
                 },
                 success: function (msg) {
-                    _this.parents('.J_time-bottom').find('span').html(msg.diff_days);
+                    _this.parents('.J_time-bottom').find('.J_time').html(msg.diff_days);
                     new Mbox($, {
-                        tips: msg.msg,
-                        callback: function () {
-                            window.location.reload()
-                        }
+                        tips: msg.msg
                     });
                 },
                 error: function (msg) {

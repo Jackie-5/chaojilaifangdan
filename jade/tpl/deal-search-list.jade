@@ -1,7 +1,21 @@
 //-Created by JackieWu on 12/25/15.
 | <?js it.msg.forEach(function(item,i){ ?>
-| <?js var order_type = '付意向金',day =''; ?>
-| <?js if(item.order_type == 1){order_type= '首次来访';}else if(item.order_type == 2){order_type= '再次来访';}else if(item.order_type == 3){order_type= '付意向金';}else if(item.order_type == 4){order_type= '付定金';}else if(item.order_type == 5){order_type= '签约';}else if(item.order_type == 6){order_type= '待付款';}else if(item.order_type == 7){order_type= '确认付款';} ?>
+| <?js var order_type = '',day =''; ?>
+| <?js if(item.order_type == 1){ ?>
+| <?js     order_type= '再次来访'; ?>
+| <?js  }else if(item.order_type == 2){ ?>
+| <?js     order_type= '付意向金'; ?>
+| <?js  }else if(item.order_type == 3){ ?>
+| <?js     order_type= '付定金';?>
+| <?js  }else if(item.order_type == 4){ ?>
+| <?js      order_type= '签约'; ?>
+| <?js  }else if(item.order_type == 5){ ?>
+| <?js      order_type= '待付款'; ?>
+| <?js  }else if(item.order_type == 6){ ?>
+| <?js      order_type= '确认付款'; ?>
+| <?js  }else if(item.order_type == 7){ ?>
+| <?js      order_type= '带交房'; ?>
+| <?js  } ?>
 .deal-box.J_deal-box
     .search-result-list
         .search-list

@@ -57,7 +57,7 @@ var levelAjax = function (level, page) {
                 });
                 $('.J_font-cont').on('click', function () {
                     if(order_type[$(this).parents('.J_deal-box').index()] != 1 && order_type[$(this).parents('.J_deal-box').index()] != 7){
-                        location.href = './search.html?user_id=' + url.parameter('user_id') + '&house_name=' + url.parameter('house_name') + '&house_id=' + url.parameter('house_id') + '&deal=' + customer_name[$(this).parents('.J_deal-box').index()] + '&order_type=' + order_type[$(this).parents('.J_deal-box').index()]
+                        location.href = './search.html?user_id=' + url.parameter('user_id') + '&house_name=' + url.parameter('house_name') + '&house_id=' + url.parameter('house_id') + '&deal=' + customer_name[$(this).parents('.J_deal-box').index()] + '&order_type=' + (JSON.parse(order_type[$(this).parents('.J_deal-box').index()]) + 1)
                     }
                 });
                 $('.J_mobile').find('a').on('click', function () {
@@ -83,7 +83,7 @@ var levelAjax = function (level, page) {
                 dateChange($, $('.J_date-time-input'), function (time, _this) {
                     ajax({
                         $: $,
-                        url: 'update_order_type',
+                        url: 'update_task_time',
                         data: {
                             customer_order_id: customer_order_id[_this.parents('.J_deal-box').index()],
                             task_time: time

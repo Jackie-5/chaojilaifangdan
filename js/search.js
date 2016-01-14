@@ -38,6 +38,7 @@ var customer_order_id = [];
 var customer_id = [];
 var customer_name = [];
 var customer_mobile = [];
+var listArray = [];
 
 var WIN = $(window);
 
@@ -344,6 +345,11 @@ var searchBox = function () {
             data: obj,
             success: function (msg) {
                 query.$loading.addClass('hide');
+                if(msg.data.customer_info_list.length > 0) {
+                    msg.data.customer_info_list.forEach(function (item) {
+                        listArray.push(item)
+                    })
+                }
                 if (msg.data.customer_info_list.length === 0 && customer_order_id.length === 0) {
                     query.$contentBox.html('');
                     new Mbox($, {
@@ -390,15 +396,15 @@ var searchBox = function () {
                         setTime && clearTimeout(setTime);
                         query.$loading.addClass('hide');
                         if (order_type == 2) {//2再次来访
-                            again(msg.data.customer_info_list[_thisIndex])
+                            again(listArray[_thisIndex])
                         } else if (order_type == 3 || order_type == 4) {//3付意向金 4付定金
-                            intention(msg.data.customer_info_list[_thisIndex])
+                            intention(listArray[_thisIndex])
                         } else if (order_type == 5) {// 5签约
-                            sign(msg.data.customer_info_list[_thisIndex])
+                            sign(listArray[_thisIndex])
                         } else if (order_type == 6) {// 7付款
-                            payment(msg.data.customer_info_list[_thisIndex])
+                            payment(listArray[_thisIndex])
                         } else if (order_type == 20) {
-                            location.href = 'time-line.html?user_id=' + user_id + '&house_id=' + house_id + '&house_name=' + house_name + '&customer_id=' + msg.data.customer_info_list[_thisIndex].customer_id + '&next_order_type=' + msg.data.customer_info_list[_thisIndex].next_order_type + '&diff_days=' + msg.data.customer_info_list[_thisIndex].diff_days + '&customer_order_id=' + msg.data.customer_info_list[_thisIndex].customer_order_id
+                            location.href = 'time-line.html?user_id=' + user_id + '&house_id=' + house_id + '&house_name=' + house_name + '&customer_id=' + listArray[_thisIndex].customer_id + '&next_order_type=' + listArray[_thisIndex].next_order_type + '&diff_days=' + listArray[_thisIndex].diff_days + '&customer_order_id=' + listArray[_thisIndex].customer_order_id
                         }
                     })
                 }
@@ -492,8 +498,8 @@ var searchBox = function () {
 
 if (url.parameter('user_id') && url.parameter('house_id') && url.parameter('house_name') && url.parameter('order_type') !== undefined) {
     user_id = url.parameter('user_id');
-    house_id = url.parameter('user_id');
-    house_name = url.parameter('user_id');
+    house_id = url.parameter('house_id');
+    house_name = url.parameter('house_name');
     searchBox();
 } else if (cookie.getCookie('user_id') && cookie.getCookie('house_id') && cookie.getCookie('house_name') && url.parameter('order_type') !== undefined) {
     user_id = cookie.getCookie('user_id');
