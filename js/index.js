@@ -7,9 +7,8 @@ var Calendar = require('./common/Calendar');
 var Url = require('./lib/get-url');
 var Mbox = require('./lib/Mbox');
 var tpl = require('./lib/tpl');
-var indexHtml = require('./tpl/index-tpl.html');
+var cookie = require('./lib/cookie');
 var linkHtml = require('./tpl/index-link-tpl.html');
-var changeDate = require('./lib/date-change');
 var date = new Date();
 var YEAR = date.getFullYear();
 var MONTH = date.getMonth() + 1;
@@ -21,6 +20,10 @@ var maxsize = 100 * 1024;
 
 var url = new Url();
 var tplRender = tpl.render;
+var user_id = url.parameter('user_id');
+var house_id = house_id;
+var house_name = house_name;
+
 var query = {
     $day: $('.J_index-day'),
     $center: $('.J_center'),
@@ -37,74 +40,108 @@ var query = {
     $purchasing: $('.J_purchasing')
 };
 //设置今天日期
-new Calendar({
-    c: 'J_calendar',
-    y: YEAR,
-    m: MONTH,
-    a: {
-        'd1': '1971-01-01',//最早时间
-        'd2': '2900-01-01'//最晚时间
-    },
-    f: 0//显示双日历用1，单日历用0
-}, $);
+var main = function () {
+    new Calendar({
+        c: 'J_calendar',
+        y: YEAR,
+        m: MONTH,
+        a: {
+            'd1': '1971-01-01',//最早时间
+            'd2': '2900-01-01'//最晚时间
+        },
+        f: 0//显示双日历用1，单日历用0
+    }, $);
 
-query.$day.html(YEAR + '年' + MONTH + '月' + DAY + '日');
+    query.$day.html(YEAR + '年' + MONTH + '月' + DAY + '日');
 
 //个人中心
-query.$center.on('click', function () {
-    location.href = 'personal.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
-});
-//客户查询
-query.$search.on('click', function () {
-    location.href = 'search.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&order_type=20'
-});
-//成交助手
-query.$deal.on('click', function () {
-    location.href = 'deal.html?user_id=' + url.parameter('user_id') + '&deal_index=6' + '&deal_page_index=0' + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
-});
-
-query.$purchasing.on('click', function () {
-    new Mbox($, {
-        tips: '新功能即将开通'
+    query.$center.on('click', function () {
+        location.href = 'personal.html?user_id=' + user_id + '&house_id=' + house_id + '&house_name=' + house_name
     });
-});
+//客户查询
+    query.$search.on('click', function () {
+        location.href = 'search.html?user_id=' + user_id + '&house_id=' + house_id + '&house_name=' + house_name + '&order_type=20'
+    });
+//成交助手
+    query.$deal.on('click', function () {
+        location.href = 'deal.html?user_id=' + user_id + '&deal_index=6' + '&deal_page_index=0' + '&house_id=' + house_id + '&house_name=' + house_name
+    });
 
-query.$todayClick.on('click', function () {
-    location.href = 'today.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name')
-});
-
-query.$linkBox.html(tplRender(linkHtml, {
-    user_id: url.parameter('user_id'),
-    house_id: url.parameter('house_id'),
-    house_name: url.parameter('house_name')
-}));
-
-query.$indexTitle.on('click', function () {
-    if (query.$linkBox.hasClass('hide')) {
-        query.$linkBox.removeClass('hide')
-    } else {
-        query.$linkBox.addClass('hide')
-    }
-});
-
-//同时去访问一次
-ajax({
-    $: $,
-    url: 'get_user_info',
-    data: {
-        user_id: url.parameter('user_id')
-    },
-    success: function (msg) {
-        query.$photo.attr('src', msg.data.head_pic);
-        uploadImage(msg.data.user_mobile);
-    },
-    error: function (msg) {
+    query.$purchasing.on('click', function () {
         new Mbox($, {
-            tips: msg.msg
+            tips: '新功能即将开通'
         });
-    }
+    });
 
-});
+    query.$todayClick.on('click', function () {
+        location.href = 'today.html?user_id=' + user_id + '&house_id=' + house_id + '&house_name=' + house_name
+    });
+
+    query.$linkBox.html(tplRender(linkHtml, {
+        user_id: user_id,
+        house_id: house_id,
+        house_name: house_name
+    }));
+
+    query.$indexTitle.on('click', function () {
+        if (query.$linkBox.hasClass('hide')) {
+            query.$linkBox.removeClass('hide')
+        } else {
+            query.$linkBox.addClass('hide')
+        }
+    });
+
+    //同时去访问一次
+    ajax({
+        $: $,
+        url: 'get_user_info',
+        data: {
+            user_id: user_id
+        },
+        success: function (msg) {
+            query.$photo.attr('src', msg.data.head_pic);
+            uploadImage(msg.data.user_mobile);
+        },
+        error: function (msg) {
+            new Mbox($, {
+                tips: msg.msg
+            });
+        }
+
+    });
+
+    //待办事项总数
+    ajax({
+        $: $,
+        url: 'user_task_count',
+        data: {
+            user_id: user_id
+        },
+        success: function (msg) {
+            query.$number.html(msg.data);
+        },
+        error: function (msg) {
+            new Mbox($, {
+                tips: msg.msg
+            });
+        }
+
+    });
+
+};
+
+// 判断参数
+if (user_id && house_id && house_name) {
+    main();
+} else if (cookie.getCookie('user_id') && cookie.getCookie('house_id') && cookie.getCookie('house_name')) {
+    user_id = cookie.getCookie('user_id');
+    house_id = cookie.getCookie('house_id');
+    house_name = cookie.getCookie('house_name');
+    main();
+} else {
+    location.href = './login.html'
+}
+
 
 var uploadImage = function (mobile) {
     query.$photoInput.on('change', function () {
@@ -202,92 +239,6 @@ function getBlob(buffer, format) {
         return new window.Blob([buffer], {type: format});
     }
 }
-
-//var userTaskList = function () {
-//    ajax({
-//        $: $,
-//        url: 'user_task_list',
-//        data: {
-//            user_id: url.parameter('user_id')
-//        },
-//        success: function (msg) {
-//            query.$wait.html(tplRender(indexHtml, msg.data));
-//            var index = 0;
-//            var customerMobile = $('.J_customer-mobile');
-//            msg.data.forEach(function (item, i) {
-//                item.list.forEach(function (list, k) {
-//                    if (list.customer_mobile == '' || list.customer_mobile == null) {
-//                        customerMobile.eq(index).find('a').off('click').on('click', function () {
-//                            new Mbox($, {
-//                                tips: '补全信息后才可使用',
-//                                leftBtn: '去补全',
-//                                rightBtnTrue: true,
-//                                callback: function () {
-//                                    location.href = 'fill-in.html?user_id=' + url.parameter('user_id') + '&house_id=' + url.parameter('house_id') + '&house_name=' + url.parameter('house_name') + '&customer_id=' + list.customer_id
-//                                }
-//                            });
-//                        });
-//                    } else {
-//                        customerMobile.eq(index).find('a').eq(0).attr('href', 'tel:' + list.customer_mobile);
-//                        customerMobile.eq(index).find('a').eq(1).attr('href', 'sms:' + list.customer_mobile)
-//                    }
-//
-//                    changeDate($, $('.J_customer-date-input').eq(index).find('input').off('click'), function (time) {
-//                        ajax({
-//                            $: $,
-//                            url: 'update_order_type',
-//                            data: {
-//                                customer_order_id: list.customer_order_id,
-//                                task_time: time
-//                            },
-//                            success: function (msg) {
-//                                new Mbox($, {
-//                                    tips: msg.msg,
-//                                    callback: function () {
-//                                        userTaskList();
-//                                    }
-//                                });
-//                            },
-//                            error: function (msg) {
-//                                new Mbox($, {
-//                                    tips: msg.msg
-//                                });
-//                            }
-//
-//                        });
-//                    });
-//                    index += 1;
-//                })
-//            });
-//        },
-//        error: function (msg) {
-//            new Mbox($, {
-//                tips: msg.msg
-//            });
-//        }
-//    });
-//};
-//
-//userTaskList();
-
-//待办事项总数
-ajax({
-    $: $,
-    url: 'user_task_count',
-    data: {
-        user_id: url.parameter('user_id')
-    },
-    success: function (msg) {
-        query.$number.html(msg.data);
-    },
-    error: function (msg) {
-        new Mbox($, {
-            tips: msg.msg
-        });
-    }
-
-});
-
 
 function compress(img) {
     var canvas = document.createElement("canvas");
