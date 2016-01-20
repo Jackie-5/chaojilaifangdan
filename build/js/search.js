@@ -5190,7 +5190,7 @@ var searchBox = function () {
                             intention(listArray[_thisIndex])
                         } else if (order_type == 5) {// 5签约
                             sign(listArray[_thisIndex])
-                        } else if (order_type == 6) {// 7付款
+                        } else if (order_type == 6) {// 6付款
                             payment(listArray[_thisIndex])
                         } else if (order_type == 20) {
                             location.href = 'time-line.html?user_id=' + user_id + '&house_id=' + house_id + '&house_name=' + house_name + '&customer_id=' + listArray[_thisIndex].customer_id + '&next_order_type=' + listArray[_thisIndex].next_order_type + '&diff_days=' + listArray[_thisIndex].diff_days + '&customer_order_id=' + listArray[_thisIndex].customer_order_id
